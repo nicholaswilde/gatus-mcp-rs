@@ -4,11 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: Implement configuration retrieval tool**
-  *Link: [./tracks/get_config_20260411/](./tracks/get_config_20260411/)*
-
----
-
 - [ ] **Track: Implement group summary tool**
   *Link: [./tracks/group_summary_20260411/](./tracks/group_summary_20260411/)*
 
