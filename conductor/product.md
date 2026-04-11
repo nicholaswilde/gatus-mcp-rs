@@ -106,6 +106,8 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 - **Uptime Calculation Tool:** Calculates success vs. failure ratios over 24h, 7d, and 30d timeframes.
 - **System-Wide Health Summary:** Provides a high-level overview of the entire monitored infrastructure (total, up, down, degraded counts).
 - **Group Summary Tool:** Allows filtering health status by organizational group (e.g., "Media", "DNS").
+- **Endpoint Statistics Tool:** Retrieves detailed uptime and response time statistics for specific self-hosted Gatus endpoints.
+- **Instance Health Tool:** A dedicated tool to check the operational health of the Gatus instance itself.
 - **Configuration Summary Tool:** A dedicated tool to retrieve the effective monitoring configuration, including endpoint names, groups, and conditions.
 - **Thread-Safe Session Management:** Uses DashMap for efficient, concurrent handling of multiple MCP clients.
 - **Environment-Driven Configuration:** Flexible setup via `config.toml`, environment variables, and CLI flags.
