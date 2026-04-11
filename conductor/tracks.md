@@ -4,7 +4,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Implement uptime calculation and reporting**
+- [x] **Track: Implement uptime calculation and reporting**
   *Link: [./tracks/uptime_calc_20260411/](./tracks/uptime_calc_20260411/)*
 
 ---
