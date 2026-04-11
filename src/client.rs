@@ -42,6 +42,14 @@ pub struct HealthResult {
     #[serde(default)]
     pub errors: Vec<String>,
     pub status: u16,
+    #[serde(rename = "conditionResults", default)]
+    pub condition_results: Vec<ConditionResult>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ConditionResult {
+    pub condition: String,
+    pub success: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

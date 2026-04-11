@@ -60,3 +60,24 @@ pub fn format_system_stats(stats: &SystemStats) -> String {
     output.push_str(&format!("- **DEGRADED:** {}\n", stats.degraded));
     output
 }
+
+pub fn format_config_summary(endpoints: &[EndpointStatus]) -> String {
+    let mut output = String::from("### Gatus Endpoint Configurations\n\n");
+    for endpoint in endpoints {
+        output.push_str(&format!(
+            "#### {} (Group: {})\n",
+            endpoint.name, endpoint.group
+        ));
+        if let Some(result) = endpoint.results.first() {
+            if !result.condition_results.is_empty() {
+                output.push_str("- **Conditions:**\n");
+                for condition in &result.condition_results {
+                    let status = if condition.success { "✅" } else { "❌" };
+                    output.push_str(&format!("  - {} {}\n", condition.condition, status));
+                }
+            }
+        }
+        output.push_str("\n");
+    }
+    output
+}

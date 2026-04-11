@@ -11,6 +11,7 @@ A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automat
 - **Service Monitoring:** List all monitored services and their current statuses (UP/DOWN/DEGRADED).
 - **System Health Summary:** High-level overview of total, up, down, and degraded endpoint counts.
 - **Detailed Diagnostics:** Fetch latest results and history for specific health checks.
+- **Configuration Retrieval:** Retrieve the effective Gatus monitoring configuration (conditions, names, groups).
 - **Multiple Transports:** Support for both Stdio and HTTP (SSE) transport layers.
 - **Optimized for LLMs:** Returns "thinned" payloads to conserve token usage while providing high-signal information.
 - **Flexible Configuration:** Configure via environment variables, `config.toml`, or CLI flags.
@@ -115,3 +116,4 @@ Get a high-level summary of all monitored services.
 ## License
 
 This project is licensed under the Apache License, Version 2.0.
+ Apache License, Version 2.0.
