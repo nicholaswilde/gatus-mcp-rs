@@ -14,6 +14,23 @@ pub struct EndpointStatus {
     pub status: Option<String>,
     #[serde(default)]
     pub results: Vec<HealthResult>,
+    #[serde(default)]
+    pub events: Vec<Event>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Event {
+    #[serde(rename = "type")]
+    pub event_type: String,
+    pub timestamp: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct AlertEvent {
+    pub service: String,
+    pub group: String,
+    pub event_type: String,
+    pub timestamp: String,
 }
 
 impl EndpointStatus {
@@ -194,5 +211,27 @@ impl GatusClient {
             .ok_or_else(|| anyhow::anyhow!("Service not found: {}", service_name))?;
 
         Ok(service.calculate_uptime(timeframe))
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_alert_history(&self, limit: usize) -> Result<Vec<AlertEvent>> {
+        let services = self.list_services().await?;
+        let mut all_events = Vec::new();
+
+        for service in services {
+            for event in service.events {
+                all_events.push(AlertEvent {
+                    service: service.name.clone(),
+                    group: service.group.clone(),
+                    event_type: event.event_type,
+                    timestamp: event.timestamp,
+                });
+            }
+        }
+
+        // Sort events by timestamp descending (newest first)
+        all_events.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+
+        Ok(all_events.into_iter().take(limit).collect())
     }
 }

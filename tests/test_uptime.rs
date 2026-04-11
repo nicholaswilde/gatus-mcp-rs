@@ -66,6 +66,7 @@ fn test_endpoint_status_calculate_uptime() {
                 condition_results: vec![],
             },
         ],
+        events: vec![],
     };
 
     // 1 success, 1 failure = 50.0% uptime
@@ -79,6 +80,7 @@ fn test_endpoint_status_calculate_uptime_no_results() {
         group: "test-group".to_string(),
         status: None,
         results: vec![],
+        events: vec![],
     };
 
     assert_eq!(endpoint.calculate_uptime("24h"), 100.0);
