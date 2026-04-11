@@ -6,6 +6,11 @@ use std::env;
 async fn test_live_list_services() {
     dotenvy::dotenv().ok();
 
+    if env::var("GATUS_LIVE_TESTS").unwrap_or_default() != "true" {
+        println!("Skipping live test: GATUS_LIVE_TESTS is not set to 'true'");
+        return;
+    }
+
     let api_url = env::var("GATUS_API_URL").expect("GATUS_API_URL must be set for live tests");
     let api_key = env::var("GATUS_API_KEY").ok();
 
