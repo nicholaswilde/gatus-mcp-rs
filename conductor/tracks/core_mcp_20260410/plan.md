@@ -19,7 +19,7 @@
     - [x] Implement `src/mcp.rs` for core JSON-RPC logic
 - [x] Task: Conductor - User Manual Verification 'Transport & Protocol' (Protocol in workflow.md)
 
-## Phase 3: Gatus Integration (Core Tools)
+## Phase 3: Gatus Integration (Core Tools) [checkpoint: 754d01c]
 - [x] Task: Gatus API Client [05f008a]
     - [x] Write Tests: Mock Gatus API and verify client handles responses/errors
     - [x] Implement `src/gatus/mod.rs` for communication with Gatus
