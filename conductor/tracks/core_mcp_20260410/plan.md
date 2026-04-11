@@ -29,9 +29,9 @@
 - [x] Task: Core Tool: `get_service_status` [f5eccf4]
     - [x] Write Tests: Verify `get_service_status` returns correct status for a given service
     - [x] Implement `get_service_status` tool in `src/mcp.rs`
-- [ ] Task: Core Tool: `get_service_history`
-    - [ ] Write Tests: Verify `get_service_history` returns limited health check results
-    - [ ] Implement `get_service_history` tool in `src/mcp.rs`
+- [x] Task: Core Tool: `get_service_history`
+    - [x] Write Tests: Verify `get_service_history` returns limited health check results
+    - [x] Implement `get_service_history` tool in `src/mcp.rs`
 - [ ] Task: Conductor - User Manual Verification 'Gatus Integration' (Protocol in workflow.md)
 
 ## Phase 4: Final Refinement
