@@ -103,6 +103,7 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 - **Dynamic Tool Discovery:** Automatically exposes Gatus API capabilities as MCP tools.
 - **Granular Health Tools:** Specialized tools for listing all results, getting status for a specific service, and checking service history.
 - **System-Wide Health Summary:** Provides a high-level overview of the entire monitored infrastructure (total, up, down, degraded counts).
+- **Group Summary Tool:** Allows filtering health status by organizational group (e.g., "Media", "DNS").
 - **Configuration Summary Tool:** A dedicated tool to retrieve the effective monitoring configuration, including endpoint names, groups, and conditions.
 - **Thread-Safe Session Management:** Uses DashMap for efficient, concurrent handling of multiple MCP clients.
 - **Environment-Driven Configuration:** Flexible setup via `config.toml`, environment variables, and CLI flags.
