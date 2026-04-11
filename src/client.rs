@@ -27,6 +27,14 @@ pub struct HealthResult {
     pub status: u16,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SystemStats {
+    pub total: usize,
+    pub up: usize,
+    pub down: usize,
+    pub degraded: usize,
+}
+
 pub struct GatusClient {
     api_url: String,
     api_key: Option<String>,
@@ -89,5 +97,31 @@ impl GatusClient {
         self.cache.insert(cache_key, services.clone()).await;
 
         Ok(services)
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_system_stats(&self) -> Result<SystemStats> {
+        let services = self.list_services().await?;
+        let mut up = 0;
+        let mut down = 0;
+        let mut degraded = 0;
+
+        for service in &services {
+            if let Some(status) = &service.status {
+                match status.to_uppercase().as_str() {
+                    "UP" => up += 1,
+                    "DOWN" => down += 1,
+                    "DEGRADED" => degraded += 1,
+                    _ => {}
+                }
+            }
+        }
+
+        Ok(SystemStats {
+            total: services.len(),
+            up,
+            down,
+            degraded,
+        })
     }
 }
