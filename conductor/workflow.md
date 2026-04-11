@@ -28,41 +28,48 @@ All tasks follow a strict lifecycle:
    - Write the minimum amount of application code necessary to make the failing tests pass.
    - Run the test suite again and confirm that all tests now pass. This is the "Green" phase.
 
-5. **Refactor (Optional but Recommended):**
+5. **Live Verification (Optional but Recommended):**
+   - If a live Gatus instance is available (configured via `.env` and `GATUS_LIVE_TESTS=true`), run the live test suite:
+     ```bash
+     task test:live
+     ```
+   - **CRITICAL:** Use this to verify that the implementation works correctly against a real Gatus API.
+
+6. **Refactor (Optional but Recommended):**
    - With the safety of passing tests, refactor the implementation code and the test code to improve clarity, remove duplication, and enhance performance without changing the external behavior.
    - Rerun tests to ensure they still pass after refactoring.
 
-6. **Verify Coverage:** Run coverage reports using the project's chosen tools. For example, in a Python project, this might look like:
+7. **Verify Coverage:** Run coverage reports using the project's chosen tools.
    ```bash
-   pytest --cov=app --cov-report=html
+   task coverage
    ```
-   Target: >80% coverage for new code. The specific tools and commands will vary by language and framework.
+   Target: >80% coverage for new code.
 
-7. **Document Deviations:** If implementation differs from tech stack:
+8. **Document Deviations:** If implementation differs from tech stack:
    - **STOP** implementation
    - Update `tech-stack.md` with new design
    - Add dated note explaining the change
    - Resume implementation
 
-8. **Commit Code Changes:**
+9. **Commit Code Changes:**
    - Stage all code changes related to the task.
    - Propose a clear, concise commit message e.g, `feat(ui): Create basic HTML structure for calculator`.
    - Perform the commit.
 
-9. **Attach Task Summary with Git Notes:**
-   - **Step 9.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
-   - **Step 9.2: Draft Note Content:** Create a detailed summary for the completed task. This should include the task name, a summary of changes, a list of all created/modified files, and the core "why" for the change.
-   - **Step 9.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
+10. **Attach Task Summary with Git Notes:**
+   - **Step 10.1: Get Commit Hash:** Obtain the hash of the *just-completed commit* (`git log -1 --format="%H"`).
+   - **Step 10.2: Draft Note Content:** Create a detailed summary for the completed task. This should include the task name, a summary of changes, a list of all created/modified files, and the core "why" for the change.
+   - **Step 10.3: Attach Note:** Use the `git notes` command to attach the summary to the commit.
      ```bash
      # The note content from the previous step is passed via the -m flag.
      git notes add -m "<note content>" <commit_hash>
      ```
 
-10. **Get and Record Task Commit SHA:**
-    - **Step 10.1: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`, and append the first 7 characters of the *just-completed commit's* commit hash.
-    - **Step 10.2: Write Plan:** Write the updated content back to `plan.md`.
+11. **Get and Record Task Commit SHA:**
+    - **Step 11.1: Update Plan:** Read `plan.md`, find the line for the completed task, update its status from `[~]` to `[x]`, and append the first 7 characters of the *just-completed commit's* commit hash.
+    - **Step 11.2: Write Plan:** Write the updated content back to `plan.md`.
 
-11. **Commit Plan Update:**
+12. **Commit Plan Update:**
     - **Action:** Stage the modified `plan.md` file.
     - **Action:** Commit this change with a descriptive message (e.g., `conductor(plan): Mark task 'Create user model' as complete`).
 
@@ -82,33 +89,33 @@ All tasks follow a strict lifecycle:
 
 3.  **Execute Automated Tests with Proactive Debugging:**
     -   Before execution, you **must** announce the exact shell command you will use to run the tests.
-    -   **Example Announcement:** "I will now run the automated test suite to verify the phase. **Command:** `CI=true npm test`"
+    -   **Example Announcement:** "I will now run the automated test suite to verify the phase. **Command:** `task test` and `task test:live` (if enabled)."
     -   Execute the announced command.
     -   If tests fail, you **must** inform the user and begin debugging. You may attempt to propose a fix a **maximum of two times**. If the tests still fail after your second proposed fix, you **must stop**, report the persistent failure, and ask the user for guidance.
 
-4.  **Propose a Detailed, Actionable Manual Verification Plan:**
+4.  **Propose a Detailed, Actionable Verification Plan:**
     -   **CRITICAL:** To generate the plan, first analyze `product.md`, `product-guidelines.md`, and `plan.md` to determine the user-facing goals of the completed phase.
-    -   You **must** generate a step-by-step plan that walks the user through the verification process, including any necessary commands and specific, expected outcomes.
+    -   You **must** generate a step-by-step plan that walks the user through the verification process. **Prefer automated live testing if a live instance is available.**
     -   The plan you present to the user **must** follow this format:
 
-        **For a Frontend Change:**
+        **For Automated Live Verification:**
+        ```
+        The unit tests have passed. For live verification against your Gatus instance, please follow these steps:
+
+        **Live Verification Steps:**
+        1. **Ensure your `.env` file is configured with `GATUS_API_URL` and `GATUS_API_KEY`.**
+        2. **Run the live test suite:** `task test:live`
+        3. **Confirm that the new functionality is verified in the output.**
+        ```
+
+        **For Manual Verification (Fallback):**
         ```
         The automated tests have passed. For manual verification, please follow these steps:
 
         **Manual Verification Steps:**
-        1.  **Start the development server with the command:** `npm run dev`
-        2.  **Open your browser to:** `http://localhost:3000`
-        3.  **Confirm that you see:** The new user profile page, with the user's name and email displayed correctly.
-        ```
-
-        **For a Backend Change:**
-        ```
-        The automated tests have passed. For manual verification, please follow these steps:
-
-        **Manual Verification Steps:**
-        1.  **Ensure the server is running.**
-        2.  **Execute the following command in your terminal:** `curl -X POST http://localhost:8080/api/v1/users -d '{"name": "test"}'`
-        3.  **Confirm that you receive:** A JSON response with a status of `201 Created`.
+        1.  **Start the server with the command:** `cargo run`
+        2.  **Execute the following command in your terminal:** `cargo run -- call-tool <tool_name> <arguments>`
+        3.  **Confirm that you receive:** The expected outcome.
         ```
 
 5.  **Await Explicit User Feedback:**
@@ -120,7 +127,7 @@ All tasks follow a strict lifecycle:
     -   Perform the commit with a clear and concise message (e.g., `conductor(checkpoint): Checkpoint end of Phase X`).
 
 7.  **Attach Auditable Verification Report using Git Notes:**
-    -   **Step 7.1: Draft Note Content:** Create a detailed verification report including the automated test command, the manual verification steps, and the user's confirmation.
+    -   **Step 7.1: Draft Note Content:** Create a detailed verification report including the automated test command, the live/manual verification steps, and the user's confirmation.
     -   **Step 7.2: Attach Note:** Use the `git notes` command and the full commit hash from the previous step to attach the full report to the checkpoint commit.
 
 8.  **Get and Record Phase Checkpoint SHA:**
@@ -150,49 +157,42 @@ Before marking any task complete, verify:
 
 ## Development Commands
 
-**AI AGENT INSTRUCTION: This section should be adapted to the project's specific language, framework, and build tools.**
-
 ### Setup
 ```bash
-# Example: Commands to set up the development environment (e.g., install dependencies, configure database)
-# e.g., for a Node.js project: npm install
-# e.g., for a Go project: go mod tidy
+task init
 ```
 
 ### Daily Development
 ```bash
-# Example: Commands for common daily tasks (e.g., start dev server, run tests, lint, format)
-# e.g., for a Node.js project: npm run dev, npm test, npm run lint
-# e.g., for a Go project: go run main.go, go test ./..., go fmt ./...
+task run
+task test
+task fmt
+task lint
 ```
 
 ### Before Committing
 ```bash
-# Example: Commands to run all pre-commit checks (e.g., format, lint, type check, run tests)
-# e.g., for a Node.js project: npm run check
-# e.g., for a Go project: make check (if a Makefile exists)
+task test
+task fmt:check
+task lint
 ```
 
 ## Testing Requirements
 
 ### Unit Testing
 - Every module must have corresponding tests.
-- Use appropriate test setup/teardown mechanisms (e.g., fixtures, beforeEach/afterEach).
+- Use appropriate test setup/teardown mechanisms.
 - Mock external dependencies.
 - Test both success and failure cases.
 
-### Integration Testing
-- Test complete user flows
-- Verify database transactions
-- Test authentication and authorization
-- Check form submissions
+### Live Testing
+- Use `.env` file for configuration.
+- Set `GATUS_LIVE_TESTS=true`.
+- Run with `task test:live`.
 
-### Mobile Testing
-- Test on actual iPhone when possible
-- Use Safari developer tools
-- Test touch interactions
-- Verify responsive layouts
-- Check performance on 3G/4G
+### Integration Testing
+- Test complete user flows.
+- Verify Gatus API integration.
 
 ## Code Review Process
 
@@ -200,37 +200,24 @@ Before marking any task complete, verify:
 Before requesting review:
 
 1. **Functionality**
-   - Feature works as specified
-   - Edge cases handled
-   - Error messages are user-friendly
+   - Feature works as specified.
+   - Edge cases handled.
+   - Error messages are user-friendly.
 
 2. **Code Quality**
-   - Follows style guide
-   - DRY principle applied
-   - Clear variable/function names
-   - Appropriate comments
+   - Follows style guide.
+   - DRY principle applied.
+   - Clear variable/function names.
+   - Appropriate comments.
 
 3. **Testing**
-   - Unit tests comprehensive
-   - Integration tests pass
-   - Coverage adequate (>80%)
+   - Unit tests comprehensive.
+   - Live tests verified (if applicable).
+   - Coverage adequate (>80%).
 
 4. **Security**
-   - No hardcoded secrets
-   - Input validation present
-   - SQL injection prevented
-   - XSS protection in place
-
-5. **Performance**
-   - Database queries optimized
-   - Images optimized
-   - Caching implemented where needed
-
-6. **Mobile Experience**
-   - Touch targets adequate (44x44px)
-   - Text readable without zooming
-   - Performance acceptable on mobile
-   - Interactions feel native
+   - No hardcoded secrets.
+   - Input validation present.
 
 ## Commit Guidelines
 
@@ -254,80 +241,28 @@ Before requesting review:
 
 ### Examples
 ```bash
-git commit -m "feat(auth): Add remember me functionality"
-git commit -m "fix(posts): Correct excerpt generation for short posts"
-git commit -m "test(comments): Add tests for emoji reaction limits"
-git commit -m "style(mobile): Improve button touch targets"
+git commit -m "feat(mcp): Add get_config tool"
+git commit -m "fix(client): Correct parsing of condition results"
+git commit -m "test(live): Add live tests for get_config"
 ```
 
 ## Definition of Done
 
 A task is complete when:
 
-1. All code implemented to specification
-2. Unit tests written and passing
-3. Code coverage meets project requirements
-4. Documentation complete (if applicable)
-5. Code passes all configured linting and static analysis checks
-6. Works beautifully on mobile (if applicable)
-7. Implementation notes added to `plan.md`
-8. Changes committed with proper message
-9. Git note with task summary attached to the commit
-
-## Emergency Procedures
-
-### Critical Bug in Production
-1. Create hotfix branch from main
-2. Write failing test for bug
-3. Implement minimal fix
-4. Test thoroughly including mobile
-5. Deploy immediately
-6. Document in plan.md
-
-### Data Loss
-1. Stop all write operations
-2. Restore from latest backup
-3. Verify data integrity
-4. Document incident
-5. Update backup procedures
-
-### Security Breach
-1. Rotate all secrets immediately
-2. Review access logs
-3. Patch vulnerability
-4. Notify affected users (if any)
-5. Document and update security procedures
-
-## Deployment Workflow
-
-### Pre-Deployment Checklist
-- [ ] All tests passing
-- [ ] Coverage >80%
-- [ ] No linting errors
-- [ ] Mobile testing complete
-- [ ] Environment variables configured
-- [ ] Database migrations ready
-- [ ] Backup created
-
-### Deployment Steps
-1. Merge feature branch to main
-2. Tag release with version
-3. Push to deployment service
-4. Run database migrations
-5. Verify deployment
-6. Test critical paths
-7. Monitor for errors
-
-### Post-Deployment
-1. Monitor analytics
-2. Check error logs
-3. Gather user feedback
-4. Plan next iteration
+1. All code implemented to specification.
+2. Unit tests written and passing.
+3. Live tests verified (if applicable).
+4. Code coverage meets project requirements.
+5. Documentation complete.
+6. Code passes all configured linting and static analysis checks.
+7. Implementation notes added to `plan.md`.
+8. Changes committed with proper message.
+9. Git note with task summary attached to the commit.
 
 ## Continuous Improvement
 
-- Review workflow weekly
-- Update based on pain points
-- Document lessons learned
-- Optimize for user happiness
-- Keep things simple and maintainable
+- Review workflow weekly.
+- Update based on pain points.
+- Optimize for user happiness.
+- Keep things simple and maintainable.
