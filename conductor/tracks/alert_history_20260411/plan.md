@@ -1,10 +1,10 @@
 # Implementation Plan - Implement alert history retrieval tool
 
 ## Phase 1: Research & Client Update
-- [ ] Task: Identify Gatus Alerts API
-    - [ ] Determine the correct Gatus API endpoint for retrieving alert history
-- [ ] Task: Gatus Client Extension
-    - [ ] Implement alert fetching in `src/gatus/mod.rs`
+- [x] Task: Identify Gatus Alerts API [8c7b880]
+    - [x] Determine the correct Gatus API endpoint for retrieving alert history
+- [x] Task: Gatus Client Extension [c4200bb]
+    - [x] Implement alert fetching in `src/client.rs`
 
 ## Phase 2: MCP Integration
 - [ ] Task: MCP Tool Integration
