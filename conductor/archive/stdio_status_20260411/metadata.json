@@ -1,0 +1,8 @@
+{
+  "id": "stdio_status_20260411",
+  "name": "Add status output for Stdio mode",
+  "status": "completed",
+  "start_date": "2026-04-11",
+  "end_date": "2026-04-11",
+  "description": "Output server status to stderr in Stdio mode to allow agents to monitor connectivity and readiness without breaking the MCP protocol."
+}

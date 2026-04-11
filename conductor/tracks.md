@@ -4,21 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: Refactor to modular shape (match rescue-groups-mcp)**
-  *Link: [./tracks/modular_refactor_20260411/](./tracks/modular_refactor_20260411/)*
-
----
-
-- [x] **Track: Optimize token usage via tool grouping**
-  *Link: [./tracks/token_optimization_20260411/](./tracks/token_optimization_20260411/)*
-
----
-
-- [x] **Track: Add status output for Stdio mode**
-  *Link: [./tracks/stdio_status_20260411/](./tracks/stdio_status_20260411/)*
-
----
-
 - [ ] **Track: Implement configuration retrieval tool**
   *Link: [./tracks/get_config_20260411/](./tracks/get_config_20260411/)*
 
