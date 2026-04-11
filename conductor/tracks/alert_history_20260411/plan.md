@@ -1,6 +1,6 @@
 # Implementation Plan - Implement alert history retrieval tool
 
-## Phase 1: Research & Client Update
+## Phase 1: Research & Client Update [checkpoint: 3ae7cf3]
 - [x] Task: Identify Gatus Alerts API [8c7b880]
     - [x] Determine the correct Gatus API endpoint for retrieving alert history
 - [x] Task: Gatus Client Extension [c4200bb]
