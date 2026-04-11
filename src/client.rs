@@ -41,7 +41,7 @@ pub struct HealthResult {
     pub duration: u64,
     #[serde(default)]
     pub errors: Vec<String>,
-    pub status: u16,
+    pub status: Option<u16>,
     #[serde(rename = "conditionResults", default)]
     pub condition_results: Vec<ConditionResult>,
 }
