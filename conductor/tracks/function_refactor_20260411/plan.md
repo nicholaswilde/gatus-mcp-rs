@@ -1,10 +1,10 @@
 # Implementation Plan: Refactor Functions for Token Efficiency
 
 ## Phase 1: Research & Tool Mapping [ ]
-- [ ] Task: Map existing tools to new consolidated definitions.
-    - [ ] Analyze `src/mcp.rs` tool definitions.
-    - [ ] Identify common patterns and potential for parameterization.
-    - [ ] Design the new "Management" and "Metrics" tools.
+- [x] Task: Map existing tools to new consolidated definitions. (94cc2ab)
+    - [x] Analyze `src/mcp.rs` tool definitions.
+    - [x] Identify common patterns and potential for parameterization.
+    - [x] Design the new "Management" and "Metrics" tools.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Research & Tool Mapping' (Protocol in workflow.md)
 
 ## Phase 2: Consolidation Implementation [ ]
