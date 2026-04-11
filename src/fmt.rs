@@ -1,4 +1,4 @@
-use crate::client::EndpointStatus;
+use crate::client::{EndpointStatus, SystemStats};
 
 pub fn get_display_status(endpoint: &EndpointStatus) -> String {
     endpoint
@@ -65,5 +65,14 @@ pub fn format_endpoints_summary(endpoints: &[EndpointStatus]) -> String {
         ));
     }
 
+    output
+}
+
+pub fn format_system_stats(stats: &SystemStats) -> String {
+    let mut output = String::from("### Gatus System Health Summary\n\n");
+    output.push_str(&format!("- **Total Endpoints:** {}\n", stats.total));
+    output.push_str(&format!("- **UP:** {}\n", stats.up));
+    output.push_str(&format!("- **DOWN:** {}\n", stats.down));
+    output.push_str(&format!("- **DEGRADED:** {}\n", stats.degraded));
     output
 }

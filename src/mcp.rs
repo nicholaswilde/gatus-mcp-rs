@@ -1,5 +1,5 @@
 use crate::client::GatusClient;
-use crate::fmt::{format_endpoint_status, format_endpoints_summary};
+use crate::fmt::{format_endpoint_status, format_endpoints_summary, format_system_stats};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::sync::Arc;
@@ -129,6 +129,14 @@ impl McpHandler {
                     "required": ["service", "action"]
                 }
             }),
+            json!({
+                "name": "get_system_stats",
+                "description": "Get a high-level summary of all monitored services (total, up, down, degraded)",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
+            }),
         ]
     }
 
@@ -145,7 +153,25 @@ impl McpHandler {
         match name {
             "manage_services" => self.handle_manage_services_tool(id, arguments).await,
             "get_service_info" => self.handle_get_service_info_tool(id, arguments).await,
+            "get_system_stats" => self.handle_get_system_stats_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
+        }
+    }
+
+    async fn handle_get_system_stats_tool(&self, id: Value, _arguments: &Value) -> Value {
+        match self.gatus_client.get_system_stats().await {
+            Ok(stats) => self.success_response(
+                id,
+                json!({
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": format_system_stats(&stats)
+                        }
+                    ]
+                }),
+            ),
+            Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
         }
     }
 
