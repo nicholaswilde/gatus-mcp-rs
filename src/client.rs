@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use governor::{Quota, RateLimiter};
 use moka::future::Cache;
 use reqwest::Client;
@@ -29,6 +30,39 @@ impl EndpointStatus {
                 }
                 None => "UNKNOWN".to_string(),
             })
+    }
+
+    pub fn calculate_uptime(&self, timeframe: &str) -> f64 {
+        if self.results.is_empty() {
+            return 100.0;
+        }
+
+        let now = Utc::now();
+        let duration = match timeframe {
+            "7d" => ChronoDuration::days(7),
+            "30d" => ChronoDuration::days(30),
+            _ => ChronoDuration::hours(24),
+        };
+        let cutoff = now - duration;
+
+        let filtered_results: Vec<&HealthResult> = self
+            .results
+            .iter()
+            .filter(|r| {
+                if let Ok(ts) = DateTime::parse_from_rfc3339(&r.timestamp) {
+                    ts.with_timezone(&Utc) >= cutoff
+                } else {
+                    false
+                }
+            })
+            .collect();
+
+        if filtered_results.is_empty() {
+            return 100.0;
+        }
+
+        let success_count = filtered_results.iter().filter(|r| r.success).count();
+        (success_count as f64 / filtered_results.len() as f64) * 100.0
     }
 }
 
@@ -149,5 +183,16 @@ impl GatusClient {
             down,
             degraded,
         })
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_uptime(&self, service_name: &str, timeframe: &str) -> Result<f64> {
+        let services = self.list_services().await?;
+        let service = services
+            .iter()
+            .find(|s| s.name == service_name)
+            .ok_or_else(|| anyhow::anyhow!("Service not found: {}", service_name))?;
+
+        Ok(service.calculate_uptime(timeframe))
     }
 }
