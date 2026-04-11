@@ -102,6 +102,7 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 - **SSE Transport Layer:** Implements the MCP-over-SSE standard using Axum for reliable, long-lived connections.
 - **Dynamic Tool Discovery:** Automatically exposes Gatus API capabilities as MCP tools.
 - **Granular Health Tools:** Specialized tools for listing all results, getting status for a specific service, and checking service history.
+- **Uptime Calculation Tool:** Calculates success vs. failure ratios over 24h, 7d, and 30d timeframes.
 - **System-Wide Health Summary:** Provides a high-level overview of the entire monitored infrastructure (total, up, down, degraded counts).
 - **Group Summary Tool:** Allows filtering health status by organizational group (e.g., "Media", "DNS").
 - **Configuration Summary Tool:** A dedicated tool to retrieve the effective monitoring configuration, including endpoint names, groups, and conditions.

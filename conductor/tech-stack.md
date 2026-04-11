@@ -3,6 +3,7 @@
 ## Core Language & Runtime
 - **Rust (v1.8x+):** The primary programming language, chosen for its safety, performance, and strong ecosystem for building reliable network services.
 - **Tokio:** The industry-standard asynchronous runtime for Rust, providing non-blocking I/O and task scheduling.
+- **chrono:** A powerful date and time library for Rust, used for parsing timestamps and calculating timeframes for metrics like uptime.
 
 ## Web & API Layer
 - **Axum:** A fast, ergonomic web framework built on top of the `hyper` crate. Used to implement the SSE (Server-Sent Events) transport layer for MCP.
