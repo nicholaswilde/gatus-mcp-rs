@@ -35,10 +35,10 @@
 - [x] Task: Conductor - User Manual Verification 'Gatus Integration' (Protocol in workflow.md) [19bdeb2]
 
 ## Phase 4: Final Refinement
-- [~] Task: Error Handling & Logging
-    - [ ] Write Tests: Verify error responses for failed API calls
-    - [ ] Refine `tracing` instrumentation across all modules
-- [ ] Task: README & Documentation
-    - [ ] Document all MCP tools and their usage
-    - [ ] Finalize installation and setup instructions
-- [ ] Task: Conductor - User Manual Verification 'Final Refinement' (Protocol in workflow.md)
+- [x] Task: Error Handling & Logging [aa9c086]
+    - [x] Write Tests: Verify error responses for failed API calls
+    - [x] Refine `tracing` instrumentation across all modules
+- [x] Task: README & Documentation [b458b16]
+    - [x] Document all MCP tools and their usage
+    - [x] Finalize installation and setup instructions
+- [x] Task: Conductor - User Manual Verification 'Final Refinement' (Protocol in workflow.md) [ae647e8]
