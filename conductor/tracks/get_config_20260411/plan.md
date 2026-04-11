@@ -10,4 +10,4 @@
     - [x] Implement configuration fetching in `src/client.rs`
 - [x] Task: MCP Tool Integration [c57097e]
     - [x] Register `get_config` in `src/mcp.rs`
-- [~] Task: Conductor - User Manual Verification 'Config Tool' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Config Tool' (Protocol in workflow.md) [bd33ffa]

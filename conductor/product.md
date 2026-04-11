@@ -95,13 +95,15 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 1. **Real-time Health Discovery:** Provide a seamless interface for LLMs to list all monitored services and their current statuses.
 2. **Deep-Dive Diagnostics:** Enable LLMs to retrieve detailed results and history for specific health checks to diagnose intermittent issues.
 3. **Optimized Information Flow:** Implement "thin" response payloads to ensure LLMs receive only the most relevant data, staying within token limits and maintaining focus.
-4. **Operational Control:** Provide tools for basic administrative tasks like reloading the Gatus configuration.
+4. **Configuration Retrieval:** Empower LLMs to understand the monitoring setup (intervals, conditions, groups) to better interpret health check failures.
+5. **Operational Control:** Provide tools for basic administrative tasks like reloading the Gatus configuration.
 
 ## Key Features
 - **SSE Transport Layer:** Implements the MCP-over-SSE standard using Axum for reliable, long-lived connections.
 - **Dynamic Tool Discovery:** Automatically exposes Gatus API capabilities as MCP tools.
 - **Granular Health Tools:** Specialized tools for listing all results, getting status for a specific service, and checking service history.
 - **System-Wide Health Summary:** Provides a high-level overview of the entire monitored infrastructure (total, up, down, degraded counts).
+- **Configuration Summary Tool:** A dedicated tool to retrieve the effective monitoring configuration, including endpoint names, groups, and conditions.
 - **Thread-Safe Session Management:** Uses DashMap for efficient, concurrent handling of multiple MCP clients.
 - **Environment-Driven Configuration:** Flexible setup via `config.toml`, environment variables, and CLI flags.
 
