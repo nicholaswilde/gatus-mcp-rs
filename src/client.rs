@@ -10,7 +10,7 @@ use std::time::Duration;
 pub struct EndpointStatus {
     pub name: String,
     pub group: String,
-    pub status: String,
+    pub status: Option<String>,
     #[serde(default)]
     pub results: Vec<HealthResult>,
 }
@@ -19,9 +19,10 @@ pub struct EndpointStatus {
 pub struct HealthResult {
     pub timestamp: String,
     pub success: bool,
-    pub hostname: String,
-    pub ip: String,
+    pub hostname: Option<String>,
+    pub ip: Option<String>,
     pub duration: u64,
+    #[serde(default)]
     pub errors: Vec<String>,
     pub status: u16,
 }
