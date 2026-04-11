@@ -43,7 +43,9 @@ async fn test_mcp_get_system_stats() {
 
     let response = handler.handle(request).await;
 
-    let text = response["result"]["content"][0]["text"].as_str().expect("Response should have text content");
+    let text = response["result"]["content"][0]["text"]
+        .as_str()
+        .expect("Response should have text content");
     assert!(text.contains("Total Endpoints:** 2"));
     assert!(text.contains("UP:** 1"));
     assert!(text.contains("DOWN:** 1"));

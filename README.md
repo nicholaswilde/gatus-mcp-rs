@@ -2,10 +2,14 @@
 
 A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automated health check dashboard. This server enables Large Language Models (LLMs) to interact with Gatus APIs to monitor service health, retrieve check history, and diagnose issues.
 
+> [!IMPORTANT]
+> This MCP server currently only works with **self-hosted Gatus instances** and is not compatible with the `gatus.io` managed service.
+
 ## Features
 
 - **Model Context Protocol (MCP):** Native support for MCP, allowing easy integration with AI tools like Claude Desktop.
 - **Service Monitoring:** List all monitored services and their current statuses (UP/DOWN/DEGRADED).
+- **System Health Summary:** High-level overview of total, up, down, and degraded endpoint counts.
 - **Detailed Diagnostics:** Fetch latest results and history for specific health checks.
 - **Multiple Transports:** Support for both Stdio and HTTP (SSE) transport layers.
 - **Optimized for LLMs:** Returns "thinned" payloads to conserve token usage while providing high-signal information.
@@ -104,6 +108,10 @@ Retrieve detailed information or history for a specific service.
   - `action`: `details` (current status/latest result) or `history` (recent results).
   - `limit`: (Optional) Number of history records to return (default: 10).
 
+### `get_system_stats`
+Get a high-level summary of all monitored services.
+- **Arguments:** (none)
+
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the Apache License, Version 2.0.

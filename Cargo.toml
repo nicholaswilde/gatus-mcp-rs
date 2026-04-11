@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Nicholas Wilde"]
 description = "Gatus MCP Server implementation in Rust"
+license = "Apache-2.0"
 
 [lib]
 name = "gatus_mcp_rs"
