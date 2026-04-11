@@ -8,7 +8,7 @@ mod tests {
     #[test]
     fn test_settings_loading() {
         // We run these sequentially in one test to avoid environment variable race conditions
-        
+
         // Clear environment to avoid interference from .env
         env::remove_var("GATUS_API_URL");
         env::remove_var("GATUS_API_KEY");

@@ -55,7 +55,10 @@ async fn test_mcp_get_config() {
 
     // Check if result exists (it shouldn't if tool not found)
     if response["error"].is_object() {
-        panic!("Tool 'get_config' not found or error: {:?}", response["error"]);
+        panic!(
+            "Tool 'get_config' not found or error: {:?}",
+            response["error"]
+        );
     }
 
     let text = response["result"]["content"][0]["text"].as_str().unwrap();

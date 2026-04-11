@@ -138,11 +138,7 @@ impl GatusClient {
                 "DOWN" => down += 1,
                 "DEGRADED" => degraded += 1,
                 _ => {
-                    tracing::debug!(
-                        "Service {} has unknown status: {}",
-                        service.name,
-                        status
-                    );
+                    tracing::debug!("Service {} has unknown status: {}", service.name, status);
                 }
             }
         }

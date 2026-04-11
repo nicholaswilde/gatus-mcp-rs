@@ -77,7 +77,7 @@ pub fn format_config_summary(endpoints: &[EndpointStatus]) -> String {
                 }
             }
         }
-        output.push_str("\n");
+        output.push('\n');
     }
     output
 }
