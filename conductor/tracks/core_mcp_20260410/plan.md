@@ -26,9 +26,9 @@
 - [x] Task: Core Tool: `list_services` [b0a10d0]
     - [x] Write Tests: Verify `list_services` returns thinned service definitions
     - [x] Implement `list_services` tool in `src/mcp.rs`
-- [ ] Task: Core Tool: `get_service_status`
-    - [ ] Write Tests: Verify `get_service_status` returns correct status for a given service
-    - [ ] Implement `get_service_status` tool in `src/mcp.rs`
+- [x] Task: Core Tool: `get_service_status`
+    - [x] Write Tests: Verify `get_service_status` returns correct status for a given service
+    - [x] Implement `get_service_status` tool in `src/mcp.rs`
 - [ ] Task: Core Tool: `get_service_history`
     - [ ] Write Tests: Verify `get_service_history` returns limited health check results
     - [ ] Implement `get_service_history` tool in `src/mcp.rs`

@@ -1,8 +1,8 @@
 use anyhow::Result;
 use reqwest::Client;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct EndpointStatus {
     pub name: String,
     pub group: String,
@@ -11,7 +11,7 @@ pub struct EndpointStatus {
     pub results: Vec<HealthResult>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct HealthResult {
     pub timestamp: String,
     pub success: bool,
