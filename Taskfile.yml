@@ -55,6 +55,11 @@ tasks:
     cmds:
       - task: test
 
+  test:live:
+    desc: Run live tests against the configured Gatus instance
+    cmds:
+      - GATUS_LIVE_TESTS=true cargo test --test test_live -- --nocapture
+
   fmt:
     desc: Format code with rustfmt
     cmds:
