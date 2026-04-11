@@ -1,6 +1,6 @@
 # Implementation Plan - Build core Gatus MCP server functionality
 
-## Phase 1: Project Foundation & Scaffolding
+## Phase 1: Project Foundation & Scaffolding [checkpoint: 7d6f304]
 - [x] Task: Project Initialization [c3ce159]
     - [x] Create `Cargo.toml` with "Gatus Stack" dependencies
     - [x] Set up project structure (`src/`, `tests/`)
@@ -8,7 +8,7 @@
 - [x] Task: Configuration Management [ca865f1]
     - [x] Write Tests: Verify `Settings` can be loaded from TOML and Env
     - [x] Implement `src/settings.rs` using `config-rs` and `clap`
-- [ ] Task: Conductor - User Manual Verification 'Foundation & Scaffolding' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Foundation & Scaffolding' (Protocol in workflow.md)
 
 ## Phase 2: Transport & Protocol Implementation
 - [ ] Task: SSE Transport Layer
