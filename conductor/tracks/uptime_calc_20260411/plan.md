@@ -6,4 +6,4 @@
     - [x] Implement calculation logic based on `HealthResult` timestamps and success status
 - [x] Task: MCP Tool Integration [2b37e23]
     - [x] Register `get_uptime` in `src/mcp.rs`
-- [ ] Task: Conductor - User Manual Verification 'Uptime Reporting' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Uptime Reporting' (Protocol in workflow.md)

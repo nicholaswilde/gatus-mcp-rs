@@ -50,6 +50,9 @@ async fn test_mcp_get_uptime() {
     });
 
     let response = handler.handle(request).await;
-    
-    assert_eq!(response["result"]["content"][0]["text"], "Uptime for service-1 (24h): 50.00%");
+
+    assert_eq!(
+        response["result"]["content"][0]["text"],
+        "Uptime for service-1 (24h): 50.00%"
+    );
 }
