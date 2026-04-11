@@ -48,7 +48,7 @@ async fn test_mcp_get_alert_history() {
     });
 
     let response = handler.handle(request).await;
-    
+
     let result = &response["result"]["content"][0]["text"];
     assert!(result.as_str().unwrap().contains("service-1"));
     assert!(result.as_str().unwrap().contains("HEALTHY"));

@@ -7,6 +7,6 @@
     - [x] Implement alert fetching in `src/client.rs`
 
 ## Phase 2: MCP Integration
-- [ ] Task: MCP Tool Integration
-    - [ ] Register `get_alert_history` in `src/mcp.rs`
-- [ ] Task: Conductor - User Manual Verification 'Alert History Tool' (Protocol in workflow.md)
+- [x] Task: MCP Tool Integration [0c417a2]
+    - [x] Register `get_alert_history` in `src/mcp.rs`
+- [~] Task: Conductor - User Manual Verification 'Alert History Tool' (Protocol in workflow.md)

@@ -221,14 +221,13 @@ impl McpHandler {
     }
 
     async fn handle_get_alert_history_tool(&self, id: Value, arguments: &Value) -> Value {
-        let limit = arguments
-            .get("limit")
-            .and_then(|l| l.as_u64())
-            .unwrap_or(5) as usize;
+        let limit = arguments.get("limit").and_then(|l| l.as_u64()).unwrap_or(5) as usize;
 
         match self.gatus_client.get_alert_history(limit).await {
             Ok(events) => {
-                let mut text = String::from("| Service | Group | Event | Timestamp |\n| :--- | :--- | :--- | :--- |\n");
+                let mut text = String::from(
+                    "| Service | Group | Event | Timestamp |\n| :--- | :--- | :--- | :--- |\n",
+                );
                 for event in events {
                     text.push_str(&format!(
                         "| {} | {} | {} | {} |\n",
@@ -248,7 +247,9 @@ impl McpHandler {
                     }),
                 )
             }
-            Err(e) => self.error_response(id, -32000, &format!("Error getting alert history: {}", e)),
+            Err(e) => {
+                self.error_response(id, -32000, &format!("Error getting alert history: {}", e))
+            }
         }
     }
 
