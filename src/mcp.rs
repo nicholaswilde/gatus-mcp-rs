@@ -161,6 +161,26 @@ impl McpHandler {
                     "required": ["group"]
                 }
             }),
+            json!({
+                "name": "get_uptime",
+                "description": "Get the uptime percentage for a specific service over a given timeframe.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "service": {
+                            "type": "string",
+                            "description": "Name of the service."
+                        },
+                        "timeframe": {
+                            "type": "string",
+                            "enum": ["24h", "7d", "30d"],
+                            "description": "Timeframe for uptime calculation (default: 24h)",
+                            "default": "24h"
+                        }
+                    },
+                    "required": ["service"]
+                }
+            }),
         ]
     }
 
@@ -180,7 +200,35 @@ impl McpHandler {
             "get_system_stats" => self.handle_get_system_stats_tool(id, arguments).await,
             "get_config" => self.handle_get_config_tool(id, arguments).await,
             "get_group_summary" => self.handle_get_group_summary_tool(id, arguments).await,
+            "get_uptime" => self.handle_get_uptime_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
+        }
+    }
+
+    async fn handle_get_uptime_tool(&self, id: Value, arguments: &Value) -> Value {
+        let service_name = match arguments.get("service").and_then(|s| s.as_str()) {
+            Some(s) => s,
+            None => return self.error_response(id, -32602, "Missing 'service' argument"),
+        };
+
+        let timeframe = arguments
+            .get("timeframe")
+            .and_then(|t| t.as_str())
+            .unwrap_or("24h");
+
+        match self.gatus_client.get_uptime(service_name, timeframe).await {
+            Ok(uptime) => self.success_response(
+                id,
+                json!({
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": format!("Uptime for {} ({}): {:.2}%", service_name, timeframe, uptime)
+                        }
+                    ]
+                }),
+            ),
+            Err(e) => self.error_response(id, -32000, &format!("Error getting uptime: {}", e)),
         }
     }
 
