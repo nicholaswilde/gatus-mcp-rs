@@ -23,7 +23,7 @@
 - [x] Task: Gatus API Client [05f008a]
     - [x] Write Tests: Mock Gatus API and verify client handles responses/errors
     - [x] Implement `src/gatus/mod.rs` for communication with Gatus
-- [x] Task: Core Tool: `list_services`
+- [x] Task: Core Tool: `list_services` [b0a10d0]
     - [x] Write Tests: Verify `list_services` returns thinned service definitions
     - [x] Implement `list_services` tool in `src/mcp.rs`
 - [ ] Task: Core Tool: `get_service_status`
