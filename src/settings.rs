@@ -28,7 +28,7 @@ impl Settings {
 
         let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
 
-        let s = Config::builder()
+        let mut builder = Config::builder()
             // Start with default values
             .set_default("server.port", 8080)?
             .set_default("server.host", "127.0.0.1")?
@@ -36,13 +36,19 @@ impl Settings {
             // Add local config file (optional)
             .add_source(File::with_name(&format!("config/{}", run_mode)).required(false))
             .add_source(File::with_name("config/local").required(false))
-            // Add environment variables
-            // GATUS__SERVER__PORT maps to server.port
-            // GATUS__GATUS__API_URL maps to gatus.api_url
-            .add_source(Environment::with_prefix("GATUS").separator("__"))
-            // Also support a flatter env var for the base URL specifically if needed
-            .build()?;
+            // Support flatter environment variables from .env.example
+            .add_source(Environment::with_prefix("GATUS").separator("_"))
+            // Also support the double-underscore separator for standard config mapping
+            .add_source(Environment::with_prefix("GATUS").separator("__"));
 
-        s.try_deserialize()
+        // Manual overrides for conventional env vars from .env.example
+        if let Ok(url) = env::var("GATUS_API_URL") {
+            builder = builder.set_override("gatus.api_url", url)?;
+        }
+        if let Ok(key) = env::var("GATUS_API_KEY") {
+            builder = builder.set_override("gatus.api_key", key)?;
+        }
+
+        builder.build()?.try_deserialize()
     }
 }
