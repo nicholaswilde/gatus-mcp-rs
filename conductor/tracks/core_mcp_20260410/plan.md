@@ -5,9 +5,9 @@
     - [x] Create `Cargo.toml` with "Gatus Stack" dependencies
     - [x] Set up project structure (`src/`, `tests/`)
     - [x] Configure `Taskfile.yml` for testing, building, and linting
-- [ ] Task: Configuration Management
-    - [ ] Write Tests: Verify `Settings` can be loaded from TOML and Env
-    - [ ] Implement `src/settings.rs` using `config-rs` and `clap`
+- [x] Task: Configuration Management
+    - [x] Write Tests: Verify `Settings` can be loaded from TOML and Env
+    - [x] Implement `src/settings.rs` using `config-rs` and `clap`
 - [ ] Task: Conductor - User Manual Verification 'Foundation & Scaffolding' (Protocol in workflow.md)
 
 ## Phase 2: Transport & Protocol Implementation
