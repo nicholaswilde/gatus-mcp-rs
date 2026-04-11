@@ -181,6 +181,20 @@ impl McpHandler {
                     "required": ["service"]
                 }
             }),
+            json!({
+                "name": "get_alert_history",
+                "description": "Retrieve recent alert events and state transitions.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "limit": {
+                            "type": "integer",
+                            "description": "Maximum number of alerts to return (default: 5)",
+                            "default": 5
+                        }
+                    }
+                }
+            }),
         ]
     }
 
@@ -201,7 +215,40 @@ impl McpHandler {
             "get_config" => self.handle_get_config_tool(id, arguments).await,
             "get_group_summary" => self.handle_get_group_summary_tool(id, arguments).await,
             "get_uptime" => self.handle_get_uptime_tool(id, arguments).await,
+            "get_alert_history" => self.handle_get_alert_history_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
+        }
+    }
+
+    async fn handle_get_alert_history_tool(&self, id: Value, arguments: &Value) -> Value {
+        let limit = arguments
+            .get("limit")
+            .and_then(|l| l.as_u64())
+            .unwrap_or(5) as usize;
+
+        match self.gatus_client.get_alert_history(limit).await {
+            Ok(events) => {
+                let mut text = String::from("| Service | Group | Event | Timestamp |\n| :--- | :--- | :--- | :--- |\n");
+                for event in events {
+                    text.push_str(&format!(
+                        "| {} | {} | {} | {} |\n",
+                        event.service, event.group, event.event_type, event.timestamp
+                    ));
+                }
+
+                self.success_response(
+                    id,
+                    json!({
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": text
+                            }
+                        ]
+                    }),
+                )
+            }
+            Err(e) => self.error_response(id, -32000, &format!("Error getting alert history: {}", e)),
         }
     }
 
