@@ -1,5 +1,4 @@
 use gatus_mcp_rs::client::GatusClient;
-use gatus_mcp_rs::fmt::get_display_status;
 use std::env;
 
 #[tokio::test]
@@ -32,7 +31,7 @@ async fn test_live_list_services() {
         println!(
             "- {}: {} (Group: {})",
             service.name,
-            get_display_status(service),
+            service.display_status(),
             service.group
         );
     }

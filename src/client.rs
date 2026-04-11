@@ -15,6 +15,23 @@ pub struct EndpointStatus {
     pub results: Vec<HealthResult>,
 }
 
+impl EndpointStatus {
+    pub fn display_status(&self) -> String {
+        self.status
+            .clone()
+            .unwrap_or_else(|| match self.results.first() {
+                Some(r) => {
+                    if r.success {
+                        "UP".to_string()
+                    } else {
+                        "DOWN".to_string()
+                    }
+                }
+                None => "UNKNOWN".to_string(),
+            })
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct HealthResult {
     pub timestamp: String,
@@ -107,12 +124,17 @@ impl GatusClient {
         let mut degraded = 0;
 
         for service in &services {
-            if let Some(status) = &service.status {
-                match status.to_uppercase().as_str() {
-                    "UP" => up += 1,
-                    "DOWN" => down += 1,
-                    "DEGRADED" => degraded += 1,
-                    _ => {}
+            let status = service.display_status().to_uppercase();
+            match status.as_str() {
+                "UP" => up += 1,
+                "DOWN" => down += 1,
+                "DEGRADED" => degraded += 1,
+                _ => {
+                    tracing::debug!(
+                        "Service {} has unknown status: {}",
+                        service.name,
+                        status
+                    );
                 }
             }
         }

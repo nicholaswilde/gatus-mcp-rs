@@ -1,25 +1,9 @@
 use crate::client::{EndpointStatus, SystemStats};
 
-pub fn get_display_status(endpoint: &EndpointStatus) -> String {
-    endpoint
-        .status
-        .clone()
-        .unwrap_or_else(|| match endpoint.results.first() {
-            Some(r) => {
-                if r.success {
-                    "UP".to_string()
-                } else {
-                    "DOWN".to_string()
-                }
-            }
-            None => "UNKNOWN".to_string(),
-        })
-}
-
 pub fn format_endpoint_status(endpoint: &EndpointStatus) -> String {
     let mut output = format!("### {}\n", endpoint.name);
     output.push_str(&format!("- **Group:** {}\n", endpoint.group));
-    output.push_str(&format!("- **Status:** {}\n", get_display_status(endpoint)));
+    output.push_str(&format!("- **Status:** {}\n", endpoint.display_status()));
 
     if let Some(result) = endpoint.results.first() {
         output.push_str("\n#### Latest Result\n");
@@ -60,7 +44,7 @@ pub fn format_endpoints_summary(endpoints: &[EndpointStatus]) -> String {
             "| {} | {} | {} | {} |\n",
             endpoint.name,
             endpoint.group,
-            get_display_status(endpoint),
+            endpoint.display_status(),
             latest
         ));
     }
