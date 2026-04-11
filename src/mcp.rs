@@ -147,6 +147,20 @@ impl McpHandler {
                     "properties": {}
                 }
             }),
+            json!({
+                "name": "get_group_summary",
+                "description": "Get the health status of all endpoints within a specific group.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "group": {
+                            "type": "string",
+                            "description": "The name of the group to summarize (e.g. 'Media')"
+                        }
+                    },
+                    "required": ["group"]
+                }
+            }),
         ]
     }
 
@@ -165,7 +179,45 @@ impl McpHandler {
             "get_service_info" => self.handle_get_service_info_tool(id, arguments).await,
             "get_system_stats" => self.handle_get_system_stats_tool(id, arguments).await,
             "get_config" => self.handle_get_config_tool(id, arguments).await,
+            "get_group_summary" => self.handle_get_group_summary_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
+        }
+    }
+
+    async fn handle_get_group_summary_tool(&self, id: Value, arguments: &Value) -> Value {
+        let group_name = match arguments.get("group").and_then(|g| g.as_str()) {
+            Some(g) => g,
+            None => return self.error_response(id, -32602, "Missing 'group' argument"),
+        };
+
+        match self.gatus_client.list_services().await {
+            Ok(services) => {
+                let filtered: Vec<_> = services
+                    .into_iter()
+                    .filter(|s| s.group.to_lowercase() == group_name.to_lowercase())
+                    .collect();
+
+                if filtered.is_empty() {
+                    return self.error_response(
+                        id,
+                        -32602,
+                        &format!("Group '{}' not found or has no services", group_name),
+                    );
+                }
+
+                self.success_response(
+                    id,
+                    json!({
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": format_endpoints_summary(&filtered)
+                            }
+                        ]
+                    }),
+                )
+            }
+            Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
         }
     }
 
