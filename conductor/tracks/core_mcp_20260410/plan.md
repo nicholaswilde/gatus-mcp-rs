@@ -20,9 +20,9 @@
 - [x] Task: Conductor - User Manual Verification 'Transport & Protocol' (Protocol in workflow.md)
 
 ## Phase 3: Gatus Integration (Core Tools)
-- [ ] Task: Gatus API Client
-    - [ ] Write Tests: Mock Gatus API and verify client handles responses/errors
-    - [ ] Implement `src/gatus/mod.rs` for communication with Gatus
+- [x] Task: Gatus API Client
+    - [x] Write Tests: Mock Gatus API and verify client handles responses/errors
+    - [x] Implement `src/gatus/mod.rs` for communication with Gatus
 - [ ] Task: Core Tool: `list_services`
     - [ ] Write Tests: Verify `list_services` returns thinned service definitions
     - [ ] Implement `list_services` tool in `src/mcp.rs`
