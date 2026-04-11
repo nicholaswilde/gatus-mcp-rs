@@ -10,7 +10,7 @@ name = "gatus_mcp_rs"
 path = "src/lib.rs"
 
 [[bin]]
-name = "gatus-mcp"
+name = "gatus-mcp-rs"
 path = "src/main.rs"
 
 [dependencies]
