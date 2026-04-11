@@ -10,14 +10,14 @@
     - [x] Implement `src/settings.rs` using `config-rs` and `clap`
 - [x] Task: Conductor - User Manual Verification 'Foundation & Scaffolding' (Protocol in workflow.md)
 
-## Phase 2: Transport & Protocol Implementation
+## Phase 2: Transport & Protocol Implementation [checkpoint: 7ece8ea]
 - [x] Task: SSE Transport Layer [ac8f580]
     - [x] Write Tests: Verify `/sse` and `/messages` endpoints respond correctly
     - [x] Implement `src/http_server.rs` with Axum and session management
 - [x] Task: MCP Protocol Handler [c065735]
     - [x] Write Tests: Verify JSON-RPC 2.0 dispatching for unknown tools
     - [x] Implement `src/mcp.rs` for core JSON-RPC logic
-- [ ] Task: Conductor - User Manual Verification 'Transport & Protocol' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Transport & Protocol' (Protocol in workflow.md)
 
 ## Phase 3: Gatus Integration (Core Tools)
 - [ ] Task: Gatus API Client
