@@ -32,7 +32,7 @@
 - [x] Task: Core Tool: `get_service_history` [044c6ae]
     - [x] Write Tests: Verify `get_service_history` returns limited health check results
     - [x] Implement `get_service_history` tool in `src/mcp.rs`
-- [ ] Task: Conductor - User Manual Verification 'Gatus Integration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Gatus Integration' (Protocol in workflow.md) [19bdeb2]
 
 ## Phase 4: Final Refinement
 - [ ] Task: Error Handling & Logging
