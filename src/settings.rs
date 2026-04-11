@@ -23,6 +23,9 @@ pub struct Settings {
 
 impl Settings {
     pub fn new() -> Result<Self, ConfigError> {
+        // Load .env file if it exists
+        dotenvy::dotenv().ok();
+
         let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
 
         let s = Config::builder()
@@ -33,8 +36,11 @@ impl Settings {
             // Add local config file (optional)
             .add_source(File::with_name(&format!("config/{}", run_mode)).required(false))
             .add_source(File::with_name("config/local").required(false))
-            // Add environment variables (GATUS_SERVER_PORT, GATUS_API_URL, etc.)
+            // Add environment variables
+            // GATUS__SERVER__PORT maps to server.port
+            // GATUS__GATUS__API_URL maps to gatus.api_url
             .add_source(Environment::with_prefix("GATUS").separator("__"))
+            // Also support a flatter env var for the base URL specifically if needed
             .build()?;
 
         s.try_deserialize()

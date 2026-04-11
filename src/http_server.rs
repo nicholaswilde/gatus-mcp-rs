@@ -1,17 +1,33 @@
+use crate::mcp::McpHandler;
 use crate::settings::Settings;
+use crate::gatus::GatusClient;
 use axum::{
+    extract::State,
     response::sse::{Event, Sse},
     routing::{get, post},
-    Router,
+    Json, Router,
 };
 use futures::stream::Stream;
-use std::{convert::Infallible, time::Duration};
+use serde_json::Value;
+use std::{convert::Infallible, sync::Arc, time::Duration};
 use tokio_stream::StreamExt as _;
 
-pub fn app(_settings: Settings) -> Router {
+#[derive(Clone)]
+pub struct AppState {
+    pub mcp_handler: Arc<McpHandler>,
+}
+
+pub fn app(settings: Settings) -> Router {
+    let gatus_client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
+    let mcp_handler = McpHandler::new(gatus_client);
+    let state = AppState {
+        mcp_handler: Arc::new(mcp_handler),
+    };
+
     Router::new()
         .route("/sse", get(sse_handler))
         .route("/messages", post(messages_handler))
+        .with_state(state)
 }
 
 async fn sse_handler() -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
@@ -25,7 +41,10 @@ async fn sse_handler() -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
     )
 }
 
-async fn messages_handler(body: String) -> &'static str {
-    println!("Received message: {}", body);
-    "OK"
+async fn messages_handler(
+    State(state): State<AppState>,
+    Json(payload): Json<Value>,
+) -> Json<Value> {
+    let response = state.mcp_handler.handle(payload).await;
+    Json(response)
 }

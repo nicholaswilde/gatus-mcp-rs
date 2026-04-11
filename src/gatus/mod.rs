@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
@@ -45,7 +45,15 @@ impl GatusClient {
             request = request.header("Authorization", format!("Bearer {}", key));
         }
 
-        let response = request.send().await?.json::<Vec<EndpointStatus>>().await?;
-        Ok(response)
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await.context("Failed to get response text")?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        serde_json::from_str::<Vec<EndpointStatus>>(&text)
+            .with_context(|| format!("Failed to decode Gatus API response: {}", text))
     }
 }

@@ -34,7 +34,15 @@ impl McpHandler {
                 "tools": [
                     {
                         "name": "list_services",
-                        "description": "List all services monitored by Gatus",
+                        "description": "List all services monitored by Gatus (compact summary)",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {}
+                        }
+                    },
+                    {
+                        "name": "get_endpoint_statuses",
+                        "description": "Get detailed statuses for all monitored endpoints",
                         "inputSchema": {
                             "type": "object",
                             "properties": {}
@@ -89,6 +97,7 @@ impl McpHandler {
 
         match name {
             "list_services" => self.handle_list_services_tool(id).await,
+            "get_endpoint_statuses" => self.handle_get_endpoint_statuses_tool(id).await,
             "get_service_status" => self.handle_get_service_status_tool(id, arguments).await,
             "get_service_history" => self.handle_get_service_history_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
@@ -116,6 +125,26 @@ impl McpHandler {
                             {
                                 "type": "text",
                                 "text": serde_json::to_string_pretty(&thinned_services).unwrap()
+                            }
+                        ]
+                    },
+                    "id": id
+                })
+            }
+            Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+        }
+    }
+
+    async fn handle_get_endpoint_statuses_tool(&self, id: Value) -> Value {
+        match self.gatus_client.list_services().await {
+            Ok(services) => {
+                json!({
+                    "jsonrpc": "2.0",
+                    "result": {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": serde_json::to_string_pretty(&services).unwrap()
                             }
                         ]
                     },
