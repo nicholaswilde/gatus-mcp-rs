@@ -38,17 +38,25 @@ pub async fn run_stdio_server(handler: McpHandler) -> anyhow::Result<()> {
     let mut reader = stdin.lock();
     let mut line = String::new();
 
+    tracing::info!("Ready to receive MCP messages on stdin");
+
     while reader.read_line(&mut line)? > 0 {
         let request: Value = match serde_json::from_str(&line) {
-            Ok(v) => v,
-            Err(_) => {
+            Ok(v) => {
+                tracing::debug!("Received request: {}", v);
+                v
+            }
+            Err(e) => {
+                tracing::error!("Failed to parse JSON from stdin: {}", e);
                 line.clear();
                 continue;
             }
         };
 
         let response = handler.handle(request).await;
-        println!("{}", serde_json::to_string(&response)?);
+        let response_str = serde_json::to_string(&response)?;
+        tracing::debug!("Sending response: {}", response_str);
+        println!("{}", response_str);
         line.clear();
     }
 

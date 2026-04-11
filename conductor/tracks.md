@@ -14,6 +14,16 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
+- [x] **Track: Optimize token usage via tool grouping**
+  *Link: [./tracks/token_optimization_20260411/](./tracks/token_optimization_20260411/)*
+
+---
+
+- [x] **Track: Add status output for Stdio mode**
+  *Link: [./tracks/stdio_status_20260411/](./tracks/stdio_status_20260411/)*
+
+---
+
 - [ ] **Track: Implement system statistics tool**
   *Link: [./tracks/system_stats_20260411/](./tracks/system_stats_20260411/)*
 

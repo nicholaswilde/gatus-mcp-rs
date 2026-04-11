@@ -36,6 +36,11 @@ async fn main() -> anyhow::Result<()> {
 
     match cli.command.unwrap_or(Commands::Stdio) {
         Commands::Stdio => {
+            tracing::info!(
+                "Starting gatus-mcp-rs v{} in stdio mode",
+                env!("CARGO_PKG_VERSION")
+            );
+            tracing::info!("Using Gatus API URL: {}", settings.gatus.api_url);
             let client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
             let handler = McpHandler::new(client);
             run_stdio_server(handler).await?;

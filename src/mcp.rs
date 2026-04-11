@@ -90,52 +90,42 @@ impl McpHandler {
     fn get_tool_definitions(&self) -> Vec<Value> {
         vec![
             json!({
-                "name": "list_services",
-                "description": "List all services monitored by Gatus (compact summary)",
+                "name": "manage_services",
+                "description": "Manage and list Gatus monitored services",
                 "inputSchema": {
                     "type": "object",
-                    "properties": {}
+                    "properties": {
+                        "action": {
+                            "type": "string",
+                            "enum": ["list", "status"],
+                            "description": "Action to perform: 'list' (compact summary) or 'status' (detailed endpoint statuses)"
+                        }
+                    },
+                    "required": ["action"]
                 }
             }),
             json!({
-                "name": "get_endpoint_statuses",
-                "description": "Get detailed statuses for all monitored endpoints",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {}
-                }
-            }),
-            json!({
-                "name": "get_service_status",
-                "description": "Get current status and latest results for a specific service",
+                "name": "get_service_info",
+                "description": "Retrieve detailed information or history for a specific service",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "service": {
                             "type": "string",
                             "description": "Name of the service (e.g. 'Authentik')"
-                        }
-                    },
-                    "required": ["service"]
-                }
-            }),
-            json!({
-                "name": "get_service_history",
-                "description": "Get a list of recent health check results for a specific service",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "service": {
+                        },
+                        "action": {
                             "type": "string",
-                            "description": "Name of the service"
+                            "enum": ["details", "history"],
+                            "description": "Action to perform: 'details' (current status/latest result) or 'history' (recent health check results)"
                         },
                         "limit": {
                             "type": "integer",
-                            "description": "Maximum number of results to return",
+                            "description": "Maximum number of results for the 'history' action",
                             "default": 10
                         }
                     },
-                    "required": ["service"]
+                    "required": ["service", "action"]
                 }
             }),
         ]
@@ -151,109 +141,99 @@ impl McpHandler {
         let arguments = params.get("arguments").unwrap_or(&Value::Null);
 
         match name {
-            "list_services" => self.handle_list_services_tool(id).await,
-            "get_endpoint_statuses" => self.handle_get_endpoint_statuses_tool(id).await,
-            "get_service_status" => self.handle_get_service_status_tool(id, arguments).await,
-            "get_service_history" => self.handle_get_service_history_tool(id, arguments).await,
+            "manage_services" => self.handle_manage_services_tool(id, arguments).await,
+            "get_service_info" => self.handle_get_service_info_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
         }
     }
 
-    async fn handle_list_services_tool(&self, id: Value) -> Value {
-        match self.gatus_client.list_services().await {
-            Ok(services) => self.success_response(
-                id,
-                json!({
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": format_endpoints_summary(&services)
-                        }
-                    ]
-                }),
-            ),
-            Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
-        }
-    }
-
-    async fn handle_get_endpoint_statuses_tool(&self, id: Value) -> Value {
-        match self.gatus_client.list_services().await {
-            Ok(services) => self.success_response(
-                id,
-                json!({
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": serde_json::to_string_pretty(&services).unwrap()
-                        }
-                    ]
-                }),
-            ),
-            Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
-        }
-    }
-
-    async fn handle_get_service_status_tool(&self, id: Value, arguments: &Value) -> Value {
-        let service_name = match arguments.get("service").and_then(|s| s.as_str()) {
-            Some(s) => s,
-            None => return self.error_response(id, -32602, "Missing 'service' argument"),
+    async fn handle_manage_services_tool(&self, id: Value, arguments: &Value) -> Value {
+        let action = match arguments.get("action").and_then(|a| a.as_str()) {
+            Some(a) => a,
+            None => return self.error_response(id, -32602, "Missing 'action' argument"),
         };
 
         match self.gatus_client.list_services().await {
             Ok(services) => {
-                let service = services.into_iter().find(|s| s.name == service_name);
-                match service {
-                    Some(s) => self.success_response(
-                        id,
-                        json!({
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": format_endpoint_status(&s)
-                                }
-                            ]
-                        }),
-                    ),
-                    None => self.error_response(
-                        id,
-                        -32602,
-                        &format!("Service '{}' not found", service_name),
-                    ),
-                }
+                let text = match action {
+                    "list" => format_endpoints_summary(&services),
+                    "status" => serde_json::to_string_pretty(&services).unwrap(),
+                    _ => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            &format!("Unknown action '{}' for manage_services", action),
+                        )
+                    }
+                };
+
+                self.success_response(
+                    id,
+                    json!({
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": text
+                            }
+                        ]
+                    }),
+                )
             }
             Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
         }
     }
 
-    async fn handle_get_service_history_tool(&self, id: Value, arguments: &Value) -> Value {
+    async fn handle_get_service_info_tool(&self, id: Value, arguments: &Value) -> Value {
         let service_name = match arguments.get("service").and_then(|s| s.as_str()) {
             Some(s) => s,
             None => return self.error_response(id, -32602, "Missing 'service' argument"),
         };
 
-        let limit = arguments
-            .get("limit")
-            .and_then(|l| l.as_u64())
-            .unwrap_or(10) as usize;
+        let action = match arguments.get("action").and_then(|a| a.as_str()) {
+            Some(a) => a,
+            None => return self.error_response(id, -32602, "Missing 'action' argument"),
+        };
 
         match self.gatus_client.list_services().await {
             Ok(services) => {
                 let service = services.into_iter().find(|s| s.name == service_name);
                 match service {
-                    Some(s) => {
-                        let history: Vec<_> = s.results.into_iter().take(limit).collect();
-                        self.success_response(
+                    Some(s) => match action {
+                        "details" => self.success_response(
                             id,
                             json!({
                                 "content": [
                                     {
                                         "type": "text",
-                                        "text": serde_json::to_string_pretty(&history).unwrap()
+                                        "text": format_endpoint_status(&s)
                                     }
                                 ]
                             }),
-                        )
-                    }
+                        ),
+                        "history" => {
+                            let limit = arguments
+                                .get("limit")
+                                .and_then(|l| l.as_u64())
+                                .unwrap_or(10) as usize;
+                            let history: Vec<_> = s.results.into_iter().take(limit).collect();
+                            self.success_response(
+                                id,
+                                json!({
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": serde_json::to_string_pretty(&history).unwrap()
+                                        }
+                                    ]
+                                }),
+                            )
+                        }
+                        _ => self.error_response(
+                            id,
+                            -32602,
+                            &format!("Unknown action '{}' for get_service_info", action),
+                        ),
+                    },
                     None => self.error_response(
                         id,
                         -32602,
