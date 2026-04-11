@@ -23,7 +23,7 @@ anyhow = "1.0"
 clap = { version = "4.3", features = ["derive", "env"] }
 config = { version = "0.15.19", features = ["toml"] }
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"] }
 dashmap = "6.1"
 uuid = { version = "1.0", features = ["v4"] }
 thiserror = "2.0"
@@ -31,6 +31,9 @@ dotenvy = "0.15"
 futures = "0.3"
 tokio-stream = "0.1"
 tower = "0.5"
+moka = { version = "0.12", features = ["future"] }
+governor = "0.6"
+chrono = { version = "0.4", features = ["serde"] }
 
 [dev-dependencies]
 wiremock = "0.6"

@@ -1,5 +1,5 @@
 use gatus_mcp_rs::mcp::McpHandler;
-use gatus_mcp_rs::gatus::GatusClient;
+use gatus_mcp_rs::client::GatusClient;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 use serde_json::json;
@@ -21,7 +21,7 @@ async fn test_mcp_get_service_history_tool_integration() {
                     "success": true,
                     "hostname": "localhost",
                     "ip": "127.0.0.1",
-                    "duration": 100,
+                    "duration": 100000000,
                     "errors": [],
                     "status": 200
                 },
@@ -30,7 +30,7 @@ async fn test_mcp_get_service_history_tool_integration() {
                     "success": false,
                     "hostname": "localhost",
                     "ip": "127.0.0.1",
-                    "duration": 500,
+                    "duration": 500000000,
                     "errors": ["timeout"],
                     "status": 504
                 }

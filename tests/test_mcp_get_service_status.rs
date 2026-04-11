@@ -1,5 +1,5 @@
 use gatus_mcp_rs::mcp::McpHandler;
-use gatus_mcp_rs::gatus::GatusClient;
+use gatus_mcp_rs::client::GatusClient;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 use serde_json::json;
@@ -21,7 +21,7 @@ async fn test_mcp_get_service_status_tool_integration() {
                     "success": true,
                     "hostname": "localhost",
                     "ip": "127.0.0.1",
-                    "duration": 100,
+                    "duration": 100000000,
                     "errors": [],
                     "status": 200
                 }
@@ -49,6 +49,7 @@ async fn test_mcp_get_service_status_tool_integration() {
 
     let response = handler.handle(request).await;
     
-    assert!(response["result"]["content"][0]["text"].as_str().unwrap().contains("service-1"));
-    assert!(response["result"]["content"][0]["text"].as_str().unwrap().contains("UP"));
+    let text = response["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.contains("service-1"));
+    assert!(text.contains("UP"));
 }

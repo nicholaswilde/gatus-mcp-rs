@@ -1,6 +1,10 @@
 use anyhow::{Context, Result};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use moka::future::Cache;
+use std::time::Duration;
+use governor::{Quota, RateLimiter};
+use std::num::NonZeroU32;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct EndpointStatus {
@@ -26,18 +30,35 @@ pub struct GatusClient {
     api_url: String,
     api_key: Option<String>,
     client: Client,
+    cache: Cache<String, Vec<EndpointStatus>>,
+    rate_limiter: RateLimiter<governor::state::NotKeyed, governor::state::InMemoryState, governor::clock::DefaultClock>,
 }
 
 impl GatusClient {
     pub fn new(api_url: String, api_key: Option<String>) -> Self {
+        let quota = Quota::per_second(NonZeroU32::new(2).unwrap()); // 2 requests per second
+        
         Self {
             api_url,
             api_key,
             client: Client::new(),
+            cache: Cache::builder()
+                .max_capacity(100)
+                .time_to_live(Duration::from_secs(60))
+                .build(),
+            rate_limiter: RateLimiter::direct(quota),
         }
     }
 
     pub async fn list_services(&self) -> Result<Vec<EndpointStatus>> {
+        let cache_key = "endpoints_statuses".to_string();
+        
+        if let Some(cached) = self.cache.get(&cache_key).await {
+            return Ok(cached);
+        }
+
+        self.rate_limiter.until_ready().await;
+
         let url = format!("{}/api/v1/endpoints/statuses", self.api_url);
         let mut request = self.client.get(url);
 
@@ -53,7 +74,11 @@ impl GatusClient {
             anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
         }
 
-        serde_json::from_str::<Vec<EndpointStatus>>(&text)
-            .with_context(|| format!("Failed to decode Gatus API response: {}", text))
+        let services: Vec<EndpointStatus> = serde_json::from_str(&text)
+            .with_context(|| format!("Failed to decode Gatus API response: {}", text))?;
+            
+        self.cache.insert(cache_key, services.clone()).await;
+        
+        Ok(services)
     }
 }

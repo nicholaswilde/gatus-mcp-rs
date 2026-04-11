@@ -4,8 +4,13 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Build core Gatus MCP server functionality**
+- [x] **Track: Build core Gatus MCP server functionality** [914380b]
   *Link: [./tracks/core_mcp_20260410/](./tracks/core_mcp_20260410/)*
+
+---
+
+- [x] **Track: Refactor to modular shape (match rescue-groups-mcp)**
+  *Link: [./tracks/modular_refactor_20260411/](./tracks/modular_refactor_20260411/)*
 
 ---
 

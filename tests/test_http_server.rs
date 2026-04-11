@@ -3,13 +3,13 @@ use axum::{
     http::{Request, StatusCode},
 };
 use tower::ServiceExt; // for `oneshot`
-use gatus_mcp_rs::http_server::app;
+use gatus_mcp_rs::server::create_app;
 use gatus_mcp_rs::settings::Settings;
 
 #[tokio::test]
 async fn test_sse_endpoint() {
     let settings = Settings::new().unwrap();
-    let app = app(settings);
+    let app = create_app(settings);
 
     let response = app
         .oneshot(
@@ -28,20 +28,19 @@ async fn test_sse_endpoint() {
 #[tokio::test]
 async fn test_messages_endpoint() {
     let settings = Settings::new().unwrap();
-    let app = app(settings);
+    let app = create_app(settings);
 
     let response = app
         .oneshot(
             Request::builder()
                 .method("POST")
                 .uri("/messages")
-                .body(Body::from(r#"{"jsonrpc": "2.0", "method": "initialize", "id": 1}"#))
+                .header("Content-Type", "application/json")
+                .body(Body::from(r#"{"jsonrpc": "2.0", "method": "tools/list", "id": 1}"#))
                 .unwrap(),
         )
         .await
         .unwrap();
 
-    // Without a session, it should probably return an error or unauthorized
-    // For now, let's just see what it does
-    assert!(response.status().is_client_error() || response.status().is_success());
+    assert_eq!(response.status(), StatusCode::OK);
 }

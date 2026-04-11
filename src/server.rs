@@ -1,6 +1,7 @@
 use crate::mcp::McpHandler;
 use crate::settings::Settings;
-use crate::gatus::GatusClient;
+use crate::client::GatusClient;
+use crate::cli::AppState;
 use axum::{
     extract::State,
     response::sse::{Event, Sse},
@@ -9,15 +10,12 @@ use axum::{
 };
 use futures::stream::Stream;
 use serde_json::Value;
-use std::{convert::Infallible, sync::Arc, time::Duration};
+use std::{convert::Infallible, sync::Arc, time::Duration, io::{self, BufRead}};
 use tokio_stream::StreamExt as _;
+use tokio::net::TcpListener;
+use std::net::SocketAddr;
 
-#[derive(Clone)]
-pub struct AppState {
-    pub mcp_handler: Arc<McpHandler>,
-}
-
-pub fn app(settings: Settings) -> Router {
+pub fn create_app(settings: Settings) -> Router {
     let gatus_client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
     let mcp_handler = McpHandler::new(gatus_client);
     let state = AppState {
@@ -28,6 +26,42 @@ pub fn app(settings: Settings) -> Router {
         .route("/sse", get(sse_handler))
         .route("/messages", post(messages_handler))
         .with_state(state)
+}
+
+pub async fn run_stdio_server(handler: McpHandler) -> anyhow::Result<()> {
+    let stdin = io::stdin();
+    let mut reader = stdin.lock();
+    let mut line = String::new();
+
+    while reader.read_line(&mut line)? > 0 {
+        let request: Value = match serde_json::from_str(&line) {
+            Ok(v) => v,
+            Err(_) => {
+                line.clear();
+                continue;
+            }
+        };
+
+        let response = handler.handle(request).await;
+        println!("{}", serde_json::to_string(&response)?);
+        line.clear();
+    }
+
+    Ok(())
+}
+
+pub async fn run_http_server(
+    settings: Settings,
+    port: u16,
+    host: String,
+) -> anyhow::Result<()> {
+    let app = create_app(settings);
+    let addr = format!("{}:{}", host, port).parse::<SocketAddr>()?;
+    tracing::info!("Listening on {}", addr);
+    let listener = TcpListener::bind(addr).await?;
+    axum::serve(listener, app).await?;
+
+    Ok(())
 }
 
 async fn sse_handler() -> Sse<impl Stream<Item = Result<Event, Infallible>>> {

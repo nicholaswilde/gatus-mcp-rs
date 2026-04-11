@@ -1,4 +1,4 @@
-use gatus_mcp_rs::gatus::GatusClient;
+use gatus_mcp_rs::client::GatusClient;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 use serde_json::json;

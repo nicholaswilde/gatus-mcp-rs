@@ -1,47 +1,74 @@
 use clap::Parser;
-use gatus_mcp_rs::http_server::app;
+use gatus_mcp_rs::cli::{Cli, Commands};
 use gatus_mcp_rs::settings::Settings;
-use std::net::SocketAddr;
-use tokio::net::TcpListener;
-
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    /// Gatus API base URL (e.g. http://192.168.2.220:8080)
-    #[arg(long, env = "GATUS_API_URL")]
-    gatus_url: Option<String>,
-
-    /// Port to listen on
-    #[arg(short, long, env = "GATUS_SERVER_PORT")]
-    port: Option<u16>,
-}
+use gatus_mcp_rs::server::{run_http_server, run_stdio_server};
+use gatus_mcp_rs::mcp::McpHandler;
+use gatus_mcp_rs::client::GatusClient;
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // Initialize tracing
-    tracing_subscriber::fmt::init();
-
     // Parse command line arguments
-    let args = Args::parse();
+    let cli = Cli::parse();
 
-    // Load settings from config files and env
+    // Initialize logging
+    let filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new(&cli.log_level));
+    
+    let registry = tracing_subscriber::registry().with(filter);
+    
+    if cli.log_format == "json" {
+        registry.with(fmt::layer().json()).init();
+    } else {
+        registry.with(fmt::layer()).init();
+    }
+
+    // Load settings
     let mut settings = Settings::new()?;
 
-    // Override settings with command line arguments if provided
-    if let Some(url) = args.gatus_url {
+    // Override settings with CLI flags if provided
+    if let Some(url) = cli.gatus_url {
         settings.gatus.api_url = url;
     }
-    if let Some(port) = args.port {
-        settings.server.port = port;
+    if let Some(key) = cli.api_key {
+        settings.gatus.api_key = Some(key);
     }
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], settings.server.port));
-    
-    let app = app(settings);
-    
-    tracing::info!("Listening on {}", addr);
-    let listener = TcpListener::bind(addr).await?;
-    axum::serve(listener, app).await?;
+    match cli.command.unwrap_or(Commands::Stdio) {
+        Commands::Stdio => {
+            let client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
+            let handler = McpHandler::new(client);
+            run_stdio_server(handler).await?;
+        }
+        Commands::Http { port, host } => {
+            run_http_server(settings, port, host).await?;
+        }
+        Commands::ListTools => {
+            let client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
+            let handler = McpHandler::new(client);
+            let response = handler.handle(serde_json::json!({
+                "jsonrpc": "2.0",
+                "method": "tools/list",
+                "id": 1
+            })).await;
+            println!("{}", serde_json::to_string_pretty(&response)?);
+        }
+        Commands::CallTool { name, arguments } => {
+            let client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
+            let handler = McpHandler::new(client);
+            let args: serde_json::Value = serde_json::from_str(&arguments)?;
+            let response = handler.handle(serde_json::json!({
+                "jsonrpc": "2.0",
+                "method": "tools/call",
+                "params": {
+                    "name": name,
+                    "arguments": args
+                },
+                "id": 1
+            })).await;
+            println!("{}", serde_json::to_string_pretty(&response)?);
+        }
+    }
 
     Ok(())
 }
