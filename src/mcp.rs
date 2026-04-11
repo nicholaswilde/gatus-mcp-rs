@@ -137,7 +137,7 @@ impl McpHandler {
                     },
                     "required": ["service"]
                 }
-            })
+            }),
         ]
     }
 
@@ -161,32 +161,34 @@ impl McpHandler {
 
     async fn handle_list_services_tool(&self, id: Value) -> Value {
         match self.gatus_client.list_services().await {
-            Ok(services) => {
-                self.success_response(id, json!({
+            Ok(services) => self.success_response(
+                id,
+                json!({
                     "content": [
                         {
                             "type": "text",
                             "text": format_endpoints_summary(&services)
                         }
                     ]
-                }))
-            }
+                }),
+            ),
             Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
         }
     }
 
     async fn handle_get_endpoint_statuses_tool(&self, id: Value) -> Value {
         match self.gatus_client.list_services().await {
-            Ok(services) => {
-                self.success_response(id, json!({
+            Ok(services) => self.success_response(
+                id,
+                json!({
                     "content": [
                         {
                             "type": "text",
                             "text": serde_json::to_string_pretty(&services).unwrap()
                         }
                     ]
-                }))
-            }
+                }),
+            ),
             Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
         }
     }
@@ -201,17 +203,22 @@ impl McpHandler {
             Ok(services) => {
                 let service = services.into_iter().find(|s| s.name == service_name);
                 match service {
-                    Some(s) => {
-                        self.success_response(id, json!({
+                    Some(s) => self.success_response(
+                        id,
+                        json!({
                             "content": [
                                 {
                                     "type": "text",
                                     "text": format_endpoint_status(&s)
                                 }
                             ]
-                        }))
-                    }
-                    None => self.error_response(id, -32602, &format!("Service '{}' not found", service_name)),
+                        }),
+                    ),
+                    None => self.error_response(
+                        id,
+                        -32602,
+                        &format!("Service '{}' not found", service_name),
+                    ),
                 }
             }
             Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
@@ -224,7 +231,10 @@ impl McpHandler {
             None => return self.error_response(id, -32602, "Missing 'service' argument"),
         };
 
-        let limit = arguments.get("limit").and_then(|l| l.as_u64()).unwrap_or(10) as usize;
+        let limit = arguments
+            .get("limit")
+            .and_then(|l| l.as_u64())
+            .unwrap_or(10) as usize;
 
         match self.gatus_client.list_services().await {
             Ok(services) => {
@@ -232,16 +242,23 @@ impl McpHandler {
                 match service {
                     Some(s) => {
                         let history: Vec<_> = s.results.into_iter().take(limit).collect();
-                        self.success_response(id, json!({
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": serde_json::to_string_pretty(&history).unwrap()
-                                }
-                            ]
-                        }))
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": serde_json::to_string_pretty(&history).unwrap()
+                                    }
+                                ]
+                            }),
+                        )
                     }
-                    None => self.error_response(id, -32602, &format!("Service '{}' not found", service_name)),
+                    None => self.error_response(
+                        id,
+                        -32602,
+                        &format!("Service '{}' not found", service_name),
+                    ),
                 }
             }
             Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),

@@ -1,15 +1,14 @@
-#[path = "../src/settings.rs"]
-mod settings;
+use gatus_mcp_rs::settings::Settings;
 
 #[cfg(test)]
 mod tests {
-    use super::settings::Settings;
+    use super::Settings;
     use std::env;
 
     #[test]
     fn test_settings_loading() {
         // We run these sequentially in one test to avoid environment variable race conditions
-        
+
         // 1. Test Defaults
         env::remove_var("GATUS__SERVER__PORT");
         env::remove_var("GATUS__GATUS__API_URL");
@@ -23,7 +22,7 @@ mod tests {
         let settings = Settings::new().expect("Failed to load settings");
         assert_eq!(settings.server.port, 9090);
         assert_eq!(settings.gatus.api_url, "http://gatus.example.com");
-        
+
         // Cleanup
         env::remove_var("GATUS__SERVER__PORT");
         env::remove_var("GATUS__GATUS__API_URL");

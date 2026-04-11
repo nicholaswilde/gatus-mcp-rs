@@ -1,10 +1,10 @@
 use anyhow::{Context, Result};
+use governor::{Quota, RateLimiter};
+use moka::future::Cache;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use moka::future::Cache;
-use std::time::Duration;
-use governor::{Quota, RateLimiter};
 use std::num::NonZeroU32;
+use std::time::Duration;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct EndpointStatus {
@@ -31,13 +31,17 @@ pub struct GatusClient {
     api_key: Option<String>,
     client: Client,
     cache: Cache<String, Vec<EndpointStatus>>,
-    rate_limiter: RateLimiter<governor::state::NotKeyed, governor::state::InMemoryState, governor::clock::DefaultClock>,
+    rate_limiter: RateLimiter<
+        governor::state::NotKeyed,
+        governor::state::InMemoryState,
+        governor::clock::DefaultClock,
+    >,
 }
 
 impl GatusClient {
     pub fn new(api_url: String, api_key: Option<String>) -> Self {
         let quota = Quota::per_second(NonZeroU32::new(2).unwrap()); // 2 requests per second
-        
+
         Self {
             api_url,
             api_key,
@@ -52,7 +56,7 @@ impl GatusClient {
 
     pub async fn list_services(&self) -> Result<Vec<EndpointStatus>> {
         let cache_key = "endpoints_statuses".to_string();
-        
+
         if let Some(cached) = self.cache.get(&cache_key).await {
             return Ok(cached);
         }
@@ -68,7 +72,10 @@ impl GatusClient {
 
         let response = request.send().await?;
         let status = response.status();
-        let text = response.text().await.context("Failed to get response text")?;
+        let text = response
+            .text()
+            .await
+            .context("Failed to get response text")?;
 
         if !status.is_success() {
             anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
@@ -76,9 +83,9 @@ impl GatusClient {
 
         let services: Vec<EndpointStatus> = serde_json::from_str(&text)
             .with_context(|| format!("Failed to decode Gatus API response: {}", text))?;
-            
+
         self.cache.insert(cache_key, services.clone()).await;
-        
+
         Ok(services)
     }
 }

@@ -45,3 +45,10 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+[profile.ci]
+inherits = "test"
+opt-level = 1
+debug = false
+incremental = false
+

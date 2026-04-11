@@ -1,8 +1,8 @@
-use gatus_mcp_rs::mcp::McpHandler;
 use gatus_mcp_rs::client::GatusClient;
+use gatus_mcp_rs::mcp::McpHandler;
+use serde_json::json;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
-use serde_json::json;
 
 #[tokio::test]
 async fn test_mcp_get_service_history_tool_integration() {
@@ -58,10 +58,10 @@ async fn test_mcp_get_service_history_tool_integration() {
     });
 
     let response = handler.handle(request).await;
-    
+
     let text = response["result"]["content"][0]["text"].as_str().unwrap();
     let history: serde_json::Value = serde_json::from_str(text).unwrap();
-    
+
     assert_eq!(history.as_array().unwrap().len(), 1);
     assert!(text.contains("2026-04-10T12:00:00Z"));
 }

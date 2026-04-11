@@ -1,7 +1,7 @@
 use gatus_mcp_rs::client::GatusClient;
+use serde_json::json;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
-use serde_json::json;
 
 #[tokio::test]
 async fn test_gatus_client_list_services() {

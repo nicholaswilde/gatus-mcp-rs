@@ -1,5 +1,5 @@
-use clap::{Parser, Subcommand};
 use crate::mcp::McpHandler;
+use clap::{Parser, Subcommand};
 use std::sync::Arc;
 
 #[derive(Clone)]

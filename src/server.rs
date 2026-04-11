@@ -1,7 +1,7 @@
+use crate::cli::AppState;
+use crate::client::GatusClient;
 use crate::mcp::McpHandler;
 use crate::settings::Settings;
-use crate::client::GatusClient;
-use crate::cli::AppState;
 use axum::{
     extract::State,
     response::sse::{Event, Sse},
@@ -10,10 +10,15 @@ use axum::{
 };
 use futures::stream::Stream;
 use serde_json::Value;
-use std::{convert::Infallible, sync::Arc, time::Duration, io::{self, BufRead}};
-use tokio_stream::StreamExt as _;
-use tokio::net::TcpListener;
 use std::net::SocketAddr;
+use std::{
+    convert::Infallible,
+    io::{self, BufRead},
+    sync::Arc,
+    time::Duration,
+};
+use tokio::net::TcpListener;
+use tokio_stream::StreamExt as _;
 
 pub fn create_app(settings: Settings) -> Router {
     let gatus_client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
@@ -50,11 +55,7 @@ pub async fn run_stdio_server(handler: McpHandler) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn run_http_server(
-    settings: Settings,
-    port: u16,
-    host: String,
-) -> anyhow::Result<()> {
+pub async fn run_http_server(settings: Settings, port: u16, host: String) -> anyhow::Result<()> {
     let app = create_app(settings);
     let addr = format!("{}:{}", host, port).parse::<SocketAddr>()?;
     tracing::info!("Listening on {}", addr);

@@ -1,5 +1,5 @@
-use gatus_mcp_rs::mcp::McpHandler;
 use gatus_mcp_rs::client::GatusClient;
+use gatus_mcp_rs::mcp::McpHandler;
 use serde_json::json;
 
 #[tokio::test]
@@ -33,5 +33,9 @@ async fn test_mcp_handler_list_tools() {
 
     let response = handler.handle(request).await;
     assert!(response["result"]["tools"].is_array());
-    assert!(response["result"]["tools"].as_array().unwrap().iter().any(|t| t["name"] == "list_services"));
+    assert!(response["result"]["tools"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|t| t["name"] == "list_services"));
 }

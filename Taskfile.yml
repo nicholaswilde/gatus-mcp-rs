@@ -1,54 +1,139 @@
 version: '3'
 
+dotenv: ['.env']
+
 tasks:
-  build:
-    desc: Build the project
+  encrypt:
+    desc: Encrypt files using SOPS
+    preconditions:
+      - sh: test -f .env
+        msg: ".env file doens't exist"
     cmds:
-      - cargo build
+      - sops -e --input-type dotenv --output-type dotenv .env > .env.enc
+
+  decrypt:
+    desc: Decrypt files using SOPS
+    preconditions:
+      - sh: test -f .env.enc
+        msg: ".env.enc doesn't exist"
+    cmds:
+      - sops -d --input-type dotenv --output-type dotenv .env.enc > .env
+
+  coverage:
+    desc: Run tests and generate coverage report (stdout summary)
+    cmds:
+      - cargo llvm-cov --all-features --workspace --summary-only --fail-under-lines 80
+
+  coverage:report:
+    desc: Run tests and generate LCOV coverage report (for Coveralls)
+    cmds:
+      - cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info --fail-under-lines 80
+
+  test:coverage:
+    desc: Run tests and generate HTML coverage report
+    cmds:
+      - cargo llvm-cov --all-features --workspace --html
+      - echo "HTML report generated in target/llvm-cov/html/index.html"
+
+  coverage:upload:
+    desc: Upload coverage report to Coveralls
+    precondition:
+      - sh: test -f lcov.info
+        msg: "lcov.info doesn't exist"
+    cmds:
+      - coveralls report lcov.info  -n -r {{ .COVERALLS_REPO_TOKEN }}
+    silent: true
 
   test:
     desc: Run tests
     cmds:
-      - cargo test
-
-  lint:
-    desc: Run clippy for linting
+      - task: fmt:check
+      - task: clippy
+      - cargo test --profile ci
+  test:ci:
+    desc: Run tests using the CI profile
     cmds:
-      - cargo clippy -- -D warnings
+      - task: test
 
-  format:
-    desc: Format the code
+  fmt:
+    desc: Format code with rustfmt
+    cmds:
+      - cargo fmt --all
+
+  fmt:check:
+    desc: Check code formatting with rustfmt
     cmds:
       - cargo fmt -- --check
 
-  check:
-    desc: Run all checks (format, lint, test)
+  init:
+    desc: Initialize
+    preconditions:
+      - sh: test -f config.toml.example
+        msg: "config.toml.example doesn't exist"
     cmds:
-      - task: format
-      - task: lint
-      - task: test
+      - cp config.toml.example config.toml
+      - cp .env.example .env
 
-  run:
-    desc: Run the application (Stdio)
+  lint:
+    desc: Run all linting checks
     cmds:
-      - cargo run
+      - task: clippy
 
-  run:http:
-    desc: Run the application (HTTP)
+  clippy:
+    desc: Run cargo clippy
     cmds:
-      - cargo run -- http
+      - cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  default:
+    cmds:
+      - task -l
+  deps:
+    desc: Install dependencies
+    cmds:
+      - cargo install cross --git https://github.com/cross-rs/cross
+
+  build:
+    desc: Build the project for all supported architectures
+    cmds:
+      - task: build:amd64
+      - task: build:arm64
+
+  build:armv7:
+    desc: Build for ARMv7
+    cmds:
+      - cross build --release --target armv7-unknown-linux-gnueabihf
 
   build:amd64:
     desc: Build for AMD64
     cmds:
-      - cross build --target x86_64-unknown-linux-musl --release
+      - cross build --release --target x86_64-unknown-linux-gnu
 
   build:arm64:
     desc: Build for ARM64
     cmds:
-      - cross build --target aarch64-unknown-linux-musl --release
+      - cross build --release --target aarch64-unknown-linux-gnu
 
-  coverage:
-    desc: Run coverage report
+  build:local:
+    desc: Build for current architecture
     cmds:
-      - cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+      - cargo build --release
+
+  run:
+    desc: Run the MCP Server
+    cmds:
+      - cargo run
+
+  docker:build:
+    desc: Build the Docker image
+    cmds:
+      - docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t gatus-mcp-rs .
+
+  docker:run:
+    desc: Run the Docker image
+    cmds:
+      - docker run --rm -i gatus-mcp-rs
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - cargo clean

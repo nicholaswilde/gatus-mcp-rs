@@ -1,8 +1,8 @@
-use gatus_mcp_rs::mcp::McpHandler;
 use gatus_mcp_rs::client::GatusClient;
+use gatus_mcp_rs::mcp::McpHandler;
+use serde_json::json;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
-use serde_json::json;
 
 #[tokio::test]
 async fn test_mcp_list_services_tool_integration() {
@@ -36,6 +36,9 @@ async fn test_mcp_list_services_tool_integration() {
     });
 
     let response = handler.handle(request).await;
-    
-    assert!(response["result"]["content"][0]["text"].as_str().unwrap().contains("service-1"));
+
+    assert!(response["result"]["content"][0]["text"]
+        .as_str()
+        .unwrap()
+        .contains("service-1"));
 }
