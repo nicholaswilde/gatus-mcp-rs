@@ -55,6 +55,7 @@ impl GatusClient {
         }
     }
 
+    #[tracing::instrument(skip(self))]
     pub async fn list_services(&self) -> Result<Vec<EndpointStatus>> {
         let cache_key = "endpoints_statuses".to_string();
 

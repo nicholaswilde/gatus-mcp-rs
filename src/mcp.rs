@@ -43,6 +43,7 @@ impl McpHandler {
         }
     }
 
+    #[tracing::instrument(skip(self, request))]
     pub async fn handle(&self, request: Value) -> Value {
         let req: JsonRpcRequest = match serde_json::from_value(request) {
             Ok(r) => r,
@@ -131,6 +132,7 @@ impl McpHandler {
         ]
     }
 
+    #[tracing::instrument(skip(self, id, params))]
     async fn handle_call_tool(&self, id: Value, params: Option<Value>) -> Value {
         let params = params.unwrap_or(Value::Null);
         let name = match params.get("name").and_then(|n| n.as_str()) {

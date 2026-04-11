@@ -35,13 +35,18 @@ async fn test_live_service_info() {
 
     let list_resp = handler.handle(list_req).await;
     println!("List response: {}", list_resp);
-    
-    let content = list_resp["result"]["content"][0]["text"].as_str().expect("Failed to get text from response");
-    assert!(content.contains("| Service | Group | Status |"), "Response should contain table header");
+
+    let content = list_resp["result"]["content"][0]["text"]
+        .as_str()
+        .expect("Failed to get text from response");
+    assert!(
+        content.contains("| Service | Group | Status |"),
+        "Response should contain table header"
+    );
 
     // Extract first service name from summary if possible, or just use one we know exists from previous output
     // The previous output showed "Authentik", "CyberKeyGen", etc.
-    let service_name = "Authentik"; 
+    let service_name = "Authentik";
 
     // Test details
     println!("Fetching details for {}...", service_name);
@@ -59,7 +64,10 @@ async fn test_live_service_info() {
     });
     let details_resp = handler.handle(details_req).await;
     println!("Details response: {}", details_resp);
-    assert!(details_resp["error"].is_null(), "Details request should not return error");
+    assert!(
+        details_resp["error"].is_null(),
+        "Details request should not return error"
+    );
 
     // Test history
     println!("Fetching history for {}...", service_name);
@@ -78,5 +86,8 @@ async fn test_live_service_info() {
     });
     let history_resp = handler.handle(history_req).await;
     println!("History response: {}", history_resp);
-    assert!(history_resp["error"].is_null(), "History request should not return error");
+    assert!(
+        history_resp["error"].is_null(),
+        "History request should not return error"
+    );
 }

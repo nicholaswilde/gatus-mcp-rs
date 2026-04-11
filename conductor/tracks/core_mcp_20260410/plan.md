@@ -35,7 +35,7 @@
 - [x] Task: Conductor - User Manual Verification 'Gatus Integration' (Protocol in workflow.md) [19bdeb2]
 
 ## Phase 4: Final Refinement
-- [ ] Task: Error Handling & Logging
+- [~] Task: Error Handling & Logging
     - [ ] Write Tests: Verify error responses for failed API calls
     - [ ] Refine `tracing` instrumentation across all modules
 - [ ] Task: README & Documentation
