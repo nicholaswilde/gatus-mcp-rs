@@ -1,9 +1,11 @@
 use gatus_mcp_rs::mcp::McpHandler;
+use gatus_mcp_rs::gatus::GatusClient;
 use serde_json::json;
 
 #[tokio::test]
 async fn test_mcp_handler_unknown_tool() {
-    let handler = McpHandler::new();
+    let client = GatusClient::new("http://localhost".into(), None);
+    let handler = McpHandler::new(client);
     let request = json!({
         "jsonrpc": "2.0",
         "method": "tools/call",
@@ -20,7 +22,8 @@ async fn test_mcp_handler_unknown_tool() {
 
 #[tokio::test]
 async fn test_mcp_handler_list_tools() {
-    let handler = McpHandler::new();
+    let client = GatusClient::new("http://localhost".into(), None);
+    let handler = McpHandler::new(client);
     let request = json!({
         "jsonrpc": "2.0",
         "method": "tools/list",
@@ -30,4 +33,5 @@ async fn test_mcp_handler_list_tools() {
 
     let response = handler.handle(request).await;
     assert!(response["result"]["tools"].is_array());
+    assert!(response["result"]["tools"].as_array().unwrap().iter().any(|t| t["name"] == "list_services"));
 }

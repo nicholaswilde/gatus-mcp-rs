@@ -1,0 +1,41 @@
+use gatus_mcp_rs::mcp::McpHandler;
+use gatus_mcp_rs::gatus::GatusClient;
+use wiremock::matchers::{method, path};
+use wiremock::{Mock, MockServer, ResponseTemplate};
+use serde_json::json;
+
+#[tokio::test]
+async fn test_mcp_list_services_tool_integration() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let gatus_response = json!([
+        {
+            "name": "service-1",
+            "group": "core",
+            "status": "UP",
+            "results": []
+        }
+    ]);
+
+    Mock::given(method("GET"))
+        .and(path("/api/v1/endpoints/statuses"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(gatus_response))
+        .mount(&mock_server)
+        .await;
+
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "list_services",
+            "arguments": {}
+        },
+        "id": 1
+    });
+
+    let response = handler.handle(request).await;
+    
+    assert!(response["result"]["content"][0]["text"].as_str().unwrap().contains("service-1"));
+}

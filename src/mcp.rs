@@ -1,12 +1,16 @@
+use crate::gatus::GatusClient;
 use serde_json::{json, Value};
+use std::sync::Arc;
 
 pub struct McpHandler {
-    // We'll add state here as needed (e.g., Gatus client)
+    gatus_client: Arc<GatusClient>,
 }
 
 impl McpHandler {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(gatus_client: GatusClient) -> Self {
+        Self {
+            gatus_client: Arc::new(gatus_client),
+        }
     }
 
     pub async fn handle(&self, request: Value) -> Value {
@@ -27,7 +31,16 @@ impl McpHandler {
         json!({
             "jsonrpc": "2.0",
             "result": {
-                "tools": []
+                "tools": [
+                    {
+                        "name": "list_services",
+                        "description": "List all services monitored by Gatus",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {}
+                        }
+                    }
+                ]
             },
             "id": id
         })
@@ -40,8 +53,39 @@ impl McpHandler {
         };
 
         match name {
-            // Tools will be implemented in Phase 3
+            "list_services" => self.handle_list_services_tool(id).await,
             _ => self.error_response(id, -32601, "Tool not found"),
+        }
+    }
+
+    async fn handle_list_services_tool(&self, id: Value) -> Value {
+        match self.gatus_client.list_services().await {
+            Ok(services) => {
+                let thinned_services: Vec<Value> = services
+                    .into_iter()
+                    .map(|s| {
+                        json!({
+                            "name": s.name,
+                            "group": s.group,
+                            "status": s.status
+                        })
+                    })
+                    .collect();
+
+                json!({
+                    "jsonrpc": "2.0",
+                    "result": {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": serde_json::to_string_pretty(&thinned_services).unwrap()
+                            }
+                        ]
+                    },
+                    "id": id
+                })
+            }
+            Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
         }
     }
 
@@ -54,11 +98,5 @@ impl McpHandler {
             },
             "id": id
         })
-    }
-}
-
-impl Default for McpHandler {
-    fn default() -> Self {
-        Self::new()
     }
 }
