@@ -1,10 +1,10 @@
 # Implementation Plan - Build core Gatus MCP server functionality
 
 ## Phase 1: Project Foundation & Scaffolding
-- [ ] Task: Project Initialization
-    - [ ] Create `Cargo.toml` with "Gatus Stack" dependencies
-    - [ ] Set up project structure (`src/`, `tests/`)
-    - [ ] Configure `Taskfile.yml` for testing, building, and linting
+- [x] Task: Project Initialization
+    - [x] Create `Cargo.toml` with "Gatus Stack" dependencies
+    - [x] Set up project structure (`src/`, `tests/`)
+    - [x] Configure `Taskfile.yml` for testing, building, and linting
 - [ ] Task: Configuration Management
     - [ ] Write Tests: Verify `Settings` can be loaded from TOML and Env
     - [ ] Implement `src/settings.rs` using `config-rs` and `clap`

@@ -1,0 +1,34 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the project
+    cmds:
+      - cargo build
+
+  test:
+    desc: Run tests
+    cmds:
+      - cargo test
+
+  lint:
+    desc: Run clippy for linting
+    cmds:
+      - cargo clippy -- -D warnings
+
+  format:
+    desc: Format the code
+    cmds:
+      - cargo fmt -- --check
+
+  check:
+    desc: Run all checks (format, lint, test)
+    cmds:
+      - task: format
+      - task: lint
+      - task: test
+
+  run:
+    desc: Run the application
+    cmds:
+      - cargo run
