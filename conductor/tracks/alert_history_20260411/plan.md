@@ -6,7 +6,7 @@
 - [x] Task: Gatus Client Extension [c4200bb]
     - [x] Implement alert fetching in `src/client.rs`
 
-## Phase 2: MCP Integration
+## Phase 2: MCP Integration [checkpoint: f96afd8]
 - [x] Task: MCP Tool Integration [0c417a2]
     - [x] Register `get_alert_history` in `src/mcp.rs`
-- [~] Task: Conductor - User Manual Verification 'Alert History Tool' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Alert History Tool' (Protocol in workflow.md) [f96afd8]
