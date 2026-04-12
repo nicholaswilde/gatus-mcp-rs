@@ -12,7 +12,7 @@
     - [x] Write failing tests for the new tool (Red Phase).
     - [x] Implement tool logic in `src/mcp.rs` (Green Phase).
     - [x] Refactor and verify (Refactor Phase).
-- [~] Task: Implement the consolidated "Metrics" tool.
+- [x] Task: Implement the consolidated "Metrics" tool. (ac2dedc)
     - [x] Write failing tests for the new tool (Red Phase).
     - [x] Implement tool logic in `src/mcp.rs` (Green Phase).
     - [x] Refactor and verify (Refactor Phase).
