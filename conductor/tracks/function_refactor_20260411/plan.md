@@ -12,7 +12,7 @@
     - [x] Write failing tests for the new tool (Red Phase).
     - [x] Implement tool logic in `src/mcp.rs` (Green Phase).
     - [x] Refactor and verify (Refactor Phase).
-- [ ] Task: Implement the consolidated "Metrics" tool.
+- [~] Task: Implement the consolidated "Metrics" tool.
     - [x] Write failing tests for the new tool (Red Phase).
     - [x] Implement tool logic in `src/mcp.rs` (Green Phase).
     - [x] Refactor and verify (Refactor Phase).
@@ -30,7 +30,7 @@
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Payload Optimization & Cleanup' (Protocol in workflow.md)
 
 ## Phase 4: Finalization [ ]
-- [ ] Task: Update documentation.
-    - [ ] Update `README.md` with the new tool reference.
+- [~] Task: Update documentation.
+    - [x] Update `README.md` with the new tool reference.
     - [ ] Update `Product Definition` if necessary.
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Finalization' (Protocol in workflow.md)

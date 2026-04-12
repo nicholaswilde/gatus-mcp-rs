@@ -10,7 +10,9 @@ A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automat
 - **Model Context Protocol (MCP):** Native support for MCP, allowing easy integration with AI tools like Claude Desktop.
 - **Service Monitoring:** List all monitored services and their current statuses (UP/DOWN/DEGRADED).
 - **System Health Summary:** High-level overview of total, up, down, and degraded endpoint counts.
-- **Detailed Diagnostics:** Fetch latest results and history for specific health checks.
+- **Detailed Diagnostics:** Fetch latest results, history, and granular performance metrics for specific health checks.
+- **Alert & State Transitions:** Retrieve chronological alert history to identify incident root causes.
+- **Uptime Calculation:** Calculate success vs. failure ratios over 24h, 7d, and 30d timeframes.
 - **Configuration Retrieval:** Retrieve the effective Gatus monitoring configuration (conditions, names, groups).
 - **Multiple Transports:** Support for both Stdio and HTTP (SSE) transport layers.
 - **Optimized for LLMs:** Returns "thinned" payloads to conserve token usage while providing high-signal information.
@@ -97,6 +99,20 @@ Options:
 
 ## MCP Tool Reference
 
+### `manage_resources`
+Discover and manage Gatus resources and instance state.
+- **Arguments:**
+  - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, or `get-health`.
+  - `id`: (Optional) Identifier (e.g., group name for list-endpoints).
+
+### `get_metrics`
+Retrieve status, metrics, and history for services and endpoints.
+- **Arguments:**
+  - `action`: `system-stats`, `service-details`, `service-history`, `group-summary`, `uptime`, `response-time`, or `alert-history`.
+  - `id`: Identifier (e.g., service name, group name, or endpoint key).
+  - `limit`: (Optional) Maximum number of results for history actions.
+  - `timeframe`: `1h`, `24h`, `7d`, or `30d` (default: `24h`).
+
 ### `manage_services`
 Manage and list Gatus monitored services.
 - **Arguments:**
@@ -110,10 +126,40 @@ Retrieve detailed information or history for a specific service.
   - `limit`: (Optional) Number of history records to return (default: 10).
 
 ### `get_system_stats`
-Get a high-level summary of all monitored services.
+Get a high-level summary of all monitored services (total, up, down, degraded).
+- **Arguments:** (none)
+
+### `get_config`
+Retrieve the current Gatus monitoring configuration summary.
+- **Arguments:** (none)
+
+### `get_group_summary`
+Get the health status of all endpoints within a specific group.
+- **Arguments:**
+  - `group`: The name of the group (e.g., "Media").
+
+### `get_uptime`
+Get the uptime percentage for a specific service over a given timeframe.
+- **Arguments:**
+  - `service`: Name of the service.
+  - `timeframe`: `24h`, `7d`, or `30d` (default: `24h`).
+
+### `get_alert_history`
+Retrieve recent alert events and state transitions.
+- **Arguments:**
+  - `limit`: (Optional) Maximum number of alerts to return (default: 5).
+
+### `get_endpoint_stats`
+Retrieve detailed uptime or response time statistics for a specific endpoint key.
+- **Arguments:**
+  - `key`: The endpoint key (e.g., "Core_Frontend").
+  - `type`: `uptime` or `response-time`.
+  - `duration`: `1h`, `24h`, `7d`, or `30d` (default: `24h`).
+
+### `get_instance_health`
+Check the operational health of the Gatus instance itself.
 - **Arguments:** (none)
 
 ## License
 
 This project is licensed under the Apache License, Version 2.0.
- Apache License, Version 2.0.
