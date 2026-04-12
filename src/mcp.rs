@@ -93,6 +93,25 @@ impl McpHandler {
     fn get_tool_definitions(&self) -> Vec<Value> {
         vec![
             json!({
+                "name": "manage_resources",
+                "description": "Discover and manage Gatus resources and instance state.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "string",
+                            "enum": ["list-services", "list-groups", "list-endpoints", "get-config", "get-health"],
+                            "description": "Action to perform."
+                        },
+                        "id": {
+                            "type": "string",
+                            "description": "Optional identifier (e.g., group name for list-endpoints)."
+                        }
+                    },
+                    "required": ["action"]
+                }
+            }),
+            json!({
                 "name": "manage_services",
                 "description": "Manage and list Gatus monitored services",
                 "inputSchema": {
@@ -195,6 +214,39 @@ impl McpHandler {
                     }
                 }
             }),
+            json!({
+                "name": "get_endpoint_stats",
+                "description": "Retrieve detailed uptime and response time statistics for a specific endpoint key.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "key": {
+                            "type": "string",
+                            "description": "The endpoint key (e.g. 'Core_Frontend'). Use 'manage_services' with 'list' to find names/groups if needed."
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["uptime", "response-time"],
+                            "description": "The type of statistics to retrieve."
+                        },
+                        "duration": {
+                            "type": "string",
+                            "enum": ["1h", "24h", "7d", "30d"],
+                            "description": "The duration for the statistics (default: 24h)",
+                            "default": "24h"
+                        }
+                    },
+                    "required": ["key", "type"]
+                }
+            }),
+            json!({
+                "name": "get_instance_health",
+                "description": "Check the health of the Gatus instance itself.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
+            }),
         ]
     }
 
@@ -209,6 +261,7 @@ impl McpHandler {
         let arguments = params.get("arguments").unwrap_or(&Value::Null);
 
         match name {
+            "manage_resources" => self.handle_manage_resources_tool(id, arguments).await,
             "manage_services" => self.handle_manage_services_tool(id, arguments).await,
             "get_service_info" => self.handle_get_service_info_tool(id, arguments).await,
             "get_system_stats" => self.handle_get_system_stats_tool(id, arguments).await,
@@ -216,7 +269,92 @@ impl McpHandler {
             "get_group_summary" => self.handle_get_group_summary_tool(id, arguments).await,
             "get_uptime" => self.handle_get_uptime_tool(id, arguments).await,
             "get_alert_history" => self.handle_get_alert_history_tool(id, arguments).await,
+            "get_endpoint_stats" => self.handle_get_endpoint_stats_tool(id, arguments).await,
+            "get_instance_health" => self.handle_get_instance_health_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
+        }
+    }
+
+    async fn handle_manage_resources_tool(&self, id: Value, arguments: &Value) -> Value {
+        let action = match arguments.get("action").and_then(|a| a.as_str()) {
+            Some(a) => a,
+            None => return self.error_response(id, -32602, "Missing 'action' argument"),
+        };
+
+        match action {
+            "list-services" => {
+                match self.gatus_client.list_services().await {
+                    Ok(services) => {
+                        let text = format_endpoints_summary(&services);
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            "list-groups" => {
+                match self.gatus_client.list_services().await {
+                    Ok(services) => {
+                        let mut groups: Vec<_> = services.into_iter().map(|s| s.group).collect();
+                        groups.sort();
+                        groups.dedup();
+                        let text = format!("Available groups:\n- {}", groups.join("\n- "));
+
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            "list-endpoints" => {
+                let group_filter = arguments.get("id").and_then(|g| g.as_str());
+                match self.gatus_client.list_services().await {
+                    Ok(services) => {
+                        let endpoints: Vec<String> = services
+                            .into_iter()
+                            .filter(|s| {
+                                group_filter.map_or(true, |g| s.group.eq_ignore_ascii_case(g))
+                            })
+                            .map(|s| s.name)
+                            .collect();
+
+                        let text = format!("Available endpoints:\n- {}", endpoints.join("\n- "));
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            "get-config" => self.handle_get_config_tool(id, arguments).await,
+            "get-health" => self.handle_get_instance_health_tool(id, arguments).await,
+            _ => self.error_response(id, -32602, &format!("Unknown action '{}' for manage_resources", action)),
         }
     }
 
@@ -249,6 +387,91 @@ impl McpHandler {
             }
             Err(e) => {
                 self.error_response(id, -32000, &format!("Error getting alert history: {}", e))
+            }
+        }
+    }
+
+    async fn handle_get_endpoint_stats_tool(&self, id: Value, arguments: &Value) -> Value {
+        let key = match arguments.get("key").and_then(|k| k.as_str()) {
+            Some(k) => k,
+            None => return self.error_response(id, -32602, "Missing 'key' argument"),
+        };
+
+        let stat_type = match arguments.get("type").and_then(|t| t.as_str()) {
+            Some(t) => t,
+            None => return self.error_response(id, -32602, "Missing 'type' argument"),
+        };
+
+        let duration = arguments
+            .get("duration")
+            .and_then(|d| d.as_str())
+            .unwrap_or("24h");
+
+        match stat_type {
+            "uptime" => match self.gatus_client.get_endpoint_uptimes(key, duration).await {
+                Ok(uptimes) => {
+                    let mut text = format!("Uptime statistics for {} over {}:\n", key, duration);
+                    let mut sorted_keys: Vec<_> = uptimes.keys().collect();
+                    sorted_keys.sort();
+                    for k in sorted_keys {
+                        text.push_str(&format!("- {}: {:.2}%\n", k, uptimes[k] * 100.0));
+                    }
+                    self.success_response(
+                        id,
+                        json!({ "content": [{ "type": "text", "text": text }] }),
+                    )
+                }
+                Err(e) => {
+                    self.error_response(id, -32000, &format!("Error getting uptime stats: {}", e))
+                }
+            },
+            "response-time" => match self
+                .gatus_client
+                .get_endpoint_response_times(key, duration)
+                .await
+            {
+                Ok(times) => {
+                    if times.is_empty() {
+                        return self.success_response(id, json!({ "content": [{ "type": "text", "text": "No response time data found." }] }));
+                    }
+                    let avg: f64 =
+                        times.iter().map(|p| p.value as f64).sum::<f64>() / times.len() as f64;
+                    let max = times.iter().map(|p| p.value).max().unwrap_or(0);
+                    let min = times.iter().map(|p| p.value).min().unwrap_or(0);
+                    let text = format!(
+                        "Response time statistics for {} over {}:\n- Average: {:.2}ms\n- Min: {}ms\n- Max: {}ms\n- Data points: {}",
+                        key, duration, avg, min, max, times.len()
+                    );
+                    self.success_response(
+                        id,
+                        json!({ "content": [{ "type": "text", "text": text }] }),
+                    )
+                }
+                Err(e) => self.error_response(
+                    id,
+                    -32000,
+                    &format!("Error getting response time stats: {}", e),
+                ),
+            },
+            _ => self.error_response(id, -32602, &format!("Unknown stat type '{}'", stat_type)),
+        }
+    }
+
+    async fn handle_get_instance_health_tool(&self, id: Value, _arguments: &Value) -> Value {
+        match self.gatus_client.get_instance_health().await {
+            Ok(health) => self.success_response(
+                id,
+                json!({
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": format!("Gatus instance health: {}", health)
+                        }
+                    ]
+                }),
+            ),
+            Err(e) => {
+                self.error_response(id, -32000, &format!("Error getting instance health: {}", e))
             }
         }
     }
