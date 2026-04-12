@@ -8,14 +8,14 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Research & Tool Mapping' (Protocol in workflow.md) (e392461)
 
 ## Phase 2: Consolidation Implementation [ ]
-- [ ] Task: Implement the consolidated "Management" tool.
-    - [ ] Write failing tests for the new tool (Red Phase).
-    - [ ] Implement tool logic in `src/mcp.rs` (Green Phase).
-    - [ ] Refactor and verify (Refactor Phase).
+- [x] Task: Implement the consolidated "Management" tool. (fc3205a)
+    - [x] Write failing tests for the new tool (Red Phase).
+    - [x] Implement tool logic in `src/mcp.rs` (Green Phase).
+    - [x] Refactor and verify (Refactor Phase).
 - [ ] Task: Implement the consolidated "Metrics" tool.
-    - [ ] Write failing tests for the new tool (Red Phase).
-    - [ ] Implement tool logic in `src/mcp.rs` (Green Phase).
-    - [ ] Refactor and verify (Refactor Phase).
+    - [x] Write failing tests for the new tool (Red Phase).
+    - [x] Implement tool logic in `src/mcp.rs` (Green Phase).
+    - [x] Refactor and verify (Refactor Phase).
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Consolidation Implementation' (Protocol in workflow.md)
 
 ## Phase 3: Payload Optimization & Cleanup [ ]
