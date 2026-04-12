@@ -46,7 +46,11 @@ async fn test_mcp_manage_resources_list_services() {
     let response = handler.handle(request).await;
 
     // Check if result exists
-    assert!(response["error"].is_null(), "Expected no error, got: {:?}", response["error"]);
+    assert!(
+        response["error"].is_null(),
+        "Expected no error, got: {:?}",
+        response["error"]
+    );
 
     let text = response["result"]["content"][0]["text"].as_str().unwrap();
     assert!(text.contains("service-1"));
@@ -84,7 +88,11 @@ async fn test_mcp_manage_resources_list_groups() {
     });
 
     let response = handler.handle(request).await;
-    assert!(response["error"].is_null(), "Expected no error, got: {:?}", response["error"]);
+    assert!(
+        response["error"].is_null(),
+        "Expected no error, got: {:?}",
+        response["error"]
+    );
 
     let text = response["result"]["content"][0]["text"].as_str().unwrap();
     assert!(text.contains("core"));
@@ -121,7 +129,11 @@ async fn test_mcp_manage_resources_list_endpoints_all() {
     });
 
     let response = handler.handle(request).await;
-    assert!(response["error"].is_null(), "Expected no error, got: {:?}", response["error"]);
+    assert!(
+        response["error"].is_null(),
+        "Expected no error, got: {:?}",
+        response["error"]
+    );
     let text = response["result"]["content"][0]["text"].as_str().unwrap();
     assert!(text.contains("service-1"));
     assert!(text.contains("service-2"));
@@ -158,7 +170,11 @@ async fn test_mcp_manage_resources_list_endpoints_filtered() {
     });
 
     let response = handler.handle(request).await;
-    assert!(response["error"].is_null(), "Expected no error, got: {:?}", response["error"]);
+    assert!(
+        response["error"].is_null(),
+        "Expected no error, got: {:?}",
+        response["error"]
+    );
     let text = response["result"]["content"][0]["text"].as_str().unwrap();
     assert!(text.contains("service-1"));
     assert!(!text.contains("service-2"));
@@ -209,7 +225,11 @@ async fn test_mcp_manage_resources_get_config() {
     });
 
     let response = handler.handle(request).await;
-    assert!(response["error"].is_null(), "Expected no error, got: {:?}", response["error"]);
+    assert!(
+        response["error"].is_null(),
+        "Expected no error, got: {:?}",
+        response["error"]
+    );
     let text = response["result"]["content"][0]["text"].as_str().unwrap();
     assert!(text.contains("service-1"));
     assert!(text.contains("[STATUS] == 200"));
@@ -240,7 +260,11 @@ async fn test_mcp_manage_resources_get_health() {
     });
 
     let response = handler.handle(request).await;
-    assert!(response["error"].is_null(), "Expected no error, got: {:?}", response["error"]);
+    assert!(
+        response["error"].is_null(),
+        "Expected no error, got: {:?}",
+        response["error"]
+    );
     let text = response["result"]["content"][0]["text"].as_str().unwrap();
     assert!(text.contains("OK"));
 }

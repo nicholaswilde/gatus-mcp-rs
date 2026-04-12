@@ -112,139 +112,31 @@ impl McpHandler {
                 }
             }),
             json!({
-                "name": "manage_services",
-                "description": "Manage and list Gatus monitored services",
+                "name": "get_metrics",
+                "description": "Retrieve status, metrics, and history for services and endpoints.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["list", "status"],
-                            "description": "Action to perform: 'list' (compact summary) or 'status' (detailed endpoint statuses)"
-                        }
-                    },
-                    "required": ["action"]
-                }
-            }),
-            json!({
-                "name": "get_service_info",
-                "description": "Retrieve detailed information or history for a specific service",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "service": {
-                            "type": "string",
-                            "description": "Name of the service (e.g. 'Authentik')"
+                            "enum": ["system-stats", "service-details", "service-history", "group-summary", "uptime", "response-time", "alert-history"],
+                            "description": "Action to perform."
                         },
-                        "action": {
+                        "id": {
                             "type": "string",
-                            "enum": ["details", "history"],
-                            "description": "Action to perform: 'details' (current status/latest result) or 'history' (recent health check results)"
+                            "description": "Identifier (e.g., service name, group name, or endpoint key)."
                         },
                         "limit": {
                             "type": "integer",
-                            "description": "Maximum number of results for the 'history' action",
-                            "default": 10
-                        }
-                    },
-                    "required": ["service", "action"]
-                }
-            }),
-            json!({
-                "name": "get_system_stats",
-                "description": "Get a high-level summary of all monitored services (total, up, down, degraded)",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {}
-                }
-            }),
-            json!({
-                "name": "get_config",
-                "description": "Retrieve the current Gatus monitoring configuration summary.",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {}
-                }
-            }),
-            json!({
-                "name": "get_group_summary",
-                "description": "Get the health status of all endpoints within a specific group.",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "group": {
-                            "type": "string",
-                            "description": "The name of the group to summarize (e.g. 'Media')"
-                        }
-                    },
-                    "required": ["group"]
-                }
-            }),
-            json!({
-                "name": "get_uptime",
-                "description": "Get the uptime percentage for a specific service over a given timeframe.",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "service": {
-                            "type": "string",
-                            "description": "Name of the service."
+                            "description": "Maximum number of results for history actions."
                         },
                         "timeframe": {
                             "type": "string",
-                            "enum": ["24h", "7d", "30d"],
-                            "description": "Timeframe for uptime calculation (default: 24h)",
-                            "default": "24h"
-                        }
-                    },
-                    "required": ["service"]
-                }
-            }),
-            json!({
-                "name": "get_alert_history",
-                "description": "Retrieve recent alert events and state transitions.",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "limit": {
-                            "type": "integer",
-                            "description": "Maximum number of alerts to return (default: 5)",
-                            "default": 5
-                        }
-                    }
-                }
-            }),
-            json!({
-                "name": "get_endpoint_stats",
-                "description": "Retrieve detailed uptime and response time statistics for a specific endpoint key.",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "key": {
-                            "type": "string",
-                            "description": "The endpoint key (e.g. 'Core_Frontend'). Use 'manage_services' with 'list' to find names/groups if needed."
-                        },
-                        "type": {
-                            "type": "string",
-                            "enum": ["uptime", "response-time"],
-                            "description": "The type of statistics to retrieve."
-                        },
-                        "duration": {
-                            "type": "string",
                             "enum": ["1h", "24h", "7d", "30d"],
-                            "description": "The duration for the statistics (default: 24h)",
-                            "default": "24h"
+                            "description": "Timeframe for uptime/response-time calculation."
                         }
                     },
-                    "required": ["key", "type"]
-                }
-            }),
-            json!({
-                "name": "get_instance_health",
-                "description": "Check the health of the Gatus instance itself.",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {}
+                    "required": ["action"]
                 }
             }),
         ]
@@ -262,15 +154,7 @@ impl McpHandler {
 
         match name {
             "manage_resources" => self.handle_manage_resources_tool(id, arguments).await,
-            "manage_services" => self.handle_manage_services_tool(id, arguments).await,
-            "get_service_info" => self.handle_get_service_info_tool(id, arguments).await,
-            "get_system_stats" => self.handle_get_system_stats_tool(id, arguments).await,
-            "get_config" => self.handle_get_config_tool(id, arguments).await,
-            "get_group_summary" => self.handle_get_group_summary_tool(id, arguments).await,
-            "get_uptime" => self.handle_get_uptime_tool(id, arguments).await,
-            "get_alert_history" => self.handle_get_alert_history_tool(id, arguments).await,
-            "get_endpoint_stats" => self.handle_get_endpoint_stats_tool(id, arguments).await,
-            "get_instance_health" => self.handle_get_instance_health_tool(id, arguments).await,
+            "get_metrics" => self.handle_get_metrics_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
         }
     }
@@ -282,48 +166,44 @@ impl McpHandler {
         };
 
         match action {
-            "list-services" => {
-                match self.gatus_client.list_services().await {
-                    Ok(services) => {
-                        let text = format_endpoints_summary(&services);
-                        self.success_response(
-                            id,
-                            json!({
-                                "content": [
-                                    {
-                                        "type": "text",
-                                        "text": text
-                                    }
-                                ]
-                            }),
-                        )
-                    }
-                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+            "list-services" => match self.gatus_client.list_services().await {
+                Ok(services) => {
+                    let text = format_endpoints_summary(&services);
+                    self.success_response(
+                        id,
+                        json!({
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": text
+                                }
+                            ]
+                        }),
+                    )
                 }
-            }
-            "list-groups" => {
-                match self.gatus_client.list_services().await {
-                    Ok(services) => {
-                        let mut groups: Vec<_> = services.into_iter().map(|s| s.group).collect();
-                        groups.sort();
-                        groups.dedup();
-                        let text = format!("Available groups:\n- {}", groups.join("\n- "));
+                Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+            },
+            "list-groups" => match self.gatus_client.list_services().await {
+                Ok(services) => {
+                    let mut groups: Vec<_> = services.into_iter().map(|s| s.group).collect();
+                    groups.sort();
+                    groups.dedup();
+                    let text = format!("Available groups:\n- {}", groups.join("\n- "));
 
-                        self.success_response(
-                            id,
-                            json!({
-                                "content": [
-                                    {
-                                        "type": "text",
-                                        "text": text
-                                    }
-                                ]
-                            }),
-                        )
-                    }
-                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                    self.success_response(
+                        id,
+                        json!({
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": text
+                                }
+                            ]
+                        }),
+                    )
                 }
-            }
+                Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+            },
             "list-endpoints" => {
                 let group_filter = arguments.get("id").and_then(|g| g.as_str());
                 match self.gatus_client.list_services().await {
@@ -331,7 +211,7 @@ impl McpHandler {
                         let endpoints: Vec<String> = services
                             .into_iter()
                             .filter(|s| {
-                                group_filter.map_or(true, |g| s.group.eq_ignore_ascii_case(g))
+                                group_filter.is_none_or(|g| s.group.eq_ignore_ascii_case(g))
                             })
                             .map(|s| s.name)
                             .collect();
@@ -354,7 +234,106 @@ impl McpHandler {
             }
             "get-config" => self.handle_get_config_tool(id, arguments).await,
             "get-health" => self.handle_get_instance_health_tool(id, arguments).await,
-            _ => self.error_response(id, -32602, &format!("Unknown action '{}' for manage_resources", action)),
+            _ => self.error_response(
+                id,
+                -32602,
+                &format!("Unknown action '{}' for manage_resources", action),
+            ),
+        }
+    }
+
+    async fn handle_get_metrics_tool(&self, id: Value, arguments: &Value) -> Value {
+        let action = match arguments.get("action").and_then(|a| a.as_str()) {
+            Some(a) => a,
+            None => return self.error_response(id, -32602, "Missing 'action' argument"),
+        };
+
+        match action {
+            "system-stats" => {
+                let new_args = json!({});
+                self.handle_get_system_stats_tool(id, &new_args).await
+            }
+            "service-details" => {
+                let service_name = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for service-details",
+                        )
+                    }
+                };
+                let new_args = json!({"service": service_name, "action": "details"});
+                self.handle_get_service_info_tool(id, &new_args).await
+            }
+            "service-history" => {
+                let service_name = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for service-history",
+                        )
+                    }
+                };
+                let limit = arguments.get("limit").cloned().unwrap_or(json!(10));
+                let new_args =
+                    json!({"service": service_name, "action": "history", "limit": limit});
+                self.handle_get_service_info_tool(id, &new_args).await
+            }
+            "group-summary" => {
+                let group_name = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for group-summary",
+                        )
+                    }
+                };
+                let new_args = json!({"group": group_name});
+                self.handle_get_group_summary_tool(id, &new_args).await
+            }
+            "uptime" => {
+                let service_name = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(id, -32602, "Missing 'id' argument for uptime")
+                    }
+                };
+                let timeframe = arguments.get("timeframe").cloned().unwrap_or(json!("24h"));
+                let new_args = json!({"service": service_name, "timeframe": timeframe});
+                self.handle_get_uptime_tool(id, &new_args).await
+            }
+            "response-time" => {
+                let service_name = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for response-time",
+                        )
+                    }
+                };
+                let timeframe = arguments.get("timeframe").cloned().unwrap_or(json!("24h"));
+                let new_args =
+                    json!({"key": service_name, "type": "response-time", "duration": timeframe});
+                self.handle_get_endpoint_stats_tool(id, &new_args).await
+            }
+            "alert-history" => {
+                let limit = arguments.get("limit").cloned().unwrap_or(json!(5));
+                let new_args = json!({"limit": limit});
+                self.handle_get_alert_history_tool(id, &new_args).await
+            }
+            _ => self.error_response(
+                id,
+                -32602,
+                &format!("Unknown action '{}' for get_metrics", action),
+            ),
         }
     }
 
@@ -570,42 +549,6 @@ impl McpHandler {
                     ]
                 }),
             ),
-            Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
-        }
-    }
-
-    async fn handle_manage_services_tool(&self, id: Value, arguments: &Value) -> Value {
-        let action = match arguments.get("action").and_then(|a| a.as_str()) {
-            Some(a) => a,
-            None => return self.error_response(id, -32602, "Missing 'action' argument"),
-        };
-
-        match self.gatus_client.list_services().await {
-            Ok(services) => {
-                let text = match action {
-                    "list" => format_endpoints_summary(&services),
-                    "status" => serde_json::to_string_pretty(&services).unwrap(),
-                    _ => {
-                        return self.error_response(
-                            id,
-                            -32602,
-                            &format!("Unknown action '{}' for manage_services", action),
-                        )
-                    }
-                };
-
-                self.success_response(
-                    id,
-                    json!({
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": text
-                            }
-                        ]
-                    }),
-                )
-            }
             Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
         }
     }

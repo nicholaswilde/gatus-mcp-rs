@@ -21,9 +21,9 @@ async fn test_mcp_handler_api_error() {
         "jsonrpc": "2.0",
         "method": "tools/call",
         "params": {
-            "name": "manage_services",
+            "name": "manage_resources",
             "arguments": {
-                "action": "list"
+                "action": "list-services"
             }
         },
         "id": 1
@@ -57,10 +57,10 @@ async fn test_mcp_handler_service_not_found() {
         "jsonrpc": "2.0",
         "method": "tools/call",
         "params": {
-            "name": "get_service_info",
+            "name": "get_metrics",
             "arguments": {
-                "service": "non-existent",
-                "action": "details"
+                "id": "non-existent",
+                "action": "service-details"
             }
         },
         "id": 1

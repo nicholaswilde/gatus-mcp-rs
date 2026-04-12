@@ -19,14 +19,14 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Consolidation Implementation' (Protocol in workflow.md) (6057b2c)
 
 ## Phase 3: Payload Optimization & Cleanup [ ]
-- [ ] Task: Optimize tool response payloads (thinning).
-    - [ ] Write failing tests for optimized output (Red Phase).
-    - [ ] Update `src/fmt.rs` and tool handlers to return minimal high-signal data (Green Phase).
-    - [ ] Refactor and verify (Refactor Phase).
-- [ ] Task: Remove deprecated granular tools.
-    - [ ] Remove old tool definitions from `src/mcp.rs`.
-    - [ ] Cleanup obsolete tests.
-    - [ ] Verify full project stability with `task test`.
+- [x] Task: Optimize tool response payloads (thinning).
+    - [x] Write failing tests for optimized output (Red Phase).
+    - [x] Update `src/fmt.rs` and tool handlers to return minimal high-signal data (Green Phase).
+    - [x] Refactor and verify (Refactor Phase).
+- [x] Task: Remove deprecated granular tools.
+    - [x] Remove old tool definitions from `src/mcp.rs`.
+    - [x] Cleanup obsolete tests.
+    - [x] Verify full project stability with `task test`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Payload Optimization & Cleanup' (Protocol in workflow.md)
 
 ## Phase 4: Finalization [ ]

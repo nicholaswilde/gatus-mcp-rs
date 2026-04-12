@@ -37,5 +37,10 @@ async fn test_mcp_handler_list_tools() {
         .as_array()
         .unwrap()
         .iter()
-        .any(|t| t["name"] == "manage_services"));
+        .any(|t| t["name"] == "manage_resources"));
+    assert!(response["result"]["tools"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|t| t["name"] == "get_metrics"));
 }
