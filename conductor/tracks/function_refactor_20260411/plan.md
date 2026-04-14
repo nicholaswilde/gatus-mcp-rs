@@ -27,7 +27,7 @@
     - [x] Remove old tool definitions from `src/mcp.rs`.
     - [x] Cleanup obsolete tests.
     - [x] Verify full project stability with `task test`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Payload Optimization & Cleanup' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 3: Payload Optimization & Cleanup' (Protocol in workflow.md)
 
 ## Phase 4: Finalization [ ]
 - [~] Task: Update documentation.

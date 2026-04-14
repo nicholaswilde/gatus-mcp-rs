@@ -1,11 +1,16 @@
-# Gatus MCP Server
+[![task](https://img.shields.io/badge/Task-Enabled-brightgreen?style=for-the-badge&logo=task&logoColor=white)](https://taskfile.dev/#/)
+
+# Gatus MCP Server (Rust) :robot:
+
+> [!IMPORTANT]
+> This project is currently in active development (v0.1.0) and is **not production-ready**. Features may change, and breaking changes may occur without notice.
 
 A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automated health check dashboard. This server enables Large Language Models (LLMs) to interact with Gatus APIs to monitor service health, retrieve check history, and diagnose issues.
 
 > [!IMPORTANT]
 > This MCP server currently only works with **self-hosted Gatus instances** and is not compatible with the `gatus.io` managed service.
 
-## Features
+## :sparkles: Features
 
 - **Model Context Protocol (MCP):** Native support for MCP, allowing easy integration with AI tools like Claude Desktop.
 - **Service Monitoring:** List all monitored services and their current statuses (UP/DOWN/DEGRADED).
@@ -18,7 +23,7 @@ A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automat
 - **Optimized for LLMs:** Returns "thinned" payloads to conserve token usage while providing high-signal information.
 - **Flexible Configuration:** Configure via environment variables, `config.toml`, or CLI flags.
 
-## Installation
+## :hammer_and_wrench: Installation
 
 ### Prerequisites
 
@@ -35,7 +40,7 @@ cargo build --release
 
 The binary will be available at `target/release/gatus-mcp-rs`.
 
-## Configuration
+## :gear: Configuration
 
 You can configure the server using environment variables or a `config.toml` file.
 
@@ -58,7 +63,7 @@ api_url = "http://localhost:8080"
 # api_key = "your-api-key"
 ```
 
-## Usage
+## :rocket: Usage
 
 ### Stdio Mode (Default)
 
@@ -160,6 +165,14 @@ Retrieve detailed uptime or response time statistics for a specific endpoint key
 Check the operational health of the Gatus instance itself.
 - **Arguments:** (none)
 
-## License
+## :handshake: Contributing
 
-This project is licensed under the Apache License, Version 2.0.
+Contributions are welcome! Please follow standard Rust coding conventions and ensure all tests pass (`task test:ci`) before submitting features.
+
+## :balance_scale: License
+
+[Apache License 2.0](LICENSE)
+
+## :writing_hand: Author
+
+This project was started in 2026 by [Nicholas Wilde](https://github.com/nicholaswilde/).

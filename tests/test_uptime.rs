@@ -1,3 +1,4 @@
+use chrono::Utc;
 use gatus_mcp_rs::client::{EndpointStatus, GatusClient, HealthResult};
 use serde_json::json;
 use wiremock::matchers::{method, path};
@@ -7,6 +8,9 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 async fn test_gatus_client_get_uptime() {
     let mock_server = MockServer::start().await;
     let client = GatusClient::new(mock_server.uri(), None);
+    let now = Utc::now();
+    let ts1 = (now - chrono::Duration::minutes(10)).to_rfc3339();
+    let ts2 = (now - chrono::Duration::minutes(5)).to_rfc3339();
 
     let gatus_response = json!([
         {
@@ -15,12 +19,12 @@ async fn test_gatus_client_get_uptime() {
             "status": "UP",
             "results": [
                 {
-                    "timestamp": "2026-04-11T12:00:00Z",
+                    "timestamp": ts1,
                     "success": true,
                     "duration": 100
                 },
                 {
-                    "timestamp": "2026-04-11T12:01:00Z",
+                    "timestamp": ts2,
                     "success": false,
                     "duration": 100
                 }
@@ -40,13 +44,17 @@ async fn test_gatus_client_get_uptime() {
 
 #[test]
 fn test_endpoint_status_calculate_uptime() {
+    let now = Utc::now();
+    let ts1 = (now - chrono::Duration::minutes(10)).to_rfc3339();
+    let ts2 = (now - chrono::Duration::minutes(5)).to_rfc3339();
+
     let endpoint = EndpointStatus {
         name: "test-service".to_string(),
         group: "test-group".to_string(),
         status: Some("UP".to_string()),
         results: vec![
             HealthResult {
-                timestamp: "2026-04-11T12:00:00Z".to_string(),
+                timestamp: ts1,
                 success: true,
                 hostname: None,
                 ip: None,
@@ -56,7 +64,7 @@ fn test_endpoint_status_calculate_uptime() {
                 condition_results: vec![],
             },
             HealthResult {
-                timestamp: "2026-04-11T12:01:00Z".to_string(),
+                timestamp: ts2,
                 success: false,
                 hostname: None,
                 ip: None,

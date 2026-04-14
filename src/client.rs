@@ -103,6 +103,15 @@ pub struct ConditionResult {
     pub success: bool,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ResponseTimePoint {
+    pub timestamp: String,
+    pub value: u64,
+}
+
+pub type UptimeResponse = std::collections::HashMap<String, f64>;
+pub type ResponseTimeResponse = Vec<ResponseTimePoint>;
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SystemStats {
     pub total: usize,
@@ -116,6 +125,8 @@ pub struct GatusClient {
     api_key: Option<String>,
     client: Client,
     cache: Cache<String, Vec<EndpointStatus>>,
+    uptime_cache: Cache<String, UptimeResponse>,
+    response_time_cache: Cache<String, ResponseTimeResponse>,
     rate_limiter: RateLimiter<
         governor::state::NotKeyed,
         governor::state::InMemoryState,
@@ -132,6 +143,14 @@ impl GatusClient {
             api_key,
             client: Client::new(),
             cache: Cache::builder()
+                .max_capacity(100)
+                .time_to_live(Duration::from_secs(60))
+                .build(),
+            uptime_cache: Cache::builder()
+                .max_capacity(100)
+                .time_to_live(Duration::from_secs(60))
+                .build(),
+            response_time_cache: Cache::builder()
                 .max_capacity(100)
                 .time_to_live(Duration::from_secs(60))
                 .build(),
@@ -189,7 +208,13 @@ impl GatusClient {
                 "DOWN" => down += 1,
                 "DEGRADED" => degraded += 1,
                 _ => {
-                    tracing::debug!("Service {} has unknown status: {}", service.name, status);
+                    if let Some(result) = service.results.first() {
+                        if result.success {
+                            up += 1;
+                        } else {
+                            down += 1;
+                        }
+                    }
                 }
             }
         }
@@ -233,5 +258,97 @@ impl GatusClient {
         all_events.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
 
         Ok(all_events.into_iter().take(limit).collect())
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_endpoint_uptimes(&self, key: &str, duration: &str) -> Result<UptimeResponse> {
+        let cache_key = format!("uptimes_{}_{}", key, duration);
+        if let Some(cached) = self.uptime_cache.get(&cache_key).await {
+            return Ok(cached);
+        }
+
+        self.rate_limiter.until_ready().await;
+
+        let url = format!(
+            "{}/api/v1/endpoints/{}/uptimes/{}",
+            self.api_url, key, duration
+        );
+        let mut request = self.client.get(url);
+
+        if let Some(ref key) = self.api_key {
+            request = request.header("Authorization", format!("Bearer {}", key));
+        }
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        let uptimes: UptimeResponse = serde_json::from_str(&text)?;
+        self.uptime_cache.insert(cache_key, uptimes.clone()).await;
+        Ok(uptimes)
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_endpoint_response_times(
+        &self,
+        key: &str,
+        duration: &str,
+    ) -> Result<ResponseTimeResponse> {
+        let cache_key = format!("response_times_{}_{}", key, duration);
+        if let Some(cached) = self.response_time_cache.get(&cache_key).await {
+            return Ok(cached);
+        }
+
+        self.rate_limiter.until_ready().await;
+
+        let url = format!(
+            "{}/api/v1/endpoints/{}/response-times/{}",
+            self.api_url, key, duration
+        );
+        let mut request = self.client.get(url);
+
+        if let Some(ref key) = self.api_key {
+            request = request.header("Authorization", format!("Bearer {}", key));
+        }
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        let response_times: ResponseTimeResponse = serde_json::from_str(&text)?;
+        self.response_time_cache
+            .insert(cache_key, response_times.clone())
+            .await;
+        Ok(response_times)
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_instance_health(&self) -> Result<String> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/health", self.api_url);
+        let mut request = self.client.get(url);
+
+        if let Some(ref key) = self.api_key {
+            request = request.header("Authorization", format!("Bearer {}", key));
+        }
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        Ok(text)
     }
 }

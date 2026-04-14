@@ -24,3 +24,4 @@ config.yaml
 config.yml
 config.toml
 config.json
+**/settings.json
