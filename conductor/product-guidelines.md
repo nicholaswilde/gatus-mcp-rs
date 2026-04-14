@@ -7,7 +7,7 @@
 
 ## MCP Implementation Principles
 - **Tool Clarity:** Tool names and descriptions must be clear and descriptive to allow LLMs to select the correct tool for a given task.
-- **Tool Grouping:** Group related actions (e.g., 'list' and 'status') into a single tool with an `action` argument to reduce the number of tool definitions and optimize token usage during discovery.
+- **Strategic Tool Consolidation:** Prioritize a consolidated toolset (e.g., `manage_resources`, `get_metrics`) using dynamic `action` arguments to minimize the tool discovery schema and optimize the LLM's context window.
 - **Schema Optimization:** Use strictly defined JSON schemas for tool arguments to minimize LLM hallucinations.
 - **Thin Payloads:** Always prefer returning summarized or filtered data over raw Gatus API responses to preserve the LLM's context window.
 

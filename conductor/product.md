@@ -101,14 +101,10 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 ## Key Features
 - **SSE Transport Layer:** Implements the MCP-over-SSE standard using Axum for reliable, long-lived connections.
 - **Dynamic Tool Discovery:** Automatically exposes Gatus API capabilities as MCP tools.
-- **Granular Health Tools:** Specialized tools for listing all results, getting status for a specific service, and checking service history.
-- **Alert History Tool:** Retrieve chronological state transitions (Healthy/Unhealthy/Start) to identify incident root causes.
-- **Uptime Calculation Tool:** Calculates success vs. failure ratios over 24h, 7d, and 30d timeframes.
-- **System-Wide Health Summary:** Provides a high-level overview of the entire monitored infrastructure (total, up, down, degraded counts).
-- **Group Summary Tool:** Allows filtering health status by organizational group (e.g., "Media", "DNS").
-- **Endpoint Statistics Tool:** Retrieves detailed uptime and response time statistics for specific self-hosted Gatus endpoints.
-- **Instance Health Tool:** A dedicated tool to check the operational health of the Gatus instance itself.
-- **Configuration Summary Tool:** A dedicated tool to retrieve the effective monitoring configuration, including endpoint names, groups, and conditions.
+- **Consolidated Toolset:** Replaces granular tools with a streamlined set of dynamic, parameterized tools (`manage_resources`, `get_metrics`) to improve token efficiency and simplify tool discovery.
+- **Dynamic Resource Management:** A single tool (`manage_resources`) for listing services, groups, endpoints, and checking instance health or configuration.
+- **Comprehensive Metrics Retrieval:** A single tool (`get_metrics`) for retrieving system stats, service details, history, uptime, response times, and alert history.
+- **High-Signal Payloads:** Implements "thinning" of tool responses to ensure only high-signal data is returned, minimizing token consumption.
 - **Thread-Safe Session Management:** Uses DashMap for efficient, concurrent handling of multiple MCP clients.
 - **Environment-Driven Configuration:** Flexible setup via `config.toml`, environment variables, and CLI flags.
 
