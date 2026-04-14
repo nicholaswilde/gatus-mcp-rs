@@ -108,62 +108,15 @@ Options:
 Discover and manage Gatus resources and instance state.
 - **Arguments:**
   - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, or `get-health`.
-  - `id`: (Optional) Identifier (e.g., group name for list-endpoints).
+  - `id`: (Optional) Identifier (e.g., group name for `list-endpoints`).
 
 ### `get_metrics`
 Retrieve status, metrics, and history for services and endpoints.
 - **Arguments:**
   - `action`: `system-stats`, `service-details`, `service-history`, `group-summary`, `uptime`, `response-time`, or `alert-history`.
-  - `id`: Identifier (e.g., service name, group name, or endpoint key).
-  - `limit`: (Optional) Maximum number of results for history actions.
-  - `timeframe`: `1h`, `24h`, `7d`, or `30d` (default: `24h`).
-
-### `manage_services`
-Manage and list Gatus monitored services.
-- **Arguments:**
-  - `action`: `list` (compact markdown table) or `status` (detailed JSON).
-
-### `get_service_info`
-Retrieve detailed information or history for a specific service.
-- **Arguments:**
-  - `service`: Name of the service (e.g., "Authentik").
-  - `action`: `details` (current status/latest result) or `history` (recent results).
-  - `limit`: (Optional) Number of history records to return (default: 10).
-
-### `get_system_stats`
-Get a high-level summary of all monitored services (total, up, down, degraded).
-- **Arguments:** (none)
-
-### `get_config`
-Retrieve the current Gatus monitoring configuration summary.
-- **Arguments:** (none)
-
-### `get_group_summary`
-Get the health status of all endpoints within a specific group.
-- **Arguments:**
-  - `group`: The name of the group (e.g., "Media").
-
-### `get_uptime`
-Get the uptime percentage for a specific service over a given timeframe.
-- **Arguments:**
-  - `service`: Name of the service.
-  - `timeframe`: `24h`, `7d`, or `30d` (default: `24h`).
-
-### `get_alert_history`
-Retrieve recent alert events and state transitions.
-- **Arguments:**
-  - `limit`: (Optional) Maximum number of alerts to return (default: 5).
-
-### `get_endpoint_stats`
-Retrieve detailed uptime or response time statistics for a specific endpoint key.
-- **Arguments:**
-  - `key`: The endpoint key (e.g., "Core_Frontend").
-  - `type`: `uptime` or `response-time`.
-  - `duration`: `1h`, `24h`, `7d`, or `30d` (default: `24h`).
-
-### `get_instance_health`
-Check the operational health of the Gatus instance itself.
-- **Arguments:** (none)
+  - `id`: (Optional) Identifier (e.g., service name for `service-details`, group name for `group-summary`, or endpoint key for `response-time`).
+  - `limit`: (Optional) Maximum number of results for history actions (default: 10 for `service-history`, 5 for `alert-history`).
+  - `timeframe`: (Optional) `1h`, `24h`, `7d`, or `30d` (default: `24h`) for `uptime` and `response-time`.
 
 ## :handshake: Contributing
 
