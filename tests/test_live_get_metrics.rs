@@ -1,4 +1,6 @@
 use gatus_mcp_rs::client::GatusClient;
+use gatus_mcp_rs::mcp::McpHandler;
+use serde_json::json;
 use std::env;
 
 #[tokio::test]
@@ -15,29 +17,116 @@ async fn test_live_get_metrics() {
 
     println!("Testing get_metrics against live instance: {}", api_url);
 
-    let client = GatusClient::new(api_url, api_key);
+    let client = std::sync::Arc::new(GatusClient::new(api_url, api_key));
+    let handler = McpHandler::new_with_arc(client.clone());
 
-    // System stats test
-    let stats = client
-        .get_system_stats()
-        .await
-        .expect("Failed to get system stats from live instance");
-    println!(
-        "System stats: Total: {}, UP: {}, DOWN: {}, DEGRADED: {}",
-        stats.total, stats.up, stats.down, stats.degraded
+    // 1. System stats
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": {
+                "action": "system-stats"
+            }
+        },
+        "id": 1
+    });
+
+    let response = handler.handle(request).await;
+    assert!(
+        response["error"].is_null(),
+        "Expected no error for system-stats, got: {:?}",
+        response["error"]
     );
+    let text = response["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.contains("**Total Endpoints:**"));
 
-    // Get list of services to fetch details for
-    let services = client.list_services().await.unwrap();
+    // 2. Alert History
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": {
+                "action": "alert-history",
+                "limit": 3
+            }
+        },
+        "id": 2
+    });
+
+    let response = handler.handle(request).await;
+    assert!(
+        response["error"].is_null(),
+        "Expected no error for alert-history, got: {:?}",
+        response["error"]
+    );
+    // (Output might be empty if no alerts in Gatus)
+
+    // 3. Service specific actions - Need to get a real service name first
+    let services = client
+        .list_services()
+        .await
+        .expect("Failed to list services");
     if let Some(service) = services.first() {
-        println!("Service Details for {}", service.name);
-        println!("  - Group: {}", service.group);
-        println!("  - Status: {}", service.display_status());
+        println!("Testing service-specific metrics for: {}", service.name);
 
-        // Alert History
-        let alerts = client.get_alert_history(2).await.unwrap_or_default();
-        println!("Alert History (limit 2): {} alerts found.", alerts.len());
+        // service-details
+        let request = json!({
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "params": {
+                "name": "get_metrics",
+                "arguments": {
+                    "action": "service-details",
+                    "id": &service.name
+                }
+            },
+            "id": 3
+        });
+        let response = handler.handle(request).await;
+        assert!(response["error"].is_null());
+        let text = response["result"]["content"][0]["text"].as_str().unwrap();
+        assert!(text.contains(&service.name));
+
+        // uptime
+        let request = json!({
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "params": {
+                "name": "get_metrics",
+                "arguments": {
+                    "action": "uptime",
+                    "id": &service.name,
+                    "timeframe": "24h"
+                }
+            },
+            "id": 4
+        });
+        let response = handler.handle(request).await;
+        assert!(response["error"].is_null());
+        let text = response["result"]["content"][0]["text"].as_str().unwrap();
+        assert!(text.contains("%"));
+
+        // group-summary
+        let request = json!({
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "params": {
+                "name": "get_metrics",
+                "arguments": {
+                    "action": "group-summary",
+                    "id": &service.group
+                }
+            },
+            "id": 5
+        });
+        let response = handler.handle(request).await;
+        assert!(response["error"].is_null());
+        let text = response["result"]["content"][0]["text"].as_str().unwrap();
+        assert!(text.contains(&service.group));
     } else {
-        println!("No services found to test details against.");
+        println!("No services found, skipping service-specific tests");
     }
 }

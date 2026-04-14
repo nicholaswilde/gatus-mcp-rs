@@ -1,4 +1,6 @@
 use gatus_mcp_rs::client::GatusClient;
+use gatus_mcp_rs::mcp::McpHandler;
+use serde_json::json;
 use std::env;
 
 #[tokio::test]
@@ -19,29 +21,75 @@ async fn test_live_manage_resources() {
     );
 
     let client = GatusClient::new(api_url, api_key);
+    let handler = McpHandler::new(client);
 
-    // Test list_services action
-    let services = client
-        .list_services()
-        .await
-        .expect("Failed to list services from live instance for manage_resources");
+    // Test list-services action
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "manage_resources",
+            "arguments": {
+                "action": "list-services"
+            }
+        },
+        "id": 1
+    });
 
+    let response = handler.handle(request).await;
     assert!(
-        !services.is_empty(),
-        "Live instance should have at least one service for manage_resources"
+        response["error"].is_null(),
+        "Expected no error for list-services, got: {:?}",
+        response["error"]
     );
-
-    let first_group = services[0].group.clone();
+    let text = response["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(!text.is_empty(), "Result text should not be empty");
     println!(
-        "Found {} services. First group is {}",
-        services.len(),
-        first_group
+        "List services output sample: {}",
+        &text[..text.len().min(100)]
     );
 
-    // We only test the client layer here for integration because the MCP handler just wraps these calls
-    let health = client
-        .get_instance_health()
-        .await
-        .expect("Failed to get instance health");
-    println!("Live instance health: {}", health);
+    // Test list-groups action
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "manage_resources",
+            "arguments": {
+                "action": "list-groups"
+            }
+        },
+        "id": 2
+    });
+
+    let response = handler.handle(request).await;
+    assert!(
+        response["error"].is_null(),
+        "Expected no error for list-groups, got: {:?}",
+        response["error"]
+    );
+    let text = response["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.contains("Available groups:"));
+
+    // Test get-health action
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "manage_resources",
+            "arguments": {
+                "action": "get-health"
+            }
+        },
+        "id": 3
+    });
+
+    let response = handler.handle(request).await;
+    assert!(
+        response["error"].is_null(),
+        "Expected no error for get-health, got: {:?}",
+        response["error"]
+    );
+    let text = response["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.contains("UP") || text.contains("OK"));
 }

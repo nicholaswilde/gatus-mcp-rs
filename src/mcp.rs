@@ -45,6 +45,10 @@ impl McpHandler {
         }
     }
 
+    pub fn new_with_arc(gatus_client: Arc<GatusClient>) -> Self {
+        Self { gatus_client }
+    }
+
     #[tracing::instrument(skip(self, request))]
     pub async fn handle(&self, request: Value) -> Value {
         let req: JsonRpcRequest = match serde_json::from_value(request) {
