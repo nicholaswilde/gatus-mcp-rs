@@ -123,7 +123,7 @@ impl McpHandler {
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["system-stats", "service-details", "service-history", "group-summary", "uptime", "response-time", "alert-history"],
+                            "enum": ["system-stats", "service-details", "service-history", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history"],
                             "description": "Action to perform."
                         },
                         "id": {
@@ -304,13 +304,21 @@ impl McpHandler {
             "uptime" => {
                 let service_name = match arguments.get("id").and_then(|s| s.as_str()) {
                     Some(s) => s,
-                    None => {
-                        return self.error_response(id, -32602, "Missing 'id' argument for uptime")
-                    }
+                    None => return self.error_response(id, -32602, "Missing 'id' argument for uptime")
                 };
                 let timeframe = arguments.get("timeframe").cloned().unwrap_or(json!("24h"));
                 let new_args = json!({"service": service_name, "timeframe": timeframe});
                 self.handle_get_uptime_tool(id, &new_args).await
+            }
+            "uptime-granular" => {
+                let service_name = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => return self.error_response(id, -32602, "Missing 'id' argument for uptime-granular")
+                };
+                let timeframe = arguments.get("timeframe").cloned().unwrap_or(json!("24h"));
+                let new_args =
+                    json!({"key": service_name, "type": "uptime", "duration": timeframe});
+                self.handle_get_endpoint_stats_tool(id, &new_args).await
             }
             "response-time" => {
                 let service_name = match arguments.get("id").and_then(|s| s.as_str()) {

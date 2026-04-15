@@ -13,10 +13,10 @@ use serde_json::Value;
 use std::net::SocketAddr;
 use std::{
     convert::Infallible,
-    io::{self, BufRead},
     sync::Arc,
     time::Duration,
 };
+use tokio::io::{self, AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpListener;
 use tokio_stream::StreamExt as _;
 
@@ -35,19 +35,31 @@ pub fn create_app(settings: Settings) -> Router {
 
 pub async fn run_stdio_server(handler: McpHandler) -> anyhow::Result<()> {
     let stdin = io::stdin();
-    let mut reader = stdin.lock();
+    let stdout = io::stdout();
+    run_server_loop(handler, io::BufReader::new(stdin), stdout).await
+}
+
+pub async fn run_server_loop<R, W>(
+    handler: McpHandler,
+    mut reader: R,
+    mut writer: W,
+) -> anyhow::Result<()>
+where
+    R: AsyncBufRead + Unpin,
+    W: AsyncWrite + Unpin,
+{
     let mut line = String::new();
 
-    tracing::info!("Ready to receive MCP messages on stdin");
+    tracing::info!("Ready to receive MCP messages");
 
-    while reader.read_line(&mut line)? > 0 {
+    while reader.read_line(&mut line).await? > 0 {
         let request: Value = match serde_json::from_str(&line) {
             Ok(v) => {
                 tracing::debug!("Received request: {}", v);
                 v
             }
             Err(e) => {
-                tracing::error!("Failed to parse JSON from stdin: {}", e);
+                tracing::error!("Failed to parse JSON: {}", e);
                 line.clear();
                 continue;
             }
@@ -56,7 +68,9 @@ pub async fn run_stdio_server(handler: McpHandler) -> anyhow::Result<()> {
         let response = handler.handle(request).await;
         let response_str = serde_json::to_string(&response)?;
         tracing::debug!("Sending response: {}", response_str);
-        println!("{}", response_str);
+        writer.write_all(response_str.as_bytes()).await?;
+        writer.write_all(b"\n").await?;
+        writer.flush().await?;
         line.clear();
     }
 

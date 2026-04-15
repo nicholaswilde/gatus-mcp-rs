@@ -181,6 +181,70 @@ async fn test_mcp_manage_resources_list_endpoints_filtered() {
 }
 
 #[tokio::test]
+async fn test_mcp_manage_resources_list_endpoints_not_found() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    Mock::given(method("GET"))
+        .and(path("/api/v1/endpoints/statuses"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!([])))
+        .mount(&mock_server)
+        .await;
+
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "manage_resources",
+            "arguments": {
+                "action": "list-endpoints",
+                "id": "non-existent"
+            }
+        },
+        "id": 1
+    });
+
+    let response = handler.handle(request).await;
+    let text = response["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.contains("Available endpoints:\n- "));
+}
+
+#[tokio::test]
+async fn test_mcp_manage_resources_get_config_no_results() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let gatus_response = json!([
+        { "name": "svc1", "group": "grp1", "results": [] }
+    ]);
+
+    Mock::given(method("GET"))
+        .and(path("/api/v1/endpoints/statuses"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(gatus_response))
+        .mount(&mock_server)
+        .await;
+
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "manage_resources",
+            "arguments": {
+                "action": "get-config"
+            }
+        },
+        "id": 1
+    });
+
+    let response = handler.handle(request).await;
+    let text = response["result"]["content"][0]["text"].as_str().unwrap();
+    assert!(text.contains("svc1 (Group: grp1)"));
+    assert!(!text.contains("- **Conditions:**"));
+}
+
+#[tokio::test]
 async fn test_mcp_manage_resources_get_config() {
     let mock_server = MockServer::start().await;
     let client = GatusClient::new(mock_server.uri(), None);
