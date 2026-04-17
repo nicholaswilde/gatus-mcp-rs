@@ -14,6 +14,7 @@
 - **config-rs:** A flexible configuration library for merging settings from TOML files, environment variables, and CLI flags.
 - **clap (v4):** A full-featured command-line argument parser used for server bootstrapping and initial configuration.
 - **dashmap:** A high-performance, concurrent hash map used for thread-safe session tracking across multiple SSE streams.
+- **tokio::sync::broadcast:** Used for efficient, one-to-many notification dispatching of real-time service state changes.
 
 ## Logging & Observability
 - **tracing:** A framework for instrumenting Rust programs to collect structured, event-based diagnostic information.

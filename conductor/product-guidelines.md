@@ -10,6 +10,7 @@
 - **Strategic Tool Consolidation:** Prioritize a consolidated toolset (e.g., `manage_resources`, `get_metrics`) using dynamic `action` arguments to minimize the tool discovery schema and optimize the LLM's context window.
 - **Standardized Workflows (MCP Prompts):** Use pre-defined prompts to guide LLMs through complex or multi-step tasks like troubleshooting an outage or summarizing daily health.
 - **Direct Context Attachment (MCP Resources):** Expose static or slowly-changing data as resources to allow LLMs to read state without executing tool calls.
+- **Proactive Engagement:** Implement real-time notifications for critical service state changes to minimize LLM polling requirements and improve responsiveness.
 - **Schema Optimization:** Use strictly defined JSON schemas for tool arguments to minimize LLM hallucinations.
 - **Thin Payloads:** Always prefer returning summarized or filtered data over raw Gatus API responses to preserve the LLM's context window.
 
