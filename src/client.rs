@@ -6,6 +6,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::num::NonZeroU32;
+use std::sync::Arc;
 use std::time::Duration;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -121,6 +122,7 @@ pub struct SystemStats {
     pub degraded: usize,
 }
 
+#[derive(Clone)]
 pub struct GatusClient {
     api_url: String,
     api_key: Option<String>,
@@ -128,10 +130,12 @@ pub struct GatusClient {
     cache: Cache<String, Vec<EndpointStatus>>,
     uptime_cache: Cache<String, UptimeResponse>,
     response_time_cache: Cache<String, ResponseTimeResponse>,
-    rate_limiter: RateLimiter<
-        governor::state::NotKeyed,
-        governor::state::InMemoryState,
-        governor::clock::DefaultClock,
+    rate_limiter: Arc<
+        RateLimiter<
+            governor::state::NotKeyed,
+            governor::state::InMemoryState,
+            governor::clock::DefaultClock,
+        >,
     >,
 }
 
@@ -155,16 +159,18 @@ impl GatusClient {
                 .max_capacity(100)
                 .time_to_live(Duration::from_secs(60))
                 .build(),
-            rate_limiter: RateLimiter::direct(quota),
+            rate_limiter: Arc::new(RateLimiter::direct(quota)),
         }
     }
 
     #[tracing::instrument(skip(self))]
-    pub async fn list_services(&self) -> Result<Vec<EndpointStatus>> {
+    pub async fn list_services(&self, refresh: bool) -> Result<Vec<EndpointStatus>> {
         let cache_key = "endpoints_statuses".to_string();
 
-        if let Some(cached) = self.cache.get(&cache_key).await {
-            return Ok(cached);
+        if !refresh {
+            if let Some(cached) = self.cache.get(&cache_key).await {
+                return Ok(cached);
+            }
         }
 
         self.rate_limiter.until_ready().await;
@@ -197,7 +203,7 @@ impl GatusClient {
 
     #[tracing::instrument(skip(self))]
     pub async fn get_system_stats(&self) -> Result<SystemStats> {
-        let services = self.list_services().await?;
+        let services = self.list_services(false).await?;
         let mut up = 0;
         let mut down = 0;
         let mut degraded = 0;
@@ -230,7 +236,7 @@ impl GatusClient {
 
     #[tracing::instrument(skip(self))]
     pub async fn get_uptime(&self, service_name: &str, timeframe: &str) -> Result<f64> {
-        let services = self.list_services().await?;
+        let services = self.list_services(false).await?;
         let service = services
             .iter()
             .find(|s| s.name == service_name)
@@ -241,7 +247,7 @@ impl GatusClient {
 
     #[tracing::instrument(skip(self))]
     pub async fn get_alert_history(&self, limit: usize) -> Result<Vec<AlertEvent>> {
-        let services = self.list_services().await?;
+        let services = self.list_services(false).await?;
         let mut all_events = Vec::new();
 
         for service in services {

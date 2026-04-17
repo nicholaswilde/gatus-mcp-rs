@@ -390,7 +390,7 @@ impl McpHandler {
         };
 
         match action {
-            "list-services" => match self.gatus_client.list_services().await {
+            "list-services" => match self.gatus_client.list_services(false).await {
                 Ok(services) => {
                     let text = format_endpoints_summary(&services);
                     self.success_response(
@@ -407,7 +407,7 @@ impl McpHandler {
                 }
                 Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
             },
-            "list-groups" => match self.gatus_client.list_services().await {
+            "list-groups" => match self.gatus_client.list_services(false).await {
                 Ok(services) => {
                     let mut groups: Vec<_> = services.into_iter().map(|s| s.group).collect();
                     groups.sort();
@@ -430,7 +430,7 @@ impl McpHandler {
             },
             "list-endpoints" => {
                 let group_filter = arguments.get("id").and_then(|g| g.as_str());
-                match self.gatus_client.list_services().await {
+                match self.gatus_client.list_services(false).await {
                     Ok(services) => {
                         let endpoints: Vec<String> = services
                             .into_iter()
@@ -728,7 +728,7 @@ impl McpHandler {
             None => return self.error_response(id, -32602, "Missing 'group' argument"),
         };
 
-        match self.gatus_client.list_services().await {
+        match self.gatus_client.list_services(false).await {
             Ok(services) => {
                 let filtered: Vec<_> = services
                     .into_iter()
@@ -760,7 +760,7 @@ impl McpHandler {
     }
 
     async fn handle_get_config_tool(&self, id: Value, _arguments: &Value) -> Value {
-        match self.gatus_client.list_services().await {
+        match self.gatus_client.list_services(false).await {
             Ok(services) => self.success_response(
                 id,
                 json!({
@@ -804,7 +804,7 @@ impl McpHandler {
             None => return self.error_response(id, -32602, "Missing 'action' argument"),
         };
 
-        match self.gatus_client.list_services().await {
+        match self.gatus_client.list_services(false).await {
             Ok(services) => {
                 let service = services.into_iter().find(|s| s.name == service_name);
                 match service {

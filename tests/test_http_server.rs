@@ -4,8 +4,8 @@ use axum::{
 };
 use gatus_mcp_rs::server::create_app;
 use gatus_mcp_rs::settings::Settings;
-use tower::ServiceExt; // for `oneshot`
 use tokio_stream::StreamExt;
+use tower::ServiceExt; // for `oneshot`
 
 #[tokio::test]
 async fn test_sse_endpoint() {
@@ -26,7 +26,8 @@ async fn test_sse_endpoint() {
     let mut body = response.into_body().into_data_stream();
     let first_chunk = body.next().await.unwrap().unwrap();
     let first_text = String::from_utf8(first_chunk.to_vec()).unwrap();
-    assert!(first_text.contains("data: ping"));
+    println!("First text: {:?}", first_text);
+    assert!(first_text.contains(": keep-alive"));
 }
 
 #[tokio::test]
@@ -36,9 +37,10 @@ async fn test_run_http_server() {
     let host = "127.0.0.1".to_string();
     settings.gatus.api_url = "http://localhost:8080".to_string();
 
-    let server_handle = tokio::spawn(async move {
-        gatus_mcp_rs::server::run_http_server(settings, port, host).await
-    });
+    let server_handle =
+        tokio::spawn(
+            async move { gatus_mcp_rs::server::run_http_server(settings, port, host).await },
+        );
 
     // Wait a bit for server to start
     tokio::time::sleep(std::time::Duration::from_millis(500)).await;

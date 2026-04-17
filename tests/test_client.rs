@@ -23,7 +23,7 @@ async fn test_gatus_client_list_services() {
         .mount(&mock_server)
         .await;
 
-    let services = client.list_services().await.unwrap();
+    let services = client.list_services(false).await.unwrap();
     assert_eq!(services.len(), 1);
     assert_eq!(services[0].name, "service-1");
 }
