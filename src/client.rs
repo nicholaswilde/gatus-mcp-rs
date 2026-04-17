@@ -97,6 +97,9 @@ pub struct HealthResult {
     pub status: Option<u16>,
     #[serde(rename = "conditionResults", default)]
     pub condition_results: Vec<ConditionResult>,
+    pub body: Option<String>,
+    pub headers: Option<std::collections::HashMap<String, String>>,
+    pub certificate_expiration: Option<u64>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -120,6 +123,7 @@ pub struct SystemStats {
     pub up: usize,
     pub down: usize,
     pub degraded: usize,
+    pub certificates_expiring_soon: usize,
 }
 
 #[derive(Clone)]
@@ -207,6 +211,10 @@ impl GatusClient {
         let mut up = 0;
         let mut down = 0;
         let mut degraded = 0;
+        let mut certificates_expiring_soon = 0;
+
+        // 30 days in nanoseconds
+        let threshold = 30 * 24 * 60 * 60 * 1_000_000_000u64;
 
         for service in &services {
             let status = service.display_status().to_uppercase();
@@ -224,6 +232,14 @@ impl GatusClient {
                     }
                 }
             }
+
+            if let Some(result) = service.results.first() {
+                if let Some(exp) = result.certificate_expiration {
+                    if exp < threshold {
+                        certificates_expiring_soon += 1;
+                    }
+                }
+            }
         }
 
         Ok(SystemStats {
@@ -231,6 +247,7 @@ impl GatusClient {
             up,
             down,
             degraded,
+            certificates_expiring_soon,
         })
     }
 
