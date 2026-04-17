@@ -355,6 +355,50 @@ impl GatusClient {
     }
 
     #[tracing::instrument(skip(self))]
+    pub async fn trigger_check(&self, key: &str) -> Result<()> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/api/v1/endpoints/{}/trigger", self.api_url, key);
+        let mut request = self.client.post(url);
+
+        if let Some(ref key) = self.api_key {
+            request = request.header("Authorization", format!("Bearer {}", key));
+        }
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        Ok(())
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn reload_config(&self) -> Result<()> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/api/v1/config/reload", self.api_url);
+        let mut request = self.client.post(url);
+
+        if let Some(ref key) = self.api_key {
+            request = request.header("Authorization", format!("Bearer {}", key));
+        }
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        Ok(())
+    }
+
+    #[tracing::instrument(skip(self))]
     pub async fn get_instance_health(&self) -> Result<String> {
         self.rate_limiter.until_ready().await;
 
