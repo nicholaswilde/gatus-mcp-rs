@@ -4,12 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [x] Track: MCP Prompts
-- **Folder:** [tracks/mcp_prompts_20260416](./tracks/mcp_prompts_20260416/index.md)
-- **Description:** Implement standardized prompts for monitoring workflows.
-
----
-
 ## [ ] Track: MCP Resources
 - **Folder:** [tracks/mcp_resources_20260416](./tracks/mcp_resources_20260416/index.md)
 - **Description:** Expose static configuration and status data as resources.
