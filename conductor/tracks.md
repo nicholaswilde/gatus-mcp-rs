@@ -4,7 +4,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Track: MCP Resources
+## [x] Track: MCP Resources
 - **Folder:** [tracks/mcp_resources_20260416](./tracks/mcp_resources_20260416/index.md)
 - **Description:** Expose static configuration and status data as resources.
 
