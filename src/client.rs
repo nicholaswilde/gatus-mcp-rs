@@ -4,6 +4,7 @@ use governor::{Quota, RateLimiter};
 use moka::future::Cache;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::num::NonZeroU32;
 use std::time::Duration;
 
@@ -328,6 +329,29 @@ impl GatusClient {
             .insert(cache_key, response_times.clone())
             .await;
         Ok(response_times)
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_config(&self) -> Result<Value> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/api/v1/config", self.api_url);
+        let mut request = self.client.get(url);
+
+        if let Some(ref key) = self.api_key {
+            request = request.header("Authorization", format!("Bearer {}", key));
+        }
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        let config: Value = serde_json::from_str(&text)?;
+        Ok(config)
     }
 
     #[tracing::instrument(skip(self))]
