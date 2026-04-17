@@ -64,6 +64,8 @@ impl McpHandler {
             "tools/call" => self.handle_call_tool(id, req.params).await,
             "prompts/list" => self.handle_list_prompts(id).await,
             "prompts/get" => self.handle_get_prompt(id, req.params).await,
+            "resources/list" => self.handle_list_resources(id).await,
+            "resources/read" => self.handle_read_resource(id, req.params).await,
             "notifications/initialized" => json!(null),
             _ => self.error_response(id, -32601, "Method not found"),
         }
@@ -76,7 +78,8 @@ impl McpHandler {
                 "protocolVersion": PROTOCOL_VERSION,
                 "capabilities": {
                     "tools": {},
-                    "prompts": {}
+                    "prompts": {},
+                    "resources": {}
                 },
                 "serverInfo": {
                     "name": "gatus-mcp-rs",
@@ -85,6 +88,71 @@ impl McpHandler {
             },
             "id": id
         })
+    }
+
+    async fn handle_list_resources(&self, id: Value) -> Value {
+        json!({
+            "jsonrpc": "2.0",
+            "result": {
+                "resources": [
+                    {
+                        "uri": "gatus://system/config",
+                        "name": "Gatus Configuration",
+                        "description": "The active Gatus monitoring configuration.",
+                        "mimeType": "application/json"
+                    },
+                    {
+                        "uri": "gatus://dashboard/status",
+                        "name": "Gatus Dashboard Status",
+                        "description": "High-level summary of current endpoint statuses.",
+                        "mimeType": "text/markdown"
+                    }
+                ]
+            },
+            "id": id
+        })
+    }
+
+    async fn handle_read_resource(&self, id: Value, params: Option<Value>) -> Value {
+        let params = params.unwrap_or(Value::Null);
+        let uri = match params.get("uri").and_then(|u| u.as_str()) {
+            Some(u) => u,
+            None => return self.error_response(id, -32602, "Missing 'uri' parameter"),
+        };
+
+        match uri {
+            "gatus://system/config" => match self.gatus_client.get_config().await {
+                Ok(config) => self.success_response(
+                    id,
+                    json!({
+                        "contents": [
+                            {
+                                "uri": uri,
+                                "mimeType": "application/json",
+                                "text": serde_json::to_string_pretty(&config).unwrap()
+                            }
+                        ]
+                    }),
+                ),
+                Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+            },
+            "gatus://dashboard/status" => match self.gatus_client.get_system_stats().await {
+                Ok(stats) => self.success_response(
+                    id,
+                    json!({
+                        "contents": [
+                            {
+                                "uri": uri,
+                                "mimeType": "text/markdown",
+                                "text": format_system_stats(&stats)
+                            }
+                        ]
+                    }),
+                ),
+                Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+            },
+            _ => self.error_response(id, -32602, &format!("Unknown resource URI '{}'", uri)),
+        }
     }
 
     async fn handle_list_tools(&self, id: Value) -> Value {
