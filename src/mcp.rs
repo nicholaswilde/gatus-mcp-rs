@@ -62,6 +62,8 @@ impl McpHandler {
             "initialize" => self.handle_initialize(id).await,
             "tools/list" => self.handle_list_tools(id).await,
             "tools/call" => self.handle_call_tool(id, req.params).await,
+            "prompts/list" => self.handle_list_prompts(id).await,
+            "prompts/get" => self.handle_get_prompt(id, req.params).await,
             "notifications/initialized" => json!(null),
             _ => self.error_response(id, -32601, "Method not found"),
         }
@@ -73,7 +75,8 @@ impl McpHandler {
             "result": {
                 "protocolVersion": PROTOCOL_VERSION,
                 "capabilities": {
-                    "tools": {}
+                    "tools": {},
+                    "prompts": {}
                 },
                 "serverInfo": {
                     "name": "gatus-mcp-rs",
@@ -144,6 +147,92 @@ impl McpHandler {
                 }
             }),
         ]
+    }
+
+    async fn handle_list_prompts(&self, id: Value) -> Value {
+        json!({
+            "jsonrpc": "2.0",
+            "result": {
+                "prompts": vec![
+                    json!({
+                        "name": "analyze-outage",
+                        "description": "Assist in diagnosing a specific service outage.",
+                        "arguments": [
+                            {
+                                "name": "id",
+                                "description": "The service name to analyze.",
+                                "required": true
+                            }
+                        ]
+                    }),
+                    json!({
+                        "name": "daily-health-report",
+                        "description": "Generate a high-level summary of the system's health."
+                    })
+                ]
+            },
+            "id": id
+        })
+    }
+
+    async fn handle_get_prompt(&self, id: Value, params: Option<Value>) -> Value {
+        let params = params.unwrap_or(Value::Null);
+        let name = match params.get("name").and_then(|n| n.as_str()) {
+            Some(n) => n,
+            None => return self.error_response(id, -32602, "Missing prompt name"),
+        };
+
+        let arguments = params.get("arguments").unwrap_or(&Value::Null);
+
+        match name {
+            "analyze-outage" => {
+                let service_id = match arguments.get("id").and_then(|i| i.as_str()) {
+                    Some(i) => i,
+                    None => return self.error_response(id, -32602, "Missing 'id' argument"),
+                };
+
+                let prompt = format!(
+                    "You are an expert SRE. Analyze the outage for the service '{}'. \
+                     1. Use `get_metrics` with `action: 'service-history'` and `id: '{}'` to see recent check results. \
+                     2. Use `get_metrics` with `action: 'alert-history'` to see if any alerts were triggered. \
+                     3. Cross-reference the check failures with the alert timing. \
+                     4. Provide a root cause hypothesis and suggest remediation steps.",
+                    service_id, service_id
+                );
+
+                self.success_response(id, json!({
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        }
+                    ]
+                }))
+            }
+            "daily-health-report" => {
+                let prompt = "Generate a daily health report for the infrastructure. \
+                             1. Use `get_metrics` with `action: 'system-stats'` to get an overview. \
+                             2. Use `manage_resources` with `action: 'list-groups'` to see all groups. \
+                             3. For each group, use `get_metrics` with `action: 'group-summary'` to see the status of endpoints. \
+                             4. Summarize the overall health, highlighting any down or degraded services.";
+
+                self.success_response(id, json!({
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        }
+                    ]
+                }))
+            }
+            _ => self.error_response(id, -32601, "Prompt not found"),
+        }
     }
 
     #[tracing::instrument(skip(self, id, params))]
@@ -304,7 +393,9 @@ impl McpHandler {
             "uptime" => {
                 let service_name = match arguments.get("id").and_then(|s| s.as_str()) {
                     Some(s) => s,
-                    None => return self.error_response(id, -32602, "Missing 'id' argument for uptime")
+                    None => {
+                        return self.error_response(id, -32602, "Missing 'id' argument for uptime")
+                    }
                 };
                 let timeframe = arguments.get("timeframe").cloned().unwrap_or(json!("24h"));
                 let new_args = json!({"service": service_name, "timeframe": timeframe});
@@ -313,7 +404,13 @@ impl McpHandler {
             "uptime-granular" => {
                 let service_name = match arguments.get("id").and_then(|s| s.as_str()) {
                     Some(s) => s,
-                    None => return self.error_response(id, -32602, "Missing 'id' argument for uptime-granular")
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for uptime-granular",
+                        )
+                    }
                 };
                 let timeframe = arguments.get("timeframe").cloned().unwrap_or(json!("24h"));
                 let new_args =
