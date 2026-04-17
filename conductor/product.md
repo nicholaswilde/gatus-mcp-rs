@@ -101,6 +101,7 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 ## Key Features
 - **SSE Transport Layer:** Implements the MCP-over-SSE standard using Axum for reliable, long-lived connections.
 - **Dynamic Tool Discovery:** Automatically exposes Gatus API capabilities as MCP tools.
+- **Standardized Workflows (MCP Prompts):** Provides pre-defined prompts (e.g., `analyze-outage`, `daily-health-report`) to guide LLMs through complex diagnostic and reporting tasks.
 - **Consolidated Toolset:** Replaces granular tools with a streamlined set of dynamic, parameterized tools (`manage_resources`, `get_metrics`) to improve token efficiency and simplify tool discovery.
 - **Dynamic Resource Management:** A single tool (`manage_resources`) for listing services, groups, endpoints, and checking instance health or configuration.
 - **Comprehensive Metrics Retrieval:** A single tool (`get_metrics`) for retrieving system stats, service details, history, uptime, response times, and alert history.
