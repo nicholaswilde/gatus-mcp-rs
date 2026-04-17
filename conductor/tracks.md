@@ -4,12 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [x] Track: Proactive Notifications
-- **Folder:** [tracks/proactive_notifications_20260416](./tracks/proactive_notifications_20260416/index.md)
-- **Description:** Real-time service state transition alerts over SSE.
-
----
-
 ## [ ] Track: Enhanced Diagnostics
 - **Folder:** [tracks/enhanced_diagnostics_20260416](./tracks/enhanced_diagnostics_20260416/index.md)
 - **Description:** Response body extraction and SSL certificate tracking.
