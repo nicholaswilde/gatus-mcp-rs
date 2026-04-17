@@ -4,7 +4,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Track: Proactive Notifications
+## [x] Track: Proactive Notifications
 - **Folder:** [tracks/proactive_notifications_20260416](./tracks/proactive_notifications_20260416/index.md)
 - **Description:** Real-time service state transition alerts over SSE.
 
