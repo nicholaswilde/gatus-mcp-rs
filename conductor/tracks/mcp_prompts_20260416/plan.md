@@ -5,4 +5,4 @@
 
 ## Phase 2: MCP Integration
 - [x] Task: Implement `list_prompts` and `get_prompt` in `src/mcp.rs`. [1dcd9d9]
-- [ ] Task: Verify prompts in MCP clients (e.g., Claude Desktop).
+- [x] Task: Verify prompts in MCP clients (e.g., Claude Desktop). [d6dffe5]
