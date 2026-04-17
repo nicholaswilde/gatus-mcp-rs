@@ -1,6 +1,6 @@
 # Implementation Plan - Implement Enhanced Diagnostics & Log Correlation
 
-## Phase 1: Client Updates
+## Phase 1: Client Updates [checkpoint: fa0ed60]
 - [x] Task: Update Gatus client to fetch detailed check results. (fbae5a6)
 - [x] Task: Implement SSL tracking logic. (fbae5a6)
 
