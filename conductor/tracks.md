@@ -4,12 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [x] Track: MCP Resources
-- **Folder:** [tracks/mcp_resources_20260416](./tracks/mcp_resources_20260416/index.md)
-- **Description:** Expose static configuration and status data as resources.
-
----
-
 ## [ ] Track: Mutative Admin Tools
 - **Folder:** [tracks/mutative_admin_tools_20260416](./tracks/mutative_admin_tools_20260416/index.md)
 - **Description:** Add tools for triggering checks and reloading configuration.
