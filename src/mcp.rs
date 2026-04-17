@@ -214,6 +214,28 @@ impl McpHandler {
                     "required": ["action"]
                 }
             }),
+            json!({
+                "name": "trigger_check",
+                "description": "Force an immediate health check for a specific endpoint.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "The service name or endpoint key to check."
+                        }
+                    },
+                    "required": ["id"]
+                }
+            }),
+            json!({
+                "name": "reload_config",
+                "description": "Trigger a Gatus configuration reload.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
+            }),
         ]
     }
 
@@ -316,7 +338,48 @@ impl McpHandler {
         match name {
             "manage_resources" => self.handle_manage_resources_tool(id, arguments).await,
             "get_metrics" => self.handle_get_metrics_tool(id, arguments).await,
+            "trigger_check" => self.handle_trigger_check_tool(id, arguments).await,
+            "reload_config" => self.handle_reload_config_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
+        }
+    }
+
+    async fn handle_trigger_check_tool(&self, id: Value, arguments: &Value) -> Value {
+        let key = match arguments.get("id").and_then(|i| i.as_str()) {
+            Some(i) => i,
+            None => return self.error_response(id, -32602, "Missing 'id' argument"),
+        };
+
+        match self.gatus_client.trigger_check(key).await {
+            Ok(_) => self.success_response(
+                id,
+                json!({
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": format!("Successfully triggered check for '{}'", key)
+                        }
+                    ]
+                }),
+            ),
+            Err(e) => self.error_response(id, -32000, &format!("Error triggering check: {}", e)),
+        }
+    }
+
+    async fn handle_reload_config_tool(&self, id: Value, _arguments: &Value) -> Value {
+        match self.gatus_client.reload_config().await {
+            Ok(_) => self.success_response(
+                id,
+                json!({
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Successfully triggered configuration reload"
+                        }
+                    ]
+                }),
+            ),
+            Err(e) => self.error_response(id, -32000, &format!("Error reloading config: {}", e)),
         }
     }
 
