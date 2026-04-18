@@ -2,7 +2,7 @@
 
 ## Phase 1: Client Optimization
 - [x] Task: Implement `get_endpoint_statuses(key)` in `GatusClient`. [09473f1]
-- [ ] Task: Add unit tests with Wiremock.
+- [x] Task: Add unit tests with Wiremock. [5e521e5]
 
 ## Phase 2: tool Integration
 - [ ] Task: Update `get_metrics` (action: `service-history`) to use the targeted client method.
