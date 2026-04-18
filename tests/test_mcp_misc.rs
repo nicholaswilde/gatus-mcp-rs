@@ -71,7 +71,10 @@ async fn test_mcp_handler_get_metrics_unknown_action() {
 
     let resp = handler.handle(req).await;
     assert_eq!(resp["error"]["code"], -32602);
-    assert!(resp["error"]["message"].as_str().unwrap().contains("Unknown action"));
+    assert!(resp["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Unknown action"));
 }
 
 #[tokio::test]
@@ -103,7 +106,10 @@ async fn test_mcp_handler_get_metrics_response_time_no_data() {
     });
 
     let resp = handler.handle(req).await;
-    assert!(resp["result"]["content"][0]["text"].as_str().unwrap().contains("No response time data found"));
+    assert!(resp["result"]["content"][0]["text"]
+        .as_str()
+        .unwrap()
+        .contains("No response time data found"));
 }
 
 #[tokio::test]
@@ -150,7 +156,7 @@ async fn test_mcp_handler_get_endpoint_stats_uptime() {
 async fn test_mcp_handler_get_metrics_service_info_unknown_action() {
     let mock_server = MockServer::start().await;
     let client = GatusClient::new(mock_server.uri(), None);
-    let handler = McpHandler::new(client);
+    let _handler = McpHandler::new(client);
 
     use wiremock::matchers::{method, path};
     use wiremock::{Mock, ResponseTemplate};

@@ -17,11 +17,7 @@ pub async fn run_app(cli: Cli) -> anyhow::Result<()> {
     run_app_with_stdio(cli, io::stdin(), io::stdout()).await
 }
 
-pub async fn run_app_with_stdio<R, W>(
-    cli: Cli,
-    reader: R,
-    writer: W,
-) -> anyhow::Result<()>
+pub async fn run_app_with_stdio<R, W>(cli: Cli, reader: R, writer: W) -> anyhow::Result<()>
 where
     R: tokio::io::AsyncRead + Unpin + Send + 'static,
     W: AsyncWrite + Unpin + Send + 'static,

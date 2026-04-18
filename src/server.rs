@@ -38,7 +38,11 @@ pub fn create_app(settings: Settings) -> Router {
         .with_state(state)
 }
 
-async fn background_polling_task(client: Arc<GatusClient>, tx: broadcast::Sender<Value>, interval_secs: u64) {
+async fn background_polling_task(
+    client: Arc<GatusClient>,
+    tx: broadcast::Sender<Value>,
+    interval_secs: u64,
+) {
     let mut last_statuses = std::collections::HashMap::new();
     let mut interval = tokio::time::interval(Duration::from_secs(interval_secs));
 

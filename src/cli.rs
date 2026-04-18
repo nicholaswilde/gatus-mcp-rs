@@ -5,6 +5,7 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct AppState {
     pub mcp_handler: Arc<McpHandler>,
+    pub notification_sender: tokio::sync::broadcast::Sender<serde_json::Value>,
 }
 
 #[derive(Parser, Debug)]

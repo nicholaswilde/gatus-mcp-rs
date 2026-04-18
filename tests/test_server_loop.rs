@@ -5,7 +5,10 @@ use std::io::Cursor;
 
 #[tokio::test]
 async fn test_run_server_loop() {
-    let gatus_client = GatusClient::new("http://localhost:8080".to_string(), Some("api_key".to_string()));
+    let gatus_client = GatusClient::new(
+        "http://localhost:8080".to_string(),
+        Some("api_key".to_string()),
+    );
     let handler = McpHandler::new(gatus_client);
 
     let input = r#"{"jsonrpc": "2.0", "method": "initialize", "params": {}, "id": 1}"#;
@@ -22,7 +25,10 @@ async fn test_run_server_loop() {
 
 #[tokio::test]
 async fn test_run_server_loop_invalid_json() {
-    let gatus_client = GatusClient::new("http://localhost:8080".to_string(), Some("api_key".to_string()));
+    let gatus_client = GatusClient::new(
+        "http://localhost:8080".to_string(),
+        Some("api_key".to_string()),
+    );
     let handler = McpHandler::new(gatus_client);
 
     let input = "invalid json\n";

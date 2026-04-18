@@ -7,6 +7,7 @@ use std::env;
 pub struct ServerSettings {
     pub port: u16,
     pub host: String,
+    pub polling_interval: u64,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -15,10 +16,29 @@ pub struct GatusSettings {
     pub api_key: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Default)]
 pub struct Settings {
     pub server: ServerSettings,
     pub gatus: GatusSettings,
+}
+
+impl Default for ServerSettings {
+    fn default() -> Self {
+        Self {
+            port: 8080,
+            host: "127.0.0.1".to_string(),
+            polling_interval: 60,
+        }
+    }
+}
+
+impl Default for GatusSettings {
+    fn default() -> Self {
+        Self {
+            api_url: "http://localhost:8080".to_string(),
+            api_key: None,
+        }
+    }
 }
 
 impl Settings {
@@ -32,6 +52,7 @@ impl Settings {
             // Start with default values
             .set_default("server.port", 8080)?
             .set_default("server.host", "127.0.0.1")?
+            .set_default("server.polling_interval", 60)?
             .set_default("gatus.api_url", "http://localhost:8080")?
             // Add local config file (optional)
             .add_source(File::with_name(&format!("config/{}", run_mode)).required(false))

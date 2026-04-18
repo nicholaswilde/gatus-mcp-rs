@@ -1,8 +1,8 @@
-use gatus_mcp_rs::settings::Settings;
+use futures::StreamExt;
 use gatus_mcp_rs::server::run_http_server;
+use gatus_mcp_rs::settings::Settings;
 use std::env;
 use std::time::Duration;
-use futures::StreamExt;
 
 #[tokio::test]
 async fn test_live_sse_keepalive() {
@@ -21,7 +21,7 @@ async fn test_live_sse_keepalive() {
     let mut settings = Settings::new().unwrap();
     settings.gatus.api_url = api_url;
     settings.gatus.api_key = api_key;
-    
+
     // Set polling to something long, but keep-alive to something short for the test
     // Actually, create_app and run_http_server use what's in settings.
     // Wait, create_app hardcodes keep-alive to 15s in server.rs.
@@ -31,7 +31,7 @@ async fn test_live_sse_keepalive() {
     let port = 8086;
     let host = "127.0.0.1".to_string();
     let server_settings = settings.clone();
-    
+
     let server_handle = tokio::spawn(async move {
         run_http_server(server_settings, port, host).await.unwrap();
     });
@@ -49,7 +49,7 @@ async fn test_live_sse_keepalive() {
     assert_eq!(response.status(), 200);
 
     let mut stream = response.bytes_stream();
-    
+
     println!("Waiting for SSE keep-alive (15s)...");
     let mut found_keepalive = false;
     let timeout = tokio::time::sleep(Duration::from_secs(20));

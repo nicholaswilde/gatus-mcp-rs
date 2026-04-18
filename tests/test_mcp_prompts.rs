@@ -15,10 +15,12 @@ async fn test_handle_list_prompts() {
 
     let response = handler.handle(request).await;
     assert_eq!(response["id"], 1);
-    
+
     let result = &response["result"];
-    let prompts = result["prompts"].as_array().expect("prompts should be an array");
-    
+    let prompts = result["prompts"]
+        .as_array()
+        .expect("prompts should be an array");
+
     assert!(prompts.iter().any(|p| p["name"] == "analyze-outage"));
     assert!(prompts.iter().any(|p| p["name"] == "daily-health-report"));
 }
@@ -42,9 +44,14 @@ async fn test_handle_get_prompt_analyze_outage() {
 
     let response = handler.handle(request).await;
     assert_eq!(response["id"], 1);
-    
+
     let result = &response["result"];
-    let messages = result["messages"].as_array().expect("messages should be an array");
+    let messages = result["messages"]
+        .as_array()
+        .expect("messages should be an array");
     assert_eq!(messages.len(), 1);
-    assert!(messages[0]["content"]["text"].as_str().unwrap().contains("my-service"));
+    assert!(messages[0]["content"]["text"]
+        .as_str()
+        .unwrap()
+        .contains("my-service"));
 }

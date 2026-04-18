@@ -17,12 +17,18 @@ async fn test_handle_list_resources() {
 
     let response = handler.handle(request).await;
     assert_eq!(response["id"], 1);
-    
+
     let result = &response["result"];
-    let resources = result["resources"].as_array().expect("resources should be an array");
-    
-    assert!(resources.iter().any(|r| r["uri"] == "gatus://system/config"));
-    assert!(resources.iter().any(|r| r["uri"] == "gatus://dashboard/status"));
+    let resources = result["resources"]
+        .as_array()
+        .expect("resources should be an array");
+
+    assert!(resources
+        .iter()
+        .any(|r| r["uri"] == "gatus://system/config"));
+    assert!(resources
+        .iter()
+        .any(|r| r["uri"] == "gatus://dashboard/status"));
 }
 
 #[tokio::test]
@@ -64,12 +70,14 @@ async fn test_handle_read_resource_dashboard_status() {
 
     let response = handler.handle(request).await;
     assert_eq!(response["id"], 1);
-    
+
     let result = &response["result"];
     if let Some(error) = response.get("error") {
         panic!("Response returned error: {:?}", error);
     }
-    let contents = result["contents"].as_array().expect("contents should be an array");
+    let contents = result["contents"]
+        .as_array()
+        .expect("contents should be an array");
     assert_eq!(contents.len(), 1);
     assert!(contents[0]["text"].as_str().unwrap().contains("UP"));
 }
