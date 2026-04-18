@@ -290,17 +290,20 @@ impl McpHandler {
                     service_id, service_id
                 );
 
-                self.success_response(id, json!({
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": {
-                                "type": "text",
-                                "text": prompt
+                self.success_response(
+                    id,
+                    json!({
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": {
+                                    "type": "text",
+                                    "text": prompt
+                                }
                             }
-                        }
-                    ]
-                }))
+                        ]
+                    }),
+                )
             }
             "daily-health-report" => {
                 let prompt = "Generate a daily health report for the infrastructure. \
@@ -309,17 +312,20 @@ impl McpHandler {
                              3. For each group, use `get_metrics` with `action: 'group-summary'` to see the status of endpoints. \
                              4. Summarize the overall health, highlighting any down or degraded services.";
 
-                self.success_response(id, json!({
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": {
-                                "type": "text",
-                                "text": prompt
+                self.success_response(
+                    id,
+                    json!({
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": {
+                                    "type": "text",
+                                    "text": prompt
+                                }
                             }
-                        }
-                    ]
-                }))
+                        ]
+                    }),
+                )
             }
             _ => self.error_response(id, -32601, "Prompt not found"),
         }
@@ -825,7 +831,14 @@ impl McpHandler {
                                 .get("limit")
                                 .and_then(|l| l.as_u64())
                                 .unwrap_or(10) as usize;
-                            let history: Vec<_> = s.results.into_iter().take(limit).collect();
+                            let mut history: Vec<_> = s.results.into_iter().take(limit).collect();
+                            // Strip body and headers from successful results to save tokens
+                            for result in &mut history {
+                                if result.success {
+                                    result.body = None;
+                                    result.headers = None;
+                                }
+                            }
                             self.success_response(
                                 id,
                                 json!({
