@@ -168,6 +168,29 @@ impl GatusClient {
     }
 
     #[tracing::instrument(skip(self))]
+    pub async fn get_endpoint_statuses(&self, key: &str) -> Result<Vec<EndpointStatus>> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/api/v1/endpoints/{}/statuses", self.api_url, key);
+        let mut request = self.client.get(url);
+
+        if let Some(ref key) = self.api_key {
+            request = request.header("Authorization", format!("Bearer {}", key));
+        }
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        let services: Vec<EndpointStatus> = serde_json::from_str(&text)?;
+        Ok(services)
+    }
+
+    #[tracing::instrument(skip(self))]
     pub async fn list_services(&self, refresh: bool) -> Result<Vec<EndpointStatus>> {
         let cache_key = "endpoints_statuses".to_string();
 
