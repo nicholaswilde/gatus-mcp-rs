@@ -1,0 +1,6 @@
+{
+  "id": "external_push_results_20260418",
+  "name": "External Endpoint Push",
+  "description": "Implement support for pushing health check results directly to Gatus.",
+  "created_at": "2026-04-18"
+}
