@@ -1,7 +1,7 @@
 # Implementation Plan - External Endpoint Push
 
 ## Phase 1: Client Support
-- [ ] Task: Implement `push_endpoint_result` in `GatusClient`.
+- [x] Task: Implement `push_endpoint_result` in `GatusClient`. [86d9d32]
 - [ ] Task: Add unit tests for the new client method.
 
 ## Phase 2: MCP Integration
