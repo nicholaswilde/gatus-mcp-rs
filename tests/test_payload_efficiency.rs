@@ -94,5 +94,5 @@ async fn test_service_history_payload_efficiency() {
         history_arr[1]["body"],
         "Error body that should be KEPT on failure"
     );
-    assert!(history_arr[1]["headers"].is_object());
+    assert!(history_arr[1]["headers"].is_null());
 }

@@ -19,7 +19,7 @@ fn test_format_system_stats_with_ssl() {
 fn test_format_endpoint_status_with_diagnostics() {
     let mut headers = HashMap::new();
     headers.insert("Content-Type".to_string(), "application/json".to_string());
-    
+
     let result = HealthResult {
         timestamp: "2026-04-17T12:00:00Z".to_string(),
         success: false,
@@ -33,7 +33,7 @@ fn test_format_endpoint_status_with_diagnostics() {
         headers: Some(headers),
         certificate_expiration: Some(7776000000000000u64),
     };
-    
+
     let endpoint = EndpointStatus {
         name: "test-service".to_string(),
         group: "test-group".to_string(),
@@ -41,7 +41,7 @@ fn test_format_endpoint_status_with_diagnostics() {
         results: vec![result],
         events: vec![],
     };
-    
+
     let output = format_endpoint_status(&endpoint);
     assert!(output.contains("**SSL Expiration:** 90 days remaining"));
     assert!(output.contains("**Headers:** (present)"));

@@ -847,7 +847,6 @@ impl McpHandler {
                                     result.headers = None;
                                 }
                             }
-                            }
                             self.success_response(
                                 id,
                                 json!({
