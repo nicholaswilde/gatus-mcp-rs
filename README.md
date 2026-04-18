@@ -15,7 +15,7 @@ A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automat
 - **Model Context Protocol (MCP):** Native support for MCP, allowing easy integration with AI tools like Claude Desktop.
 - **Service Monitoring:** List all monitored services and their current statuses (UP/DOWN/DEGRADED).
 - **System Health Summary:** High-level overview of total, up, down, and degraded endpoint counts.
-- **Detailed Diagnostics:** Fetch latest results, history, and granular performance metrics for specific health checks.
+- **Detailed Diagnostics:** Fetch latest results, history (optimized with targeted API calls), and granular performance metrics for specific health checks.
 - **Alert & State Transitions:** Retrieve chronological alert history to identify incident root causes.
 - **Uptime Calculation:** Calculate success vs. failure ratios over 24h, 7d, and 30d timeframes.
 - **Configuration Retrieval:** Retrieve the effective Gatus monitoring configuration (conditions, names, groups).
@@ -113,10 +113,19 @@ Discover and manage Gatus resources and instance state.
 ### `get_metrics`
 Retrieve status, metrics, and history for services and endpoints.
 - **Arguments:**
-  - `action`: `system-stats`, `service-details`, `service-history`, `group-summary`, `uptime`, `response-time`, or `alert-history`.
-  - `id`: (Optional) Identifier (e.g., service name for `service-details`, group name for `group-summary`, or endpoint key for `response-time`).
+  - `action`: `system-stats`, `service-details`, `service-history` (optimized), `group-summary`, `uptime`, `uptime-granular`, `response-time`, or `alert-history`.
+  - `id`: (Optional) Identifier (e.g., service name for `service-details`, group name for `group-summary`, or endpoint key for `service-history`, `uptime-granular` and `response-time`).
   - `limit`: (Optional) Maximum number of results for history actions (default: 10 for `service-history`, 5 for `alert-history`).
-  - `timeframe`: (Optional) `1h`, `24h`, `7d`, or `30d` (default: `24h`) for `uptime` and `response-time`.
+  - `timeframe`: (Optional) `1h`, `24h`, `7d`, or `30d` (default: `24h`) for `uptime`, `uptime-granular` and `response-time`.
+
+### `trigger_check`
+Force an immediate health check for a specific endpoint.
+- **Arguments:**
+  - `id`: The service name or endpoint key to check.
+
+### `reload_config`
+Trigger a Gatus configuration reload.
+- **Arguments:** None.
 
 ## :handshake: Contributing
 

@@ -40,7 +40,7 @@ async fn test_service_history_payload_efficiency() {
     ]);
 
     Mock::given(method("GET"))
-        .and(path("/api/v1/endpoints/statuses"))
+        .and(path("/api/v1/endpoints/test-service/statuses"))
         .respond_with(ResponseTemplate::new(200).set_body_json(history_with_payloads))
         .mount(&mock_server)
         .await;
