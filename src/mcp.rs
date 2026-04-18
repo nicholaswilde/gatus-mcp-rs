@@ -833,11 +833,20 @@ impl McpHandler {
                                 .unwrap_or(10) as usize;
                             let mut history: Vec<_> = s.results.into_iter().take(limit).collect();
                             // Strip body and headers from successful results to save tokens
+                            // Truncate body and strip headers for failed results
                             for result in &mut history {
                                 if result.success {
                                     result.body = None;
                                     result.headers = None;
+                                } else {
+                                    if let Some(ref body) = result.body {
+                                        if body.len() > 100 {
+                                            result.body = Some(format!("{}...", &body[..100]));
+                                        }
+                                    }
+                                    result.headers = None;
                                 }
+                            }
                             }
                             self.success_response(
                                 id,
