@@ -1,15 +1,15 @@
-use gatus_mcp_rs::settings::{Settings, GatusSettings, ServerSettings};
+use futures::StreamExt;
 use gatus_mcp_rs::server::run_http_server;
+use gatus_mcp_rs::settings::{GatusSettings, ServerSettings, Settings};
 use serde_json::json;
+use std::time::Duration;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
-use std::time::Duration;
-use futures::StreamExt;
 
 #[tokio::test]
 async fn test_sse_notifications() {
     let mock_server = MockServer::start().await;
-    
+
     // Initial response
     let gatus_response_1 = json!([
         {
@@ -66,7 +66,7 @@ async fn test_sse_notifications() {
     tokio::time::sleep(Duration::from_millis(500)).await;
 
     let client = reqwest::Client::new();
-    let mut response = client
+    let response = client
         .get(format!("http://127.0.0.1:{}/sse", port))
         .send()
         .await
@@ -75,7 +75,7 @@ async fn test_sse_notifications() {
     assert_eq!(response.status(), 200);
 
     let mut stream = response.bytes_stream();
-    
+
     // We expect a notification soon
     let mut found_notification = false;
     let timeout = tokio::time::sleep(Duration::from_secs(5));

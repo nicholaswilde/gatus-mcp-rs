@@ -18,6 +18,9 @@ fn test_format_endpoint_status() {
             errors: vec!["error1".to_string()],
             status: Some(200),
             condition_results: vec![],
+            body: None,
+            headers: None,
+            certificate_expiration: None,
         }],
         events: vec![],
     };
@@ -47,6 +50,9 @@ fn test_format_endpoints_summary() {
                 errors: vec![],
                 status: None,
                 condition_results: vec![],
+                body: None,
+                headers: None,
+                certificate_expiration: None,
             }],
             events: vec![],
         },
@@ -63,6 +69,9 @@ fn test_format_endpoints_summary() {
                 errors: vec![],
                 status: None,
                 condition_results: vec![],
+                body: None,
+                headers: None,
+                certificate_expiration: None,
             }],
             events: vec![],
         },
@@ -85,16 +94,18 @@ fn test_format_endpoints_summary() {
 fn test_format_system_stats() {
     let stats = SystemStats {
         total: 10,
-        up: 7,
-        down: 2,
+        up: 8,
+        down: 1,
         degraded: 1,
+        certificates_expiring_soon: 0,
     };
 
     let output = format_system_stats(&stats);
     assert!(output.contains("- **Total Endpoints:** 10"));
-    assert!(output.contains("- **UP:** 7"));
-    assert!(output.contains("- **DOWN:** 2"));
+    assert!(output.contains("- **UP:** 8"));
+    assert!(output.contains("- **DOWN:** 1"));
     assert!(output.contains("- **DEGRADED:** 1"));
+    assert!(output.contains("- **Certificates Expiring Soon:** 0"));
 }
 
 #[test]
@@ -121,6 +132,9 @@ fn test_format_config_summary() {
                     success: false,
                 },
             ],
+            body: None,
+            headers: None,
+            certificate_expiration: None,
         }],
         events: vec![],
     }];

@@ -14,10 +14,29 @@ pub fn format_endpoint_status(endpoint: &EndpointStatus) -> String {
             result.duration / 1_000_000
         ));
 
+        if let Some(exp) = result.certificate_expiration {
+            let days = exp / (24 * 60 * 60 * 1_000_000_000);
+            output.push_str(&format!("- **SSL Expiration:** {} days remaining\n", days));
+        }
+
         if !result.errors.is_empty() {
             output.push_str("- **Errors:**\n");
             for error in &result.errors {
                 output.push_str(&format!("  - {}\n", error));
+            }
+        }
+
+        if !result.success {
+            if result.headers.is_some() {
+                output.push_str("- **Headers:** (present)\n");
+            }
+            if let Some(ref body) = result.body {
+                let snippet = if body.len() > 100 {
+                    format!("{}...", &body[..100])
+                } else {
+                    body.clone()
+                };
+                output.push_str(&format!("- **Body Snippet:** {}\n", snippet));
             }
         }
     }
@@ -58,6 +77,10 @@ pub fn format_system_stats(stats: &SystemStats) -> String {
     output.push_str(&format!("- **UP:** {}\n", stats.up));
     output.push_str(&format!("- **DOWN:** {}\n", stats.down));
     output.push_str(&format!("- **DEGRADED:** {}\n", stats.degraded));
+    output.push_str(&format!(
+        "- **Certificates Expiring Soon:** {}\n",
+        stats.certificates_expiring_soon
+    ));
     output
 }
 

@@ -27,6 +27,9 @@ fn test_display_status_from_results_up() {
             errors: vec![],
             status: None,
             condition_results: vec![],
+            body: None,
+            headers: None,
+            certificate_expiration: None,
         }],
         events: vec![],
     };
@@ -48,6 +51,9 @@ fn test_display_status_from_results_down() {
             errors: vec![],
             status: None,
             condition_results: vec![],
+            body: None,
+            headers: None,
+            certificate_expiration: None,
         }],
         events: vec![],
     };
@@ -67,17 +73,65 @@ fn test_calculate_uptime_different_timeframes() {
         group: "grp".to_string(),
         status: None,
         results: vec![
-            HealthResult { timestamp: ts_1h, success: true, hostname: None, ip: None, duration: 0, errors: vec![], status: None, condition_results: vec![] },
-            HealthResult { timestamp: ts_12h, success: false, hostname: None, ip: None, duration: 0, errors: vec![], status: None, condition_results: vec![] },
-            HealthResult { timestamp: ts_2d, success: true, hostname: None, ip: None, duration: 0, errors: vec![], status: None, condition_results: vec![] },
-            HealthResult { timestamp: ts_10d, success: false, hostname: None, ip: None, duration: 0, errors: vec![], status: None, condition_results: vec![] },
+            HealthResult {
+                timestamp: ts_1h,
+                success: true,
+                hostname: None,
+                ip: None,
+                duration: 0,
+                errors: vec![],
+                status: None,
+                condition_results: vec![],
+                body: None,
+                headers: None,
+                certificate_expiration: None,
+            },
+            HealthResult {
+                timestamp: ts_12h,
+                success: false,
+                hostname: None,
+                ip: None,
+                duration: 0,
+                errors: vec![],
+                status: None,
+                condition_results: vec![],
+                body: None,
+                headers: None,
+                certificate_expiration: None,
+            },
+            HealthResult {
+                timestamp: ts_2d,
+                success: true,
+                hostname: None,
+                ip: None,
+                duration: 0,
+                errors: vec![],
+                status: None,
+                condition_results: vec![],
+                body: None,
+                headers: None,
+                certificate_expiration: None,
+            },
+            HealthResult {
+                timestamp: ts_10d,
+                success: false,
+                hostname: None,
+                ip: None,
+                duration: 0,
+                errors: vec![],
+                status: None,
+                condition_results: vec![],
+                body: None,
+                headers: None,
+                certificate_expiration: None,
+            },
         ],
         events: vec![],
     };
 
     // 24h: ts_1h (true), ts_12h (false) -> 50%
     assert_eq!(ep.calculate_uptime("24h"), 50.0);
-    
+
     // 7d: ts_1h (true), ts_12h (false), ts_2d (true) -> 2/3 = 66.66...
     assert!((ep.calculate_uptime("7d") - 66.666).abs() < 0.1);
 
@@ -91,9 +145,19 @@ fn test_calculate_uptime_invalid_timestamp() {
         name: "svc".to_string(),
         group: "grp".to_string(),
         status: None,
-        results: vec![
-            HealthResult { timestamp: "invalid".to_string(), success: true, hostname: None, ip: None, duration: 0, errors: vec![], status: None, condition_results: vec![] },
-        ],
+        results: vec![HealthResult {
+            timestamp: "invalid".to_string(),
+            success: true,
+            hostname: None,
+            ip: None,
+            duration: 0,
+            errors: vec![],
+            status: None,
+            condition_results: vec![],
+            body: None,
+            headers: None,
+            certificate_expiration: None,
+        }],
         events: vec![],
     };
     // Should skip invalid timestamp and return 100.0 (no results filtered)
