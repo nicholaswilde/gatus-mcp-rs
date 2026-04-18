@@ -498,7 +498,7 @@ impl McpHandler {
                 self.handle_get_service_info_tool(id, &new_args).await
             }
             "service-history" => {
-                let service_name = match arguments.get("id").and_then(|s| s.as_str()) {
+                let service_id = match arguments.get("id").and_then(|s| s.as_str()) {
                     Some(s) => s,
                     None => {
                         return self.error_response(
@@ -509,9 +509,8 @@ impl McpHandler {
                     }
                 };
                 let limit = arguments.get("limit").cloned().unwrap_or(json!(10));
-                let new_args =
-                    json!({"service": service_name, "action": "history", "limit": limit});
-                self.handle_get_service_info_tool(id, &new_args).await
+                self.handle_get_service_history_tool(id, service_id, limit)
+                    .await
             }
             "group-summary" => {
                 let group_name = match arguments.get("id").and_then(|s| s.as_str()) {
@@ -580,6 +579,51 @@ impl McpHandler {
                 -32602,
                 &format!("Unknown action '{}' for get_metrics", action),
             ),
+        }
+    }
+
+    async fn handle_get_service_history_tool(&self, id: Value, key: &str, limit: Value) -> Value {
+        let limit = limit.as_u64().unwrap_or(10) as usize;
+
+        match self.gatus_client.get_endpoint_statuses(key).await {
+            Ok(services) => {
+                let service = services.into_iter().next();
+                match service {
+                    Some(s) => {
+                        let mut history: Vec<_> = s.results.into_iter().take(limit).collect();
+                        // Strip body and headers from successful results to save tokens
+                        // Truncate body and strip headers for failed results
+                        for result in &mut history {
+                            if result.success {
+                                result.body = None;
+                                result.headers = None;
+                            } else {
+                                if let Some(ref body) = result.body {
+                                    if body.len() > 100 {
+                                        result.body = Some(format!("{}...", &body[..100]));
+                                    }
+                                }
+                                result.headers = None;
+                            }
+                        }
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": serde_json::to_string_pretty(&history).unwrap()
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    None => {
+                        self.error_response(id, -32602, &format!("Service '{}' not found", key))
+                    }
+                }
+            }
+            Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
         }
     }
 
@@ -826,39 +870,6 @@ impl McpHandler {
                                 ]
                             }),
                         ),
-                        "history" => {
-                            let limit = arguments
-                                .get("limit")
-                                .and_then(|l| l.as_u64())
-                                .unwrap_or(10) as usize;
-                            let mut history: Vec<_> = s.results.into_iter().take(limit).collect();
-                            // Strip body and headers from successful results to save tokens
-                            // Truncate body and strip headers for failed results
-                            for result in &mut history {
-                                if result.success {
-                                    result.body = None;
-                                    result.headers = None;
-                                } else {
-                                    if let Some(ref body) = result.body {
-                                        if body.len() > 100 {
-                                            result.body = Some(format!("{}...", &body[..100]));
-                                        }
-                                    }
-                                    result.headers = None;
-                                }
-                            }
-                            self.success_response(
-                                id,
-                                json!({
-                                    "content": [
-                                        {
-                                            "type": "text",
-                                            "text": serde_json::to_string_pretty(&history).unwrap()
-                                        }
-                                    ]
-                                }),
-                            )
-                        }
                         _ => self.error_response(
                             id,
                             -32602,

@@ -128,7 +128,7 @@ async fn test_mcp_get_metrics_service_history() {
     ]);
 
     Mock::given(method("GET"))
-        .and(path("/api/v1/endpoints/statuses"))
+        .and(path("/api/v1/endpoints/service-1/statuses"))
         .respond_with(ResponseTemplate::new(200).set_body_json(gatus_response))
         .mount(&mock_server)
         .await;
