@@ -6,5 +6,5 @@
 
 ## Phase 2: tool Integration
 - [x] Task: Update `get_metrics` (action: `service-history`) to use the targeted client method. [3edf21a]
-- [ ] Task: Verify that token optimizations (stripping headers/truncating body) still apply.
+- [x] Task: Verify that token optimizations (stripping headers/truncating body) still apply. [3edf21a]
 - [ ] Task: Benchmark/Verify efficiency gains.
