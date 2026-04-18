@@ -5,5 +5,5 @@
 - [x] Task: Implement SSL tracking logic. (fbae5a6)
 
 ## Phase 2: MCP Integration
-- [x] Task: Update `get_metrics` tool to return new diagnostic data. (dd3bcc6)
-- [ ] Task: Ensure payloads remain "thin" and token-efficient.
+- [x] Task: Update `get_metrics` tool to return new diagnostic data. (f6fd9f4)
+- [x] Task: Ensure payloads remain "thin" and token-efficient. (f6fd9f4)
