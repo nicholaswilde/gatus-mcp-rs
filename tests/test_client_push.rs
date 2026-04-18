@@ -45,3 +45,33 @@ async fn test_gatus_client_push_endpoint_result() {
     let push_result = client.push_endpoint_result("test-endpoint", result).await;
     assert!(push_result.is_ok());
 }
+
+#[tokio::test]
+async fn test_gatus_client_push_endpoint_result_error() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+
+    let result = HealthResult {
+        timestamp: "2023-01-01T00:00:00Z".to_string(),
+        success: false,
+        hostname: None,
+        ip: None,
+        duration: 500,
+        errors: vec!["Timeout".to_string()],
+        status: None,
+        condition_results: vec![],
+        body: None,
+        headers: None,
+        certificate_expiration: None,
+    };
+
+    Mock::given(method("POST"))
+        .and(path("/api/v1/endpoints/test-endpoint/results"))
+        .respond_with(ResponseTemplate::new(500).set_body_string("Internal Server Error"))
+        .mount(&mock_server)
+        .await;
+
+    let push_result = client.push_endpoint_result("test-endpoint", result).await;
+    assert!(push_result.is_err());
+    assert!(push_result.unwrap_err().to_string().contains("status 500"));
+}
