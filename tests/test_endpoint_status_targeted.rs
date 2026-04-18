@@ -38,3 +38,20 @@ async fn test_get_endpoint_statuses_targeted() {
     assert_eq!(statuses.len(), 1);
     assert_eq!(statuses[0].name, "service1");
 }
+
+#[tokio::test]
+async fn test_get_endpoint_statuses_targeted_not_found() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+
+    Mock::given(method("GET"))
+        .and(path("/api/v1/endpoints/non_existent/statuses"))
+        .respond_with(ResponseTemplate::new(404))
+        .mount(&mock_server)
+        .await;
+
+    let result = client.get_endpoint_statuses("non_existent").await;
+    assert!(result.is_err());
+    let err_msg = result.unwrap_err().to_string();
+    assert!(err_msg.contains("status 404"));
+}
