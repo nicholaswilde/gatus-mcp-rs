@@ -108,7 +108,7 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 - **Consolidated Toolset:** Replaces granular tools with a streamlined set of dynamic, parameterized tools (`manage_resources`, `get_metrics`) to improve token efficiency and simplify tool discovery.
 - **Dynamic Resource Management:** A single tool (`manage_resources`) for listing services, groups, endpoints, and checking instance health or configuration.
 - **Enhanced Diagnostics & SSL Tracking:** Provides deep-dive troubleshooting data including response body snippets on failure and proactive SSL certificate expiration tracking.
-- **Comprehensive Metrics Retrieval:** A single tool (`get_metrics`) for retrieving system stats, service details, history, uptime, response times, and alert history.
+- **Comprehensive Metrics Retrieval:** A single tool (`get_metrics`) for retrieving system stats, service details, history (optimized with targeted API calls), uptime, response times, and alert history.
 - **High-Signal Payloads:** Implements "thinning" of tool responses to ensure only high-signal data is returned, minimizing token consumption.
 - **Thread-Safe Session Management:** Uses DashMap for efficient, concurrent handling of multiple MCP clients.
 - **Environment-Driven Configuration:** Flexible setup via `config.toml`, environment variables, and CLI flags.
