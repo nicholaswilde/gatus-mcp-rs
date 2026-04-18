@@ -1,7 +1,7 @@
 # Implementation Plan - Targeted Endpoint Status
 
 ## Phase 1: Client Optimization
-- [ ] Task: Implement `get_endpoint_statuses(key)` in `GatusClient`.
+- [x] Task: Implement `get_endpoint_statuses(key)` in `GatusClient`. [09473f1]
 - [ ] Task: Add unit tests with Wiremock.
 
 ## Phase 2: tool Integration
