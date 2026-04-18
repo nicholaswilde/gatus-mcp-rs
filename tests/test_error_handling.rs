@@ -199,3 +199,163 @@ async fn test_gatus_client_api_error_health() {
 
     assert!(res.is_err());
 }
+
+#[tokio::test]
+async fn test_mcp_handler_get_config_error() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/v1/endpoints/statuses"))
+        .respond_with(ResponseTemplate::new(500))
+        .mount(&mock_server)
+        .await;
+
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "manage_resources",
+            "arguments": { "action": "get-config" }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32000);
+}
+
+#[tokio::test]
+async fn test_mcp_handler_get_health_error() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/v1/health"))
+        .respond_with(ResponseTemplate::new(500))
+        .mount(&mock_server)
+        .await;
+
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "manage_resources",
+            "arguments": { "action": "get-health" }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32000);
+}
+
+#[tokio::test]
+async fn test_mcp_handler_system_stats_error() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/v1/endpoints/statuses"))
+        .respond_with(ResponseTemplate::new(500))
+        .mount(&mock_server)
+        .await;
+
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": { "action": "system-stats" }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32000);
+}
+
+#[tokio::test]
+async fn test_mcp_handler_uptime_granular_error() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/v1/endpoints/statuses"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!([
+            {"name": "svc", "group": "grp", "results": []}
+        ])))
+        .mount(&mock_server)
+        .await;
+
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": { "action": "uptime-granular", "id": "grp_svc" }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32000);
+}
+
+#[tokio::test]
+async fn test_mcp_handler_response_time_error() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/v1/endpoints/statuses"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!([
+            {"name": "svc", "group": "grp", "results": []}
+        ])))
+        .mount(&mock_server)
+        .await;
+
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": { "action": "response-time", "id": "grp_svc" }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32000);
+}
+
+#[tokio::test]
+async fn test_mcp_handler_alert_history_error() {
+    let mock_server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/v1/endpoints/statuses"))
+        .respond_with(ResponseTemplate::new(500))
+        .mount(&mock_server)
+        .await;
+
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": { "action": "alert-history" }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32000);
+}

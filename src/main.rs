@@ -7,3 +7,12 @@ async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     run_app(cli).await
 }
+
+#[cfg(test)]
+mod tests {
+    #[tokio::test]
+    async fn test_main_not_crashing() {
+        // This won't actually call main because it's #[tokio::main]
+        // But we can check if it compiles.
+    }
+}

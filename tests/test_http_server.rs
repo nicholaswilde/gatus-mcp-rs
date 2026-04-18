@@ -78,3 +78,26 @@ async fn test_messages_endpoint() {
 
     assert_eq!(response.status(), StatusCode::OK);
 }
+
+#[tokio::test]
+async fn test_messages_endpoint_error() {
+    let settings = Settings::new().unwrap();
+    let app = create_app(settings);
+
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/messages")
+                .header("Content-Type", "application/json")
+                .body(Body::from(
+                    r#"{"jsonrpc": "2.0", "method": "unknown_method", "id": 1}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(response.status(), StatusCode::OK);
+    // Even if method is unknown, MCP returns a JSON-RPC error response with 200 OK
+}

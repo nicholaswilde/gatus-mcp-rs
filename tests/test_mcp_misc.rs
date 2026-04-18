@@ -78,6 +78,186 @@ async fn test_mcp_handler_get_metrics_unknown_action() {
 }
 
 #[tokio::test]
+async fn test_mcp_handler_manage_resources_missing_action() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "manage_resources",
+            "arguments": {}
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32602);
+    assert!(resp["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Missing 'action' argument"));
+}
+
+#[tokio::test]
+async fn test_mcp_handler_get_metrics_service_details_missing_id() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": {
+                "action": "service-details"
+            }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32602);
+    assert!(resp["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Missing 'id' argument"));
+}
+
+#[tokio::test]
+async fn test_mcp_handler_get_metrics_service_history_missing_id() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": {
+                "action": "service-history"
+            }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32602);
+    assert!(resp["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Missing 'id' argument"));
+}
+
+#[tokio::test]
+async fn test_mcp_handler_get_metrics_group_summary_missing_id() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": {
+                "action": "group-summary"
+            }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32602);
+    assert!(resp["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Missing 'id' argument"));
+}
+
+#[tokio::test]
+async fn test_mcp_handler_get_metrics_uptime_missing_id() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": {
+                "action": "uptime"
+            }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32602);
+    assert!(resp["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Missing 'id' argument"));
+}
+
+#[tokio::test]
+async fn test_mcp_handler_get_metrics_uptime_granular_missing_id() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": {
+                "action": "uptime-granular"
+            }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32602);
+    assert!(resp["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Missing 'id' argument"));
+}
+
+#[tokio::test]
+async fn test_mcp_handler_get_metrics_response_time_missing_id() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let req = json!({
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": "get_metrics",
+            "arguments": {
+                "action": "response-time"
+            }
+        },
+        "id": 1
+    });
+
+    let resp = handler.handle(req).await;
+    assert_eq!(resp["error"]["code"], -32602);
+    assert!(resp["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Missing 'id' argument"));
+}
+
+#[tokio::test]
 async fn test_mcp_handler_get_metrics_response_time_no_data() {
     let mock_server = MockServer::start().await;
     let client = GatusClient::new(mock_server.uri(), None);

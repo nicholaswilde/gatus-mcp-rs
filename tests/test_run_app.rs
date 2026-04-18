@@ -91,6 +91,27 @@ async fn test_run_app_with_stdio_wrapper() {
 }
 
 #[tokio::test]
+async fn test_run_app_stdio_json_log() {
+    let mock_server = MockServer::start().await;
+
+    let cli = Cli {
+        config: None,
+        gatus_url: Some(mock_server.uri()),
+        api_key: None,
+        log_level: "info".to_string(),
+        log_format: "json".to_string(),
+        command: Some(Commands::Stdio),
+    };
+
+    let reader = tokio::io::empty();
+    let writer = tokio::io::sink();
+
+    gatus_mcp_rs::run_app_with_stdio(cli, reader, writer)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
 async fn test_run_app_stdio_minimal() {
     let mock_server = MockServer::start().await;
 

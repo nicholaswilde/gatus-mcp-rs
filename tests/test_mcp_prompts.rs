@@ -1,6 +1,7 @@
 use gatus_mcp_rs::client::GatusClient;
 use gatus_mcp_rs::mcp::McpHandler;
 use serde_json::json;
+use wiremock::MockServer;
 
 #[tokio::test]
 async fn test_handle_list_prompts() {
@@ -54,4 +55,72 @@ async fn test_handle_get_prompt_analyze_outage() {
         .as_str()
         .unwrap()
         .contains("my-service"));
+}
+
+#[tokio::test]
+async fn test_handle_get_prompt_missing_name() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "prompts/get",
+        "params": {},
+        "id": 1
+    });
+
+    let response = handler.handle(request).await;
+    assert_eq!(response["error"]["code"], -32602);
+    assert!(response["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Missing prompt name"));
+}
+
+#[tokio::test]
+async fn test_handle_get_prompt_analyze_outage_missing_id() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "prompts/get",
+        "params": {
+            "name": "analyze-outage",
+            "arguments": {}
+        },
+        "id": 1
+    });
+
+    let response = handler.handle(request).await;
+    assert_eq!(response["error"]["code"], -32602);
+    assert!(response["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Missing 'id' argument"));
+}
+
+#[tokio::test]
+async fn test_handle_get_prompt_unknown_prompt() {
+    let mock_server = MockServer::start().await;
+    let client = GatusClient::new(mock_server.uri(), None);
+    let handler = McpHandler::new(client);
+
+    let request = json!({
+        "jsonrpc": "2.0",
+        "method": "prompts/get",
+        "params": {
+            "name": "unknown-prompt"
+        },
+        "id": 1
+    });
+
+    let response = handler.handle(request).await;
+    assert_eq!(response["error"]["code"], -32601);
+    assert!(response["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("Prompt not found"));
 }

@@ -44,5 +44,21 @@ mod tests {
         env::remove_var("GATUS__GATUS__API_URL");
         env::remove_var("GATUS_API_URL");
         env::remove_var("GATUS_API_KEY");
+        env::remove_var("RUN_MODE");
+    }
+
+    #[test]
+    fn test_settings_run_mode() {
+        env::set_var("RUN_MODE", "test");
+        let settings = Settings::new();
+        assert!(settings.is_ok());
+        env::remove_var("RUN_MODE");
+    }
+
+    #[test]
+    fn test_settings_defaults() {
+        let settings = Settings::default();
+        assert_eq!(settings.server.port, 8080);
+        assert_eq!(settings.server.host, "127.0.0.1");
     }
 }
