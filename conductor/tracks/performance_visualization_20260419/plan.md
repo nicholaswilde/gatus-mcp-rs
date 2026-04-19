@@ -1,6 +1,6 @@
 # Implementation Plan - Performance Visualization
 
-## Phase 1: Client Helpers
+## Phase 1: Client Helpers [checkpoint: 212b8e0]
 - [x] Task: Add `get_latency_badge_url` and `get_latency_chart_url` to `GatusClient`. [8bde185]
 - [x] Task: Add unit tests for URL generation. [8bde185]
 
