@@ -262,9 +262,9 @@ impl McpHandler {
                     },
                     "required": ["id", "success"]
                 }
-            })
-            ]
-            }
+            }),
+        ]
+    }
     async fn handle_list_prompts(&self, id: Value) -> Value {
         json!({
             "jsonrpc": "2.0",
@@ -427,7 +427,10 @@ impl McpHandler {
             None => return self.error_response(id, -32602, "Missing 'success' argument"),
         };
 
-        let duration = arguments.get("duration").and_then(|d| d.as_u64()).unwrap_or(0);
+        let duration = arguments
+            .get("duration")
+            .and_then(|d| d.as_u64())
+            .unwrap_or(0);
         let error = arguments.get("error").and_then(|e| e.as_str());
 
         let result = HealthResult {

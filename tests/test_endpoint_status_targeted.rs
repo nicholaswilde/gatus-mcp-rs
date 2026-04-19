@@ -5,7 +5,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_get_endpoint_statuses_targeted() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), Some("test-key".to_string(, None, None)));
+    let client = GatusClient::new(mock_server.uri(), Some("test-key".to_string()), None, None);
 
     let mock_response = r#"[
         {

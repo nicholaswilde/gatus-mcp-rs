@@ -54,6 +54,8 @@ async fn test_sse_notifications() {
         gatus: GatusSettings {
             api_url: mock_server.uri(),
             api_key: None,
+            username: None,
+            password: None,
         },
     };
 

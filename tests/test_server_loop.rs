@@ -8,6 +8,8 @@ async fn test_run_server_loop() {
     let gatus_client = GatusClient::new(
         "http://localhost:8080".to_string(),
         Some("api_key".to_string()),
+        None,
+        None,
     );
     let handler = McpHandler::new(gatus_client);
 
@@ -28,6 +30,8 @@ async fn test_run_server_loop_invalid_json() {
     let gatus_client = GatusClient::new(
         "http://localhost:8080".to_string(),
         Some("api_key".to_string()),
+        None,
+        None,
     );
     let handler = McpHandler::new(gatus_client);
 

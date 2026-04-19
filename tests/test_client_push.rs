@@ -5,7 +5,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_gatus_client_push_endpoint_result() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), Some("test-key".to_string(, None, None)));
+    let client = GatusClient::new(mock_server.uri(), Some("test-key".to_string()), None, None);
 
     let result = HealthResult {
         timestamp: "2023-01-01T00:00:00Z".to_string(),
