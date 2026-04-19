@@ -6,5 +6,5 @@
 - [x] Task: Add unit tests for raw data deserialization. (8ad25f8)
 
 ## Phase 2: Enhanced Configuration
-- [ ] Task: Implement detailed condition status reporting in `format_endpoint_status`.
+- [x] Task: Implement detailed condition status reporting in `format_endpoint_status`. (fc6b99f)
 - [ ] Task: Update integration tests to verify detailed failure reporting.
