@@ -5,6 +5,6 @@
 - [x] Task: Add `get-raw-results` action to `get_metrics`. (783f5ee)
 - [x] Task: Add unit tests for raw data deserialization. (8ad25f8)
 
-## Phase 2: Enhanced Configuration
+## Phase 2: Enhanced Configuration [checkpoint: 82f8396]
 - [x] Task: Implement detailed condition status reporting in `format_endpoint_status`. (fc6b99f)
 - [x] Task: Update integration tests to verify detailed failure reporting. (c2d16f3)
