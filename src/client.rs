@@ -534,6 +534,15 @@ impl GatusClient {
     }
 
     #[tracing::instrument(skip(self))]
+    pub async fn get_raw_results(&self, key: &str, limit: usize) -> Result<Vec<HealthResult>> {
+        let services = self.get_endpoint_statuses(key).await?;
+        match services.into_iter().next() {
+            Some(s) => Ok(s.results.into_iter().take(limit).collect()),
+            None => anyhow::bail!("Endpoint '{}' not found", key),
+        }
+    }
+
+    #[tracing::instrument(skip(self))]
     pub async fn get_instance_health(&self) -> Result<String> {
         self.rate_limiter.until_ready().await;
 
