@@ -194,7 +194,7 @@ impl McpHandler {
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["system-stats", "service-details", "service-history", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history"],
+                            "enum": ["system-stats", "service-details", "service-history", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history", "get-badge"],
                             "description": "Action to perform."
                         },
                         "id": {
@@ -644,6 +644,39 @@ impl McpHandler {
                 let limit = arguments.get("limit").cloned().unwrap_or(json!(5));
                 let new_args = json!({"limit": limit});
                 self.handle_get_alert_history_tool(id, &new_args).await
+            }
+            "get-badge" => {
+                let key = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for get-badge",
+                        )
+                    }
+                };
+                let timeframe = arguments.get("timeframe").and_then(|t| t.as_str());
+
+                let markdown = if let Some(tf) = timeframe {
+                    let url = self.gatus_client.get_uptime_badge_url(key, tf);
+                    format!("![Uptime Badge ({})]({})", tf, url)
+                } else {
+                    let url = self.gatus_client.get_badge_url(key);
+                    format!("![Health Badge]({})", url)
+                };
+
+                self.success_response(
+                    id,
+                    json!({
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": markdown
+                            }
+                        ]
+                    }),
+                )
             }
             _ => self.error_response(
                 id,
