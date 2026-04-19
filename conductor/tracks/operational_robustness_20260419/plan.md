@@ -1,6 +1,6 @@
 # Implementation Plan - Operational Robustness
 
-## Phase 1: Security & Auth
+## Phase 1: Security & Auth [checkpoint: e2d7b7a]
 - [x] Task: Add Basic Auth support to `GatusClient`. [4f7f06a]
 - [x] Task: Update `Settings` to load username/password from env. [4f7f06a]
 - [x] Task: Add unit tests for Basic Auth headers. [4f7f06a]
