@@ -1,6 +1,5 @@
 use gatus_mcp_rs::client::{GatusClient, HealthResult};
-use serde_json::json;
-use wiremock::matchers::{body_json, header, method, path};
+use wiremock::matchers::{header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 #[tokio::test]
@@ -23,21 +22,10 @@ async fn test_gatus_client_push_endpoint_result() {
     };
 
     Mock::given(method("POST"))
-        .and(path("/api/v1/endpoints/test-endpoint/results"))
+        .and(path("/api/v1/endpoints/test-endpoint/external"))
         .and(header("Authorization", "Bearer test-key"))
-        .and(body_json(json!({
-            "timestamp": "2023-01-01T00:00:00Z",
-            "success": true,
-            "hostname": "test-host",
-            "ip": "127.0.0.1",
-            "duration": 100,
-            "errors": [],
-            "status": 200,
-            "conditionResults": [],
-            "body": "OK",
-            "headers": null,
-            "certificate_expiration": null
-        })))
+        .and(wiremock::matchers::query_param("success", "true"))
+        .and(wiremock::matchers::query_param("duration", "100"))
         .respond_with(ResponseTemplate::new(200))
         .mount(&mock_server)
         .await;
@@ -66,7 +54,7 @@ async fn test_gatus_client_push_endpoint_result_error() {
     };
 
     Mock::given(method("POST"))
-        .and(path("/api/v1/endpoints/test-endpoint/results"))
+        .and(path("/api/v1/endpoints/test-endpoint/external"))
         .respond_with(ResponseTemplate::new(500).set_body_string("Internal Server Error"))
         .mount(&mock_server)
         .await;

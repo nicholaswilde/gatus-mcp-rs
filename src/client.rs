@@ -448,8 +448,16 @@ impl GatusClient {
     pub async fn push_endpoint_result(&self, key: &str, result: HealthResult) -> Result<()> {
         self.rate_limiter.until_ready().await;
 
-        let url = format!("{}/api/v1/endpoints/{}/results", self.api_url, key);
-        let mut request = self.client.post(url).json(&result);
+        let url = format!("{}/api/v1/endpoints/{}/external", self.api_url, key);
+        let mut query_params = vec![
+            ("success", result.success.to_string()),
+            ("duration", result.duration.to_string()),
+        ];
+        if let Some(err) = result.errors.first() {
+            query_params.push(("error", err.clone()));
+        }
+
+        let mut request = self.client.post(url).query(&query_params);
 
         if let Some(ref key) = self.api_key {
             request = request.header("Authorization", format!("Bearer {}", key));
