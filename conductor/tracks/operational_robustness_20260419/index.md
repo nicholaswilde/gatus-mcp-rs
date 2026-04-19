@@ -1,4 +1,4 @@
-# Index - Badge Generation
+# Operational Robustness
 
 - [Specification](./spec.md)
 - [Implementation Plan](./plan.md)
