@@ -5,6 +5,6 @@
 - [x] Task: Add unit tests for URL generation. [8bde185]
 
 ## Phase 2: Tool Integration
-- [ ] Task: Add `get-latency-badge` action to `get_metrics` tool.
-- [ ] Task: Add `get-latency-chart` action to `get_metrics` tool.
-- [ ] Task: Add integration tests.
+- [x] Task: Add `get-latency-badge` action to `get_metrics` tool. [3a19241]
+- [x] Task: Add `get-latency-chart` action to `get_metrics` tool. [3a19241]
+- [x] Task: Add integration tests. [3a19241]
