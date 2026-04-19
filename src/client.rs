@@ -444,6 +444,17 @@ impl GatusClient {
         Ok(())
     }
 
+    pub fn get_badge_url(&self, key: &str) -> String {
+        format!("{}/api/v1/endpoints/{}/health/badge.svg", self.api_url, key)
+    }
+
+    pub fn get_uptime_badge_url(&self, key: &str, duration: &str) -> String {
+        format!(
+            "{}/api/v1/endpoints/{}/uptimes/{}/badge.svg",
+            self.api_url, key, duration
+        )
+    }
+
     #[tracing::instrument(skip(self, result))]
     pub async fn push_endpoint_result(&self, key: &str, result: HealthResult) -> Result<()> {
         self.rate_limiter.until_ready().await;
