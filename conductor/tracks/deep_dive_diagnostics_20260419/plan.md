@@ -7,4 +7,4 @@
 
 ## Phase 2: Enhanced Configuration
 - [x] Task: Implement detailed condition status reporting in `format_endpoint_status`. (fc6b99f)
-- [ ] Task: Update integration tests to verify detailed failure reporting.
+- [x] Task: Update integration tests to verify detailed failure reporting. (c2d16f3)
