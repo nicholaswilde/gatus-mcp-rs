@@ -4,7 +4,7 @@ use serde_json::json;
 
 #[tokio::test]
 async fn test_mcp_handle_get_badge() {
-    let client = GatusClient::new("https://status.example.org".to_string(), None);
+    let client = GatusClient::new("https://status.example.org".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -28,7 +28,7 @@ async fn test_mcp_handle_get_badge() {
 
 #[tokio::test]
 async fn test_mcp_handle_get_badge_uptime() {
-    let client = GatusClient::new("https://status.example.org".to_string(), None);
+    let client = GatusClient::new("https://status.example.org".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -54,7 +54,7 @@ async fn test_mcp_handle_get_badge_uptime() {
 #[tokio::test]
 async fn test_mcp_handle_service_details_with_badge() {
     let mock_server = wiremock::MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([

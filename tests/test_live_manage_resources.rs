@@ -20,7 +20,7 @@ async fn test_live_manage_resources() {
         api_url
     );
 
-    let client = GatusClient::new(api_url, api_key);
+    let client = GatusClient::new(api_url, api_key, None, None);
     let handler = McpHandler::new(client);
 
     // Test list-services action

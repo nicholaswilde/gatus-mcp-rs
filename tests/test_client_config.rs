@@ -6,7 +6,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_gatus_client_get_config() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
 
     let config_response = json!({
         "endpoints": [

@@ -5,7 +5,7 @@ use wiremock::MockServer;
 
 #[tokio::test]
 async fn test_handle_list_prompts() {
-    let client = GatusClient::new("http://localhost:8080".to_string(), None);
+    let client = GatusClient::new("http://localhost:8080".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -28,7 +28,7 @@ async fn test_handle_list_prompts() {
 
 #[tokio::test]
 async fn test_handle_get_prompt_analyze_outage() {
-    let client = GatusClient::new("http://localhost:8080".to_string(), None);
+    let client = GatusClient::new("http://localhost:8080".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -60,7 +60,7 @@ async fn test_handle_get_prompt_analyze_outage() {
 #[tokio::test]
 async fn test_handle_get_prompt_missing_name() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -81,7 +81,7 @@ async fn test_handle_get_prompt_missing_name() {
 #[tokio::test]
 async fn test_handle_get_prompt_analyze_outage_missing_id() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -105,7 +105,7 @@ async fn test_handle_get_prompt_analyze_outage_missing_id() {
 #[tokio::test]
 async fn test_handle_get_prompt_unknown_prompt() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({

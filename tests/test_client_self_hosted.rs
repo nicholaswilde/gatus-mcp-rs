@@ -6,7 +6,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_get_endpoint_uptimes() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
 
     let gatus_response = json!({
         "1672531200": 1.0,
@@ -32,7 +32,7 @@ async fn test_get_endpoint_uptimes() {
 #[tokio::test]
 async fn test_get_endpoint_response_times() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
 
     let gatus_response = json!([
         {"timestamp": "2023-10-27T10:00:00Z", "value": 124},
@@ -58,7 +58,7 @@ async fn test_get_endpoint_response_times() {
 #[tokio::test]
 async fn test_get_instance_health() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
 
     Mock::given(method("GET"))
         .and(path("/health"))

@@ -52,7 +52,12 @@ where
                 env!("CARGO_PKG_VERSION")
             );
             tracing::info!("Using Gatus API URL: {}", settings.gatus.api_url);
-            let client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
+            let client = GatusClient::new(
+                settings.gatus.api_url,
+                settings.gatus.api_key,
+                settings.gatus.username,
+                settings.gatus.password,
+            );
             let handler = McpHandler::new(client);
             run_server_loop(handler, io::BufReader::new(reader), writer).await?;
         }
@@ -60,7 +65,12 @@ where
             run_http_server(settings, port, host).await?;
         }
         Commands::ListTools => {
-            let client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
+            let client = GatusClient::new(
+                settings.gatus.api_url,
+                settings.gatus.api_key,
+                settings.gatus.username,
+                settings.gatus.password,
+            );
             let handler = McpHandler::new(client);
             let response = handler
                 .handle(serde_json::json!({
@@ -72,7 +82,12 @@ where
             println!("{}", serde_json::to_string_pretty(&response)?);
         }
         Commands::CallTool { name, arguments } => {
-            let client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
+            let client = GatusClient::new(
+                settings.gatus.api_url,
+                settings.gatus.api_key,
+                settings.gatus.username,
+                settings.gatus.password,
+            );
             let handler = McpHandler::new(client);
             let args: serde_json::Value = serde_json::from_str(&arguments)?;
             let response = handler

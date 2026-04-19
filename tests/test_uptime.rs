@@ -7,7 +7,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_gatus_client_get_uptime() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let now = Utc::now();
     let ts1 = (now - chrono::Duration::minutes(10)).to_rfc3339();
     let ts2 = (now - chrono::Duration::minutes(5)).to_rfc3339();

@@ -16,7 +16,7 @@ async fn test_live_push_endpoint_result() {
 
     println!("Testing push_endpoint_result against live instance: {}", api_url);
 
-    let client = GatusClient::new(api_url, api_key);
+    let client = GatusClient::new(api_url, api_key, None, None);
 
     // Use a dummy key for testing, or a real one if found
     let services = client.list_services(false).await.expect("Failed to list services");

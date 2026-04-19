@@ -7,7 +7,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_mcp_handle_push_result() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), Some("test-key".to_string()));
+    let client = GatusClient::new(mock_server.uri(), Some("test-key".to_string(, None, None)));
     let handler = McpHandler::new(client);
 
     Mock::given(method("POST"))
@@ -41,7 +41,7 @@ async fn test_mcp_handle_push_result() {
 #[tokio::test]
 async fn test_mcp_handle_push_result_error() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     Mock::given(method("POST"))

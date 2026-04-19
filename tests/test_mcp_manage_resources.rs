@@ -7,7 +7,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_mcp_manage_resources_list_services() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -60,7 +60,7 @@ async fn test_mcp_manage_resources_list_services() {
 #[tokio::test]
 async fn test_mcp_manage_resources_list_groups() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -102,7 +102,7 @@ async fn test_mcp_manage_resources_list_groups() {
 #[tokio::test]
 async fn test_mcp_manage_resources_list_endpoints_all() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -142,7 +142,7 @@ async fn test_mcp_manage_resources_list_endpoints_all() {
 #[tokio::test]
 async fn test_mcp_manage_resources_list_endpoints_filtered() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -183,7 +183,7 @@ async fn test_mcp_manage_resources_list_endpoints_filtered() {
 #[tokio::test]
 async fn test_mcp_manage_resources_list_endpoints_not_found() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     Mock::given(method("GET"))
@@ -213,7 +213,7 @@ async fn test_mcp_manage_resources_list_endpoints_not_found() {
 #[tokio::test]
 async fn test_mcp_manage_resources_get_config_no_results() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -247,7 +247,7 @@ async fn test_mcp_manage_resources_get_config_no_results() {
 #[tokio::test]
 async fn test_mcp_manage_resources_get_config() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -302,7 +302,7 @@ async fn test_mcp_manage_resources_get_config() {
 #[tokio::test]
 async fn test_mcp_manage_resources_get_health() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     Mock::given(method("GET"))

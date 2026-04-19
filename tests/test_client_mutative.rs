@@ -5,7 +5,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_gatus_client_trigger_check() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
 
     Mock::given(method("POST"))
         .and(path("/api/v1/endpoints/core_service-1/trigger"))
@@ -20,7 +20,7 @@ async fn test_gatus_client_trigger_check() {
 #[tokio::test]
 async fn test_gatus_client_reload_config() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
 
     Mock::given(method("POST"))
         .and(path("/api/v1/config/reload"))

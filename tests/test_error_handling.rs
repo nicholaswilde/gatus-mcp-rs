@@ -14,7 +14,7 @@ async fn test_mcp_handler_api_error() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -50,7 +50,7 @@ async fn test_mcp_handler_service_not_found() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -78,7 +78,7 @@ async fn test_mcp_handler_service_not_found() {
 
 #[tokio::test]
 async fn test_mcp_handler_invalid_request() {
-    let client = GatusClient::new("http://localhost".to_string(), None);
+    let client = GatusClient::new("http://localhost".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!("invalid");
@@ -90,7 +90,7 @@ async fn test_mcp_handler_invalid_request() {
 
 #[tokio::test]
 async fn test_mcp_handler_missing_tool_name() {
-    let client = GatusClient::new("http://localhost".to_string(), None);
+    let client = GatusClient::new("http://localhost".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -110,7 +110,7 @@ async fn test_mcp_handler_missing_tool_name() {
 
 #[tokio::test]
 async fn test_mcp_handler_unknown_manage_resources_action() {
-    let client = GatusClient::new("http://localhost".to_string(), None);
+    let client = GatusClient::new("http://localhost".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -136,7 +136,7 @@ async fn test_mcp_handler_unknown_manage_resources_action() {
 
 #[tokio::test]
 async fn test_mcp_handler_get_metrics_missing_action() {
-    let client = GatusClient::new("http://localhost".to_string(), None);
+    let client = GatusClient::new("http://localhost".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -164,7 +164,7 @@ async fn test_gatus_client_api_error_uptimes() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let res = client.get_endpoint_uptimes("key", "24h").await;
 
     assert!(res.is_err());
@@ -179,7 +179,7 @@ async fn test_gatus_client_api_error_response_times() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let res = client.get_endpoint_response_times("key", "24h").await;
 
     assert!(res.is_err());
@@ -194,7 +194,7 @@ async fn test_gatus_client_api_error_health() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let res = client.get_instance_health().await;
 
     assert!(res.is_err());
@@ -209,7 +209,7 @@ async fn test_mcp_handler_get_config_error() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -235,7 +235,7 @@ async fn test_mcp_handler_get_health_error() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -261,7 +261,7 @@ async fn test_mcp_handler_system_stats_error() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -289,7 +289,7 @@ async fn test_mcp_handler_uptime_granular_error() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -317,7 +317,7 @@ async fn test_mcp_handler_response_time_error() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({
@@ -343,7 +343,7 @@ async fn test_mcp_handler_alert_history_error() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let req = json!({

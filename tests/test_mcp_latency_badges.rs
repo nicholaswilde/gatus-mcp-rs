@@ -4,7 +4,7 @@ use serde_json::json;
 
 #[tokio::test]
 async fn test_mcp_handle_get_latency_badge() {
-    let client = GatusClient::new("https://status.example.org".to_string(), None);
+    let client = GatusClient::new("https://status.example.org".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -29,7 +29,7 @@ async fn test_mcp_handle_get_latency_badge() {
 
 #[tokio::test]
 async fn test_mcp_handle_get_latency_chart() {
-    let client = GatusClient::new("https://status.example.org".to_string(), None);
+    let client = GatusClient::new("https://status.example.org".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({

@@ -45,7 +45,7 @@ async fn test_service_history_payload_efficiency() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({

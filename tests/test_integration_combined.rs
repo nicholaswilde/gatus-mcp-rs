@@ -40,7 +40,7 @@ async fn test_integration_manage_resources_mock() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     // 1. list-services
@@ -92,7 +92,7 @@ async fn test_integration_manage_resources_live() {
     let api_url = env::var("GATUS_API_URL").expect("GATUS_API_URL must be set for live tests");
     let api_key = env::var("GATUS_API_KEY").ok();
 
-    let client = GatusClient::new(api_url, api_key);
+    let client = GatusClient::new(api_url, api_key, None, None);
     let handler = McpHandler::new(client);
 
     // 1. list-services
@@ -165,7 +165,7 @@ async fn test_integration_get_metrics_mock() {
         .mount(&mock_server)
         .await;
 
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -190,7 +190,7 @@ async fn test_integration_get_metrics_mock() {
 #[tokio::test]
 async fn test_integration_prompts_get_mock() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({

@@ -14,6 +14,8 @@ pub struct ServerSettings {
 pub struct GatusSettings {
     pub api_url: String,
     pub api_key: Option<String>,
+    pub username: Option<String>,
+    pub password: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone, Default)]
@@ -37,6 +39,8 @@ impl Default for GatusSettings {
         Self {
             api_url: "http://localhost:8080".to_string(),
             api_key: None,
+            username: None,
+            password: None,
         }
     }
 }
@@ -68,6 +72,12 @@ impl Settings {
         }
         if let Ok(key) = env::var("GATUS_API_KEY") {
             builder = builder.set_override("gatus.api_key", key)?;
+        }
+        if let Ok(username) = env::var("GATUS_USERNAME") {
+            builder = builder.set_override("gatus.username", username)?;
+        }
+        if let Ok(password) = env::var("GATUS_PASSWORD") {
+            builder = builder.set_override("gatus.password", password)?;
         }
 
         builder.build()?.try_deserialize()

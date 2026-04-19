@@ -18,7 +18,12 @@ use tokio::sync::broadcast;
 use tokio_stream::StreamExt as _;
 
 pub fn create_app(settings: Settings) -> Router {
-    let gatus_client = GatusClient::new(settings.gatus.api_url, settings.gatus.api_key);
+    let gatus_client = GatusClient::new(
+        settings.gatus.api_url.clone(),
+        settings.gatus.api_key.clone(),
+        settings.gatus.username.clone(),
+        settings.gatus.password.clone(),
+    );
     let mcp_handler = McpHandler::new(gatus_client.clone());
     let (tx, _) = broadcast::channel(100);
 

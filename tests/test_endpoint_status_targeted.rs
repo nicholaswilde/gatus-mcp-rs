@@ -5,7 +5,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_get_endpoint_statuses_targeted() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), Some("test-key".to_string()));
+    let client = GatusClient::new(mock_server.uri(), Some("test-key".to_string(, None, None)));
 
     let mock_response = r#"[
         {
@@ -42,7 +42,7 @@ async fn test_get_endpoint_statuses_targeted() {
 #[tokio::test]
 async fn test_get_endpoint_statuses_targeted_not_found() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
 
     Mock::given(method("GET"))
         .and(path("/api/v1/endpoints/non_existent/statuses"))

@@ -6,7 +6,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 
 #[tokio::test]
 async fn test_handle_list_resources() {
-    let client = GatusClient::new("http://localhost:8080".to_string(), None);
+    let client = GatusClient::new("http://localhost:8080".to_string(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -34,7 +34,7 @@ async fn test_handle_list_resources() {
 #[tokio::test]
 async fn test_handle_read_resource_dashboard_status() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -85,7 +85,7 @@ async fn test_handle_read_resource_dashboard_status() {
 #[tokio::test]
 async fn test_handle_read_resource_missing_uri() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -106,7 +106,7 @@ async fn test_handle_read_resource_missing_uri() {
 #[tokio::test]
 async fn test_handle_read_resource_unknown_uri() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let request = json!({
@@ -129,7 +129,7 @@ async fn test_handle_read_resource_unknown_uri() {
 #[tokio::test]
 async fn test_handle_read_resource_system_config() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     use wiremock::matchers::{method, path};

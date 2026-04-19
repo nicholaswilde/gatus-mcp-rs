@@ -8,7 +8,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_mcp_get_metrics_system_stats() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -49,7 +49,7 @@ async fn test_mcp_get_metrics_system_stats() {
 #[tokio::test]
 async fn test_mcp_get_metrics_service_details() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -102,7 +102,7 @@ async fn test_mcp_get_metrics_service_details() {
 #[tokio::test]
 async fn test_mcp_get_metrics_service_history() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -163,7 +163,7 @@ async fn test_mcp_get_metrics_service_history() {
 #[tokio::test]
 async fn test_mcp_get_metrics_group_summary() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -208,7 +208,7 @@ async fn test_mcp_get_metrics_group_summary() {
 #[tokio::test]
 async fn test_mcp_get_metrics_uptime() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let now = Utc::now();
@@ -259,7 +259,7 @@ async fn test_mcp_get_metrics_uptime() {
 #[tokio::test]
 async fn test_mcp_get_metrics_response_time() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([
@@ -302,7 +302,7 @@ async fn test_mcp_get_metrics_response_time() {
 #[tokio::test]
 async fn test_mcp_get_metrics_alert_history() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     let gatus_response = json!([

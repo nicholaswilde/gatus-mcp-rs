@@ -4,7 +4,7 @@ use serde_json::json;
 
 #[tokio::test]
 async fn test_mcp_handler_unknown_tool() {
-    let client = GatusClient::new("http://localhost".into(), None);
+    let client = GatusClient::new("http://localhost".into(), None, None, None);
     let handler = McpHandler::new(client);
     let request = json!({
         "jsonrpc": "2.0",
@@ -22,7 +22,7 @@ async fn test_mcp_handler_unknown_tool() {
 
 #[tokio::test]
 async fn test_mcp_handler_list_tools() {
-    let client = GatusClient::new("http://localhost".into(), None);
+    let client = GatusClient::new("http://localhost".into(), None, None, None);
     let handler = McpHandler::new(client);
     let request = json!({
         "jsonrpc": "2.0",

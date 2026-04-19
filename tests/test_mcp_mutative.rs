@@ -7,7 +7,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_handle_call_trigger_check() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     Mock::given(method("POST"))
@@ -36,7 +36,7 @@ async fn test_handle_call_trigger_check() {
 #[tokio::test]
 async fn test_handle_call_reload_config() {
     let mock_server = MockServer::start().await;
-    let client = GatusClient::new(mock_server.uri(), None);
+    let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
     Mock::given(method("POST"))

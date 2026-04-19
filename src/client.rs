@@ -130,6 +130,8 @@ pub struct SystemStats {
 pub struct GatusClient {
     api_url: String,
     api_key: Option<String>,
+    username: Option<String>,
+    password: Option<String>,
     client: Client,
     cache: Cache<String, Vec<EndpointStatus>>,
     uptime_cache: Cache<String, UptimeResponse>,
@@ -144,12 +146,19 @@ pub struct GatusClient {
 }
 
 impl GatusClient {
-    pub fn new(api_url: String, api_key: Option<String>) -> Self {
+    pub fn new(
+        api_url: String,
+        api_key: Option<String>,
+        username: Option<String>,
+        password: Option<String>,
+    ) -> Self {
         let quota = Quota::per_second(NonZeroU32::new(2).unwrap()); // 2 requests per second
 
         Self {
             api_url,
             api_key,
+            username,
+            password,
             client: Client::new(),
             cache: Cache::builder()
                 .max_capacity(100)
@@ -167,6 +176,15 @@ impl GatusClient {
         }
     }
 
+    fn add_auth_header(&self, mut request: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
+        if let Some(ref key) = self.api_key {
+            request = request.header("Authorization", format!("Bearer {}", key));
+        } else if let (Some(ref u), Some(ref p)) = (&self.username, &self.password) {
+            request = request.basic_auth(u, Some(p));
+        }
+        request
+    }
+
     #[tracing::instrument(skip(self))]
     pub async fn get_endpoint_statuses(&self, key: &str) -> Result<Vec<EndpointStatus>> {
         self.rate_limiter.until_ready().await;
@@ -174,9 +192,7 @@ impl GatusClient {
         let url = format!("{}/api/v1/endpoints/{}/statuses", self.api_url, key);
         let mut request = self.client.get(url);
 
-        if let Some(ref key) = self.api_key {
-            request = request.header("Authorization", format!("Bearer {}", key));
-        }
+        request = self.add_auth_header(request);
 
         let response = request.send().await?;
         let status = response.status();
@@ -205,9 +221,7 @@ impl GatusClient {
         let url = format!("{}/api/v1/endpoints/statuses", self.api_url);
         let mut request = self.client.get(url);
 
-        if let Some(ref key) = self.api_key {
-            request = request.header("Authorization", format!("Bearer {}", key));
-        }
+        request = self.add_auth_header(request);
 
         let response = request.send().await?;
         let status = response.status();
@@ -322,9 +336,7 @@ impl GatusClient {
         );
         let mut request = self.client.get(url);
 
-        if let Some(ref key) = self.api_key {
-            request = request.header("Authorization", format!("Bearer {}", key));
-        }
+        request = self.add_auth_header(request);
 
         let response = request.send().await?;
         let status = response.status();
@@ -358,9 +370,7 @@ impl GatusClient {
         );
         let mut request = self.client.get(url);
 
-        if let Some(ref key) = self.api_key {
-            request = request.header("Authorization", format!("Bearer {}", key));
-        }
+        request = self.add_auth_header(request);
 
         let response = request.send().await?;
         let status = response.status();
@@ -384,9 +394,7 @@ impl GatusClient {
         let url = format!("{}/api/v1/config", self.api_url);
         let mut request = self.client.get(url);
 
-        if let Some(ref key) = self.api_key {
-            request = request.header("Authorization", format!("Bearer {}", key));
-        }
+        request = self.add_auth_header(request);
 
         let response = request.send().await?;
         let status = response.status();
@@ -407,9 +415,7 @@ impl GatusClient {
         let url = format!("{}/api/v1/endpoints/{}/trigger", self.api_url, key);
         let mut request = self.client.post(url);
 
-        if let Some(ref key) = self.api_key {
-            request = request.header("Authorization", format!("Bearer {}", key));
-        }
+        request = self.add_auth_header(request);
 
         let response = request.send().await?;
         let status = response.status();
@@ -429,9 +435,7 @@ impl GatusClient {
         let url = format!("{}/api/v1/config/reload", self.api_url);
         let mut request = self.client.post(url);
 
-        if let Some(ref key) = self.api_key {
-            request = request.header("Authorization", format!("Bearer {}", key));
-        }
+        request = self.add_auth_header(request);
 
         let response = request.send().await?;
         let status = response.status();
@@ -484,9 +488,7 @@ impl GatusClient {
 
         let mut request = self.client.post(url).query(&query_params);
 
-        if let Some(ref key) = self.api_key {
-            request = request.header("Authorization", format!("Bearer {}", key));
-        }
+        request = self.add_auth_header(request);
 
         let response = request.send().await?;
         let status = response.status();
@@ -506,9 +508,7 @@ impl GatusClient {
         let url = format!("{}/health", self.api_url);
         let mut request = self.client.get(url);
 
-        if let Some(ref key) = self.api_key {
-            request = request.header("Authorization", format!("Bearer {}", key));
-        }
+        request = self.add_auth_header(request);
 
         let response = request.send().await?;
         let status = response.status();

@@ -17,7 +17,7 @@ async fn test_live_get_metrics() {
 
     println!("Testing get_metrics against live instance: {}", api_url);
 
-    let client = std::sync::Arc::new(GatusClient::new(api_url, api_key));
+    let client = std::sync::Arc::new(GatusClient::new(api_url, api_key, None, None));
     let handler = McpHandler::new_with_arc(client.clone());
 
     // 1. System stats
