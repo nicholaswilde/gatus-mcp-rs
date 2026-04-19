@@ -963,17 +963,21 @@ impl McpHandler {
                 let service = services.into_iter().find(|s| s.name == service_name);
                 match service {
                     Some(s) => match action {
-                        "details" => self.success_response(
-                            id,
-                            json!({
-                                "content": [
-                                    {
-                                        "type": "text",
-                                        "text": format_endpoint_status(&s)
-                                    }
-                                ]
-                            }),
-                        ),
+                        "details" => {
+                            let key = format!("{}_{}", s.group, s.name);
+                            let badge_url = self.gatus_client.get_badge_url(&key);
+                            self.success_response(
+                                id,
+                                json!({
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": format_endpoint_status(&s, Some(&badge_url))
+                                        }
+                                    ]
+                                }),
+                            )
+                        }
                         _ => self.error_response(
                             id,
                             -32602,

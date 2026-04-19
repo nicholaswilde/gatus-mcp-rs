@@ -1,7 +1,10 @@
 use crate::client::{EndpointStatus, SystemStats};
 
-pub fn format_endpoint_status(endpoint: &EndpointStatus) -> String {
+pub fn format_endpoint_status(endpoint: &EndpointStatus, badge_url: Option<&str>) -> String {
     let mut output = format!("### {}\n", endpoint.name);
+    if let Some(url) = badge_url {
+        output.push_str(&format!("![Health Badge]({})\n\n", url));
+    }
     output.push_str(&format!("- **Group:** {}\n", endpoint.group));
     output.push_str(&format!("- **Status:** {}\n", endpoint.display_status()));
 

@@ -25,7 +25,7 @@ fn test_format_endpoint_status() {
         events: vec![],
     };
 
-    let output = format_endpoint_status(&endpoint);
+    let output = format_endpoint_status(&endpoint, None);
     assert!(output.contains("### test-service"));
     assert!(output.contains("- **Group:** test-group"));
     assert!(output.contains("- **Status:** UP"));

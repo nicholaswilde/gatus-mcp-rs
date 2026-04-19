@@ -42,7 +42,7 @@ fn test_format_endpoint_status_with_diagnostics() {
         events: vec![],
     };
 
-    let output = format_endpoint_status(&endpoint);
+    let output = format_endpoint_status(&endpoint, None);
     assert!(output.contains("**SSL Expiration:** 90 days remaining"));
     assert!(output.contains("**Headers:** (present)"));
     assert!(output.contains("**Body Snippet:** {\"error\": \"internal server error\"}"));

@@ -120,7 +120,7 @@ fn test_format_endpoint_status_with_diagnostics() {
         events: vec![],
     };
 
-    let formatted = format_endpoint_status(&endpoint);
+    let formatted = format_endpoint_status(&endpoint, None);
     assert!(formatted.contains("- **SSL Expiration:** 90 days remaining"));
     assert!(formatted.contains("- **Headers:** (present)"));
     assert!(formatted.contains("- **Body Snippet:** Error body"));
