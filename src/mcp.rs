@@ -194,7 +194,7 @@ impl McpHandler {
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["system-stats", "service-details", "service-history", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history", "get-badge"],
+                            "enum": ["system-stats", "service-details", "service-history", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history", "get-badge", "get-latency-badge", "get-latency-chart"],
                             "description": "Action to perform."
                         },
                         "id": {
@@ -665,6 +665,68 @@ impl McpHandler {
                     let url = self.gatus_client.get_badge_url(key);
                     format!("![Health Badge]({})", url)
                 };
+
+                self.success_response(
+                    id,
+                    json!({
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": markdown
+                            }
+                        ]
+                    }),
+                )
+            }
+            "get-latency-badge" => {
+                let key = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for get-latency-badge",
+                        )
+                    }
+                };
+                let timeframe = arguments
+                    .get("timeframe")
+                    .and_then(|t| t.as_str())
+                    .unwrap_or("24h");
+
+                let url = self.gatus_client.get_latency_badge_url(key, timeframe);
+                let markdown = format!("![Latency Badge ({})]({})", timeframe, url);
+
+                self.success_response(
+                    id,
+                    json!({
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": markdown
+                            }
+                        ]
+                    }),
+                )
+            }
+            "get-latency-chart" => {
+                let key = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for get-latency-chart",
+                        )
+                    }
+                };
+                let timeframe = arguments
+                    .get("timeframe")
+                    .and_then(|t| t.as_str())
+                    .unwrap_or("24h");
+
+                let url = self.gatus_client.get_latency_chart_url(key, timeframe);
+                let markdown = format!("![Latency Chart ({})]({})", timeframe, url);
 
                 self.success_response(
                     id,
