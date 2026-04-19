@@ -5,6 +5,6 @@
 - [ ] Task: Add support for fetching raw SVG content (optional).
 
 ## Phase 2: tool Integration
-- [ ] Task: Add `get-badge` action to `get_metrics` tool.
+- [x] Task: Add `get-badge` action to `get_metrics` tool. [bd095d5]
 - [ ] Task: Update `format_endpoint_status` to include a badge link by default.
 - [ ] Task: Add integration tests.
