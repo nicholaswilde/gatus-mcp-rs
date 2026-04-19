@@ -6,5 +6,5 @@
 
 ## Phase 2: tool Integration
 - [x] Task: Add `get-badge` action to `get_metrics` tool. [bd095d5]
-- [ ] Task: Update `format_endpoint_status` to include a badge link by default.
+- [x] Task: Update `format_endpoint_status` to include a badge link by default. [d6cc690]
 - [ ] Task: Add integration tests.
