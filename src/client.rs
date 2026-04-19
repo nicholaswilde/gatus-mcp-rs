@@ -455,6 +455,20 @@ impl GatusClient {
         )
     }
 
+    pub fn get_latency_badge_url(&self, key: &str, duration: &str) -> String {
+        format!(
+            "{}/api/v1/endpoints/{}/response-times/{}/badge.svg",
+            self.api_url, key, duration
+        )
+    }
+
+    pub fn get_latency_chart_url(&self, key: &str, duration: &str) -> String {
+        format!(
+            "{}/api/v1/endpoints/{}/response-times/{}/chart.svg",
+            self.api_url, key, duration
+        )
+    }
+
     #[tracing::instrument(skip(self, result))]
     pub async fn push_endpoint_result(&self, key: &str, result: HealthResult) -> Result<()> {
         self.rate_limiter.until_ready().await;
