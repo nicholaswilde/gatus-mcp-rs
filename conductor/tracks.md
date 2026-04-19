@@ -4,7 +4,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [~] Track: Performance Visualization
+## [x] Track: Performance Visualization
 - **Folder:** [tracks/performance_visualization_20260419](./tracks/performance_visualization_20260419/index.md)
 - **Description:** Implement support for response time badges and charts.
 
