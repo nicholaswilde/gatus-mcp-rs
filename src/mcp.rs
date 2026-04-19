@@ -194,7 +194,7 @@ impl McpHandler {
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["system-stats", "service-details", "service-history", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history", "get-badge", "get-latency-badge", "get-latency-chart"],
+                            "enum": ["system-stats", "service-details", "service-history", "get-raw-results", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history", "get-badge", "get-latency-badge", "get-latency-chart"],
                             "description": "Action to perform."
                         },
                         "id": {
@@ -588,6 +588,21 @@ impl McpHandler {
                 self.handle_get_service_history_tool(id, service_id, limit)
                     .await
             }
+            "get-raw-results" => {
+                let service_id = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for get-raw-results",
+                        )
+                    }
+                };
+                let limit = arguments.get("limit").cloned().unwrap_or(json!(10));
+                self.handle_get_raw_results_tool(id, service_id, limit)
+                    .await
+            }
             "group-summary" => {
                 let group_name = match arguments.get("id").and_then(|s| s.as_str()) {
                     Some(s) => s,
@@ -797,6 +812,25 @@ impl McpHandler {
                     }
                 }
             }
+            Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+        }
+    }
+
+    async fn handle_get_raw_results_tool(&self, id: Value, key: &str, limit: Value) -> Value {
+        let limit = limit.as_u64().unwrap_or(10) as usize;
+
+        match self.gatus_client.get_raw_results(key, limit).await {
+            Ok(history) => self.success_response(
+                id,
+                json!({
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": serde_json::to_string_pretty(&history).unwrap()
+                        }
+                    ]
+                }),
+            ),
             Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
         }
     }
