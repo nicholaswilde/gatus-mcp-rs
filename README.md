@@ -15,8 +15,10 @@ A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automat
 - **Model Context Protocol (MCP):** Native support for MCP, allowing easy integration with AI tools like Claude Desktop.
 - **Service Monitoring:** List all monitored services and their current statuses (UP/DOWN/DEGRADED).
 - **System Health Summary:** High-level overview of total, up, down, and degraded endpoint counts.
-- **Detailed Diagnostics:** Fetch latest results, history (optimized with targeted API calls), and granular performance metrics for specific health checks.
+- **Detailed Diagnostics:** Fetch latest results (now including detailed condition status ✅/❌), history (optimized with targeted API calls), raw non-truncated results, and granular performance metrics for specific health checks.
 - **Alert & State Transitions:** Retrieve chronological alert history to identify incident root causes.
+- **Status & Performance Visualization:** Surface health/uptime badges and latency charts (SVG) directly via MCP.
+- **External Result Pushing:** Push health check results for external/asynchronous endpoints directly to Gatus.
 - **Uptime Calculation:** Calculate success vs. failure ratios over 24h, 7d, and 30d timeframes.
 - **Configuration Retrieval:** Retrieve the effective Gatus monitoring configuration (conditions, names, groups).
 - **Multiple Transports:** Support for both Stdio and HTTP (SSE) transport layers.
@@ -113,10 +115,10 @@ Discover and manage Gatus resources and instance state.
 ### `get_metrics`
 Retrieve status, metrics, and history for services and endpoints.
 - **Arguments:**
-  - `action`: `system-stats`, `service-details`, `service-history` (optimized), `group-summary`, `uptime`, `uptime-granular`, `response-time`, or `alert-history`.
-  - `id`: (Optional) Identifier (e.g., service name for `service-details`, group name for `group-summary`, or endpoint key for `service-history`, `uptime-granular` and `response-time`).
-  - `limit`: (Optional) Maximum number of results for history actions (default: 10 for `service-history`, 5 for `alert-history`).
-  - `timeframe`: (Optional) `1h`, `24h`, `7d`, or `30d` (default: `24h`) for `uptime`, `uptime-granular` and `response-time`.
+  - `action`: `system-stats`, `service-details`, `service-history` (optimized), `get-raw-results` (non-truncated), `group-summary`, `uptime`, `uptime-granular`, `response-time`, `alert-history`, `get-badge`, `get-latency-badge`, or `get-latency-chart`.
+  - `id`: (Optional) Identifier (e.g., service name for `service-details`, group name for `group-summary`, or endpoint key for `service-history`, `uptime-granular`, `response-time`, and badge/chart actions).
+  - `limit`: (Optional) Maximum number of results for history actions (default: 10 for `service-history` and `get-raw-results`, 5 for `alert-history`).
+  - `timeframe`: (Optional) `1h`, `24h`, `7d`, or `30d` (default: `24h`) for `uptime`, `uptime-granular`, `response-time`, and badge/chart actions.
 
 ### `trigger_check`
 Force an immediate health check for a specific endpoint.
@@ -126,6 +128,14 @@ Force an immediate health check for a specific endpoint.
 ### `reload_config`
 Trigger a Gatus configuration reload.
 - **Arguments:** None.
+
+### `push_result`
+Push a health check result for an external endpoint.
+- **Arguments:**
+  - `id`: The endpoint key (usually `group_name_endpoint_name`).
+  - `success`: Whether the health check was successful (boolean).
+  - `duration`: (Optional) Duration of the health check in milliseconds.
+  - `error`: (Optional) Error message if the check was unsuccessful.
 
 ## :handshake: Contributing
 
