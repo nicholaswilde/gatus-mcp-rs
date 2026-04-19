@@ -31,9 +31,20 @@ async fn test_gatus_client_get_raw_results() {
         .await;
 
     // This should fail because get_raw_results is not yet implemented
-    let results = client.get_raw_results("group1_service1", 10).await.expect("Failed to get raw results");
-    
+    let results = client
+        .get_raw_results("group1_service1", 10)
+        .await
+        .expect("Failed to get raw results");
+
     assert_eq!(results.len(), 1);
     assert_eq!(results[0].body.as_deref(), Some("full-body-content"));
-    assert_eq!(results[0].headers.as_ref().unwrap().get("X-Test").map(|v| v.as_str()), Some("Value"));
+    assert_eq!(
+        results[0]
+            .headers
+            .as_ref()
+            .unwrap()
+            .get("X-Test")
+            .map(|v| v.as_str()),
+        Some("Value")
+    );
 }

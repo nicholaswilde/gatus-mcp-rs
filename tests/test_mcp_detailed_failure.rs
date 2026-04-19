@@ -58,7 +58,7 @@ async fn test_mcp_get_metrics_service_details_detailed_conditions() {
 
     let response = handler.handle(request).await;
     let text = response["result"]["content"][0]["text"].as_str().unwrap();
-    
+
     assert!(text.contains("#### Conditions"));
     assert!(text.contains("❌ [STATUS] == 200"));
     assert!(text.contains("✅ [RESPONSE_TIME] < 500"));

@@ -49,7 +49,7 @@ async fn test_mcp_get_metrics_get_raw_results() {
     });
 
     let response = handler.handle(request).await;
-    
+
     // This should fail initially because 'get-raw-results' action is not handled
     assert!(response["result"]["content"][0]["text"].as_str().is_some());
     let result_text = response["result"]["content"][0]["text"].as_str().unwrap();

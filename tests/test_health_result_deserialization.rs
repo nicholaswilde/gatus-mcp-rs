@@ -36,7 +36,15 @@ fn test_health_result_deserialization_full() {
     assert_eq!(result.condition_results.len(), 1);
     assert_eq!(result.condition_results[0].condition, "[STATUS] == 200");
     assert_eq!(result.body, Some("test-body".to_string()));
-    assert_eq!(result.headers.as_ref().unwrap().get("Content-Type").unwrap(), "text/plain");
+    assert_eq!(
+        result
+            .headers
+            .as_ref()
+            .unwrap()
+            .get("Content-Type")
+            .unwrap(),
+        "text/plain"
+    );
     assert_eq!(result.certificate_expiration, Some(3600));
 }
 
