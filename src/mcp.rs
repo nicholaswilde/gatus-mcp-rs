@@ -1,4 +1,4 @@
-use crate::client::GatusClient;
+use crate::client::{GatusClient, HealthResult};
 use crate::fmt::{
     format_config_summary, format_endpoint_status, format_endpoints_summary, format_system_stats,
 };
@@ -233,12 +233,38 @@ impl McpHandler {
                 "description": "Trigger a Gatus configuration reload.",
                 "inputSchema": {
                     "type": "object",
-                    "properties": {}
+                    "properties": {},
+                    "required": []
                 }
             }),
-        ]
-    }
-
+            json!({
+                "name": "push_result",
+                "description": "Push a health check result for an external endpoint.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "The endpoint key (usually group_name_endpoint_name)."
+                        },
+                        "success": {
+                            "type": "boolean",
+                            "description": "Whether the health check was successful."
+                        },
+                        "duration": {
+                            "type": "integer",
+                            "description": "Duration of the health check in milliseconds."
+                        },
+                        "error": {
+                            "type": "string",
+                            "description": "Error message if the check was unsuccessful."
+                        }
+                    },
+                    "required": ["id", "success"]
+                }
+            })
+            ]
+            }
     async fn handle_list_prompts(&self, id: Value) -> Value {
         json!({
             "jsonrpc": "2.0",
@@ -346,6 +372,7 @@ impl McpHandler {
             "get_metrics" => self.handle_get_metrics_tool(id, arguments).await,
             "trigger_check" => self.handle_trigger_check_tool(id, arguments).await,
             "reload_config" => self.handle_reload_config_tool(id, arguments).await,
+            "push_result" => self.handle_push_result_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
         }
     }
@@ -386,6 +413,50 @@ impl McpHandler {
                 }),
             ),
             Err(e) => self.error_response(id, -32000, &format!("Error reloading config: {}", e)),
+        }
+    }
+
+    async fn handle_push_result_tool(&self, id: Value, arguments: &Value) -> Value {
+        let key = match arguments.get("id").and_then(|i| i.as_str()) {
+            Some(i) => i,
+            None => return self.error_response(id, -32602, "Missing 'id' argument"),
+        };
+
+        let success = match arguments.get("success").and_then(|s| s.as_bool()) {
+            Some(s) => s,
+            None => return self.error_response(id, -32602, "Missing 'success' argument"),
+        };
+
+        let duration = arguments.get("duration").and_then(|d| d.as_u64()).unwrap_or(0);
+        let error = arguments.get("error").and_then(|e| e.as_str());
+
+        let result = HealthResult {
+            timestamp: chrono::Utc::now().to_rfc3339(),
+            success,
+            hostname: None,
+            ip: None,
+            duration,
+            errors: error.map(|e| vec![e.to_string()]).unwrap_or_default(),
+            status: if success { Some(200) } else { Some(500) },
+            condition_results: vec![],
+            body: None,
+            headers: None,
+            certificate_expiration: None,
+        };
+
+        match self.gatus_client.push_endpoint_result(key, result).await {
+            Ok(_) => self.success_response(
+                id,
+                json!({
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": format!("Successfully pushed result for '{}'", key)
+                        }
+                    ]
+                }),
+            ),
+            Err(e) => self.error_response(id, -32000, &format!("Error pushing result: {}", e)),
         }
     }
 
