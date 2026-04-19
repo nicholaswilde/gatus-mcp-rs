@@ -1,6 +1,6 @@
+use chrono::Utc;
 use gatus_mcp_rs::client::{GatusClient, HealthResult};
 use std::env;
-use chrono::Utc;
 
 #[tokio::test]
 async fn test_live_push_endpoint_result() {
@@ -14,13 +14,19 @@ async fn test_live_push_endpoint_result() {
     let api_url = env::var("GATUS_API_URL").expect("GATUS_API_URL must be set for live tests");
     let api_key = env::var("GATUS_API_KEY").ok();
 
-    println!("Testing push_endpoint_result against live instance: {}", api_url);
+    println!(
+        "Testing push_endpoint_result against live instance: {}",
+        api_url
+    );
 
     let client = GatusClient::new(api_url, api_key, None, None);
 
     // Use a dummy key for testing, or a real one if found
-    let services = client.list_services(false).await.expect("Failed to list services");
-    
+    let services = client
+        .list_services(false)
+        .await
+        .expect("Failed to list services");
+
     let key = if let Some(service) = services.first() {
         service.name.clone()
     } else {
@@ -44,7 +50,7 @@ async fn test_live_push_endpoint_result() {
     };
 
     let push_result = client.push_endpoint_result(&key, result).await;
-    
+
     match push_result {
         Ok(_) => println!("Successfully pushed result to {}", key),
         Err(e) => {

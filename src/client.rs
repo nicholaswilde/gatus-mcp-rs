@@ -37,7 +37,11 @@ pub struct AlertEvent {
 
 impl EndpointStatus {
     pub fn get_key(&self) -> String {
-        format!("{}_{}", self.sanitize_field(&self.group), self.sanitize_field(&self.name))
+        format!(
+            "{}_{}",
+            self.sanitize_field(&self.group),
+            self.sanitize_field(&self.name)
+        )
     }
 
     fn sanitize_field(&self, input: &str) -> String {

@@ -9,7 +9,7 @@ fn test_endpoint_status_get_key() {
         results: vec![],
         events: vec![],
     };
-    
+
     assert_eq!(endpoint.get_key(), "Authentication---Security_Authentik");
 }
 
@@ -22,7 +22,7 @@ fn test_endpoint_status_get_key_no_special_chars() {
         results: vec![],
         events: vec![],
     };
-    
+
     assert_eq!(endpoint.get_key(), "group1_service1");
 }
 

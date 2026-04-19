@@ -5,7 +5,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[tokio::test]
 async fn test_gatus_client_basic_auth() {
     let mock_server = MockServer::start().await;
-    
+
     let client = GatusClient::new(
         mock_server.uri(),
         None,
@@ -28,7 +28,7 @@ async fn test_gatus_client_basic_auth() {
 #[tokio::test]
 async fn test_gatus_client_both_auth_prefers_api_key() {
     let mock_server = MockServer::start().await;
-    
+
     let client = GatusClient::new(
         mock_server.uri(),
         Some("api-token".to_string()),
@@ -50,16 +50,23 @@ async fn test_gatus_client_both_auth_prefers_api_key() {
 #[test]
 fn test_gatus_client_sanitize_key() {
     let client = GatusClient::new("http://localhost".to_string(), None, None, None);
-    
+
     // Spaces and & should be replaced by hyphens
-    assert_eq!(client.sanitize_key("Authentication & Security"), "Authentication---Security");
-    
+    assert_eq!(
+        client.sanitize_key("Authentication & Security"),
+        "Authentication---Security"
+    );
+
     // Normal name should be unchanged
     assert_eq!(client.sanitize_key("Authentik"), "Authentik");
-    
+
     // Combined key
     let group = "Authentication & Security";
     let name = "Authentik";
-    let key = format!("{}_{}", client.sanitize_key(group), client.sanitize_key(name));
+    let key = format!(
+        "{}_{}",
+        client.sanitize_key(group),
+        client.sanitize_key(name)
+    );
     assert_eq!(key, "Authentication---Security_Authentik");
 }
