@@ -3,7 +3,7 @@
 ## Phase 1: Raw Data Retrieval
 - [x] Task: Update `GatusClient` to return raw result objects. (7cbea9d)
 - [x] Task: Add `get-raw-results` action to `get_metrics`. (783f5ee)
-- [ ] Task: Add unit tests for raw data deserialization.
+- [x] Task: Add unit tests for raw data deserialization. (8ad25f8)
 
 ## Phase 2: Enhanced Configuration
 - [ ] Task: Implement detailed condition status reporting in `format_endpoint_status`.
