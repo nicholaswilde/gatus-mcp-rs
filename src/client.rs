@@ -36,6 +36,22 @@ pub struct AlertEvent {
 }
 
 impl EndpointStatus {
+    pub fn get_key(&self) -> String {
+        format!("{}_{}", self.sanitize_field(&self.group), self.sanitize_field(&self.name))
+    }
+
+    fn sanitize_field(&self, input: &str) -> String {
+        let mut output = String::with_capacity(input.len());
+        for c in input.chars() {
+            if c.is_alphanumeric() || c == '_' {
+                output.push(c);
+            } else {
+                output.push('-');
+            }
+        }
+        output
+    }
+
     pub fn display_status(&self) -> String {
         self.status
             .clone()
@@ -183,6 +199,18 @@ impl GatusClient {
             request = request.basic_auth(u, Some(p));
         }
         request
+    }
+
+    pub fn sanitize_key(&self, input: &str) -> String {
+        // Create a dummy endpoint to use its private sanitize_field
+        let dummy = EndpointStatus {
+            name: String::new(),
+            group: String::new(),
+            status: None,
+            results: vec![],
+            events: vec![],
+        };
+        dummy.sanitize_field(input)
     }
 
     #[tracing::instrument(skip(self))]

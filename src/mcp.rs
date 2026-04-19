@@ -378,12 +378,14 @@ impl McpHandler {
     }
 
     async fn handle_trigger_check_tool(&self, id: Value, arguments: &Value) -> Value {
-        let key = match arguments.get("id").and_then(|i| i.as_str()) {
+        let id_arg = match arguments.get("id").and_then(|i| i.as_str()) {
             Some(i) => i,
             None => return self.error_response(id, -32602, "Missing 'id' argument"),
         };
 
-        match self.gatus_client.trigger_check(key).await {
+        let key = self.gatus_client.sanitize_key(id_arg);
+
+        match self.gatus_client.trigger_check(&key).await {
             Ok(_) => self.success_response(
                 id,
                 json!({
@@ -649,7 +651,7 @@ impl McpHandler {
                 self.handle_get_alert_history_tool(id, &new_args).await
             }
             "get-badge" => {
-                let key = match arguments.get("id").and_then(|s| s.as_str()) {
+                let id_arg = match arguments.get("id").and_then(|s| s.as_str()) {
                     Some(s) => s,
                     None => {
                         return self.error_response(
@@ -659,13 +661,14 @@ impl McpHandler {
                         )
                     }
                 };
+                let key = self.gatus_client.sanitize_key(id_arg);
                 let timeframe = arguments.get("timeframe").and_then(|t| t.as_str());
 
                 let markdown = if let Some(tf) = timeframe {
-                    let url = self.gatus_client.get_uptime_badge_url(key, tf);
+                    let url = self.gatus_client.get_uptime_badge_url(&key, tf);
                     format!("![Uptime Badge ({})]({})", tf, url)
                 } else {
-                    let url = self.gatus_client.get_badge_url(key);
+                    let url = self.gatus_client.get_badge_url(&key);
                     format!("![Health Badge]({})", url)
                 };
 
@@ -682,7 +685,7 @@ impl McpHandler {
                 )
             }
             "get-latency-badge" => {
-                let key = match arguments.get("id").and_then(|s| s.as_str()) {
+                let id_arg = match arguments.get("id").and_then(|s| s.as_str()) {
                     Some(s) => s,
                     None => {
                         return self.error_response(
@@ -692,12 +695,13 @@ impl McpHandler {
                         )
                     }
                 };
+                let key = self.gatus_client.sanitize_key(id_arg);
                 let timeframe = arguments
                     .get("timeframe")
                     .and_then(|t| t.as_str())
                     .unwrap_or("24h");
 
-                let url = self.gatus_client.get_latency_badge_url(key, timeframe);
+                let url = self.gatus_client.get_latency_badge_url(&key, timeframe);
                 let markdown = format!("![Latency Badge ({})]({})", timeframe, url);
 
                 self.success_response(
@@ -713,7 +717,7 @@ impl McpHandler {
                 )
             }
             "get-latency-chart" => {
-                let key = match arguments.get("id").and_then(|s| s.as_str()) {
+                let id_arg = match arguments.get("id").and_then(|s| s.as_str()) {
                     Some(s) => s,
                     None => {
                         return self.error_response(
@@ -723,12 +727,13 @@ impl McpHandler {
                         )
                     }
                 };
+                let key = self.gatus_client.sanitize_key(id_arg);
                 let timeframe = arguments
                     .get("timeframe")
                     .and_then(|t| t.as_str())
                     .unwrap_or("24h");
 
-                let url = self.gatus_client.get_latency_chart_url(key, timeframe);
+                let url = self.gatus_client.get_latency_chart_url(&key, timeframe);
                 let markdown = format!("![Latency Chart ({})]({})", timeframe, url);
 
                 self.success_response(
@@ -1029,7 +1034,7 @@ impl McpHandler {
                 match service {
                     Some(s) => match action {
                         "details" => {
-                            let key = format!("{}_{}", s.group, s.name);
+                            let key = s.get_key();
                             let badge_url = self.gatus_client.get_badge_url(&key);
                             self.success_response(
                                 id,

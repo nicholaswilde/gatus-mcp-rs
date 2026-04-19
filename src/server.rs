@@ -59,7 +59,7 @@ async fn background_polling_task(
             Ok(services) => {
                 for service in services {
                     let current_status = service.display_status();
-                    let key = format!("{}_{}", service.group, service.name);
+                    let key = service.get_key();
 
                     if let Some(last_status) = last_statuses.get(&key) {
                         if *last_status != current_status {
