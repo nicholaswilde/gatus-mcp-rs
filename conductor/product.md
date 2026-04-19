@@ -105,6 +105,8 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 - **Proactive Real-time Notifications:** Pushes immediate service state changes (UP/DOWN) to MCP clients over SSE, reducing the need for LLM polling.
 - **Direct Context Attachment (MCP Resources):** Exposes static or slowly-changing Gatus data (e.g., configuration, dashboard status) as resources that LLMs can attach directly to their context.
 - **Operational Control (Mutative Tools):** Allows LLMs to trigger actions in Gatus, such as forcing an immediate health check (`trigger_check`) or reloading the configuration (`reload_config`).
+- **Robust Authentication:** Supports both API Key (Bearer token) and Basic Authentication (username/password), ensuring compatibility with various self-hosted Gatus security configurations.
+- **Automatic Key Mapping:** Implements intelligent key sanitization, automatically mapping human-readable service and group names to Gatus's internal hyphenated key format.
 - **External Result Pushing:** Enables LLMs and external systems to push health check results directly to Gatus via the `push_result` tool, facilitating monitoring of asynchronous or push-based tasks.
 - **Status & Performance Visualization:** Surface Gatus health status and response-time badges, as well as latency charts (SVG) via the `get_metrics` tool, allowing LLMs to embed visual indicators and performance trends in reports and notifications.
 - **Consolidated Toolset:** Replaces granular tools with a streamlined set of dynamic, parameterized tools (`manage_resources`, `get_metrics`) to improve token efficiency and simplify tool discovery.
