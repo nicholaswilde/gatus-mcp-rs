@@ -42,6 +42,14 @@ pub fn format_endpoint_status(endpoint: &EndpointStatus, badge_url: Option<&str>
                 output.push_str(&format!("- **Body Snippet:** {}\n", snippet));
             }
         }
+
+        if !result.condition_results.is_empty() {
+            output.push_str("\n#### Conditions\n");
+            for condition in &result.condition_results {
+                let status = if condition.success { "✅" } else { "❌" };
+                output.push_str(&format!("- {} {}\n", status, condition.condition));
+            }
+        }
     }
 
     output
