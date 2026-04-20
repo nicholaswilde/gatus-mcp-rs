@@ -8,7 +8,7 @@
 - [x] Implement `get_group_stats` to aggregate endpoint states by group. (a12daf2)
 - [x] Implement `get_notification_events` to correlate alerts with failures. (1668212)
 - [x] Implement `set_maintenance` (Dropped: Not supported by self-hosted Gatus API).
-- [ ] Implement `get_flapping_services` by parsing metrics.
+- [x] Implement `get_flapping_services` by parsing metrics. (fe0acef)
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
 - [ ] Add `format_expiring_certificates` table formatter.
