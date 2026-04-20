@@ -144,6 +144,21 @@ Push a health check result for an external endpoint.
   - `duration`: (Optional) Duration of the health check in milliseconds.
   - `error`: (Optional) Error message if the check was unsuccessful.
 
+### `manage_endpoints`
+Programmatically manage Gatus endpoints and status pages.
+- **Arguments:**
+  - `action`: `list-status-pages`, `create-endpoint`, `update-endpoint`, or `delete-endpoint`.
+  - `status_page_id`: (Required for create/update/delete) The ID of the status page.
+  - `endpoint_id`: (Required for update/delete) The ID of the endpoint.
+  - `config`: (Required for create/update) Endpoint configuration object.
+    - `name`: (Required) Display name for the endpoint.
+    - `group`: (Optional) Group name.
+    - `url`: (Required) Target URL/hostname.
+    - `interval`: (Optional) Check interval (e.g., `30s`, `1m`).
+    - `conditions`: (Required) List of Gatus condition strings.
+    - `method`: (Optional) HTTP method (e.g., `POST`).
+    - `body`: (Optional) Request body.
+
 ## :handshake: Contributing
 
 Contributions are welcome! Please follow standard Rust coding conventions and ensure all tests pass (`task test:ci`) before submitting features.
