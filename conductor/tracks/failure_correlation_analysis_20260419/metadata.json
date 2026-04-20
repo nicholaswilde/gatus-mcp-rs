@@ -1,0 +1,7 @@
+{
+  "id": "failure_correlation_analysis_20260419",
+  "name": "Failure Correlation Analysis",
+  "description": "Identify regional or infrastructure-wide failure patterns by correlating data across groups.",
+  "status": "planned",
+  "created_at": "2026-04-19T00:00:00Z"
+}

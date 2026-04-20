@@ -1,0 +1,7 @@
+{
+  "id": "advanced_alerting_verification_20260419",
+  "name": "Advanced Alerting & Verification",
+  "description": "Expose alerting rules and provide a mechanism to test notification delivery.",
+  "status": "planned",
+  "created_at": "2026-04-19T00:00:00Z"
+}

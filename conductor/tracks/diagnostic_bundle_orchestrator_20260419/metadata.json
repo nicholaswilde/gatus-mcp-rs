@@ -1,0 +1,7 @@
+{
+  "id": "diagnostic_bundle_orchestrator_20260419",
+  "name": "Diagnostic Bundle Orchestrator",
+  "description": "Provide a comprehensive diagnostic bundle that aggregates various data points for one-turn root cause analysis.",
+  "status": "planned",
+  "created_at": "2026-04-19T00:00:00Z"
+}

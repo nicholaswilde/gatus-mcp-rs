@@ -1,0 +1,7 @@
+{
+  "id": "drift_and_jitter_analysis_20260419",
+  "name": "Service Drift & Jitter Analysis",
+  "description": "Analyze response jitter and configuration drift for predictive failure detection.",
+  "status": "planned",
+  "created_at": "2026-04-19T00:00:00Z"
+}
