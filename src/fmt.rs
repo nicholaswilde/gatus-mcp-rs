@@ -1,4 +1,7 @@
-use crate::client::{EndpointStatus, SystemStats};
+use crate::client::{
+    CorrelatedEvent, EndpointStatus, ExpiringCertificate, FailureSummary, FlappingService,
+    GroupStats, PerformanceComparison, SystemStats,
+};
 
 pub fn format_endpoint_status(endpoint: &EndpointStatus, badge_url: Option<&str>) -> String {
     let mut output = format!("### {}\n", endpoint.name);
@@ -113,5 +116,118 @@ pub fn format_config_summary(endpoints: &[EndpointStatus]) -> String {
         }
         output.push('\n');
     }
+    output
+}
+
+pub fn format_expiring_certificates(certs: &[ExpiringCertificate]) -> String {
+    let mut output = String::from("| Service | Group | Days Remaining | Expiration |\n");
+    output.push_str("| :--- | :--- | :--- | :--- |\n");
+
+    for cert in certs {
+        output.push_str(&format!(
+            "| {} | {} | {} | {} |\n",
+            cert.name, cert.group, cert.days_remaining, cert.expiration
+        ));
+    }
+    output
+}
+
+pub fn format_failure_summary(summary: &FailureSummary) -> String {
+    let mut output = format!(
+        "### Failure Summary for {} ({})\n\n",
+        summary.name, summary.group
+    );
+
+    if !summary.failed_conditions.is_empty() {
+        output.push_str("#### ❌ Failed Conditions\n");
+        for condition in &summary.failed_conditions {
+            output.push_str(&format!("- {}\n", condition));
+        }
+    }
+
+    if !summary.passed_conditions.is_empty() {
+        output.push_str("\n#### ✅ Passed Conditions\n");
+        for condition in &summary.passed_conditions {
+            output.push_str(&format!("- {}\n", condition));
+        }
+    }
+
+    output
+}
+
+pub fn format_group_stats(stats: &GroupStats) -> String {
+    let mut output = format!("### Group Health: {}\n\n", stats.group);
+    output.push_str(&format!("- **Total Endpoints:** {}\n", stats.total));
+    output.push_str(&format!("- **UP:** {}\n", stats.up));
+    output.push_str(&format!("- **DOWN:** {}\n", stats.down));
+    output.push_str(&format!("- **DEGRADED:** {}\n", stats.degraded));
+
+    let health_percentage = (stats.up as f64 / stats.total as f64) * 100.0;
+    output.push_str(&format!(
+        "- **Health Percentage:** {:.2}%\n",
+        health_percentage
+    ));
+
+    output
+}
+
+pub fn format_alert_correlation(events: &[CorrelatedEvent]) -> String {
+    let mut output = String::from("### Notification Correlation Timeline\n\n");
+    output.push_str("| Timestamp | Type | Description |\n");
+    output.push_str("| :--- | :--- | :--- |\n");
+
+    for event in events {
+        let type_icon = if event.event_type == "alert" {
+            "🔔"
+        } else {
+            "📊"
+        };
+        output.push_str(&format!(
+            "| {} | {} {} | {} |\n",
+            event.timestamp, type_icon, event.event_type, event.description
+        ));
+    }
+    output
+}
+
+pub fn format_flapping_services(services: &[FlappingService]) -> String {
+    let mut output = String::from("### Services with Failures (Flapping)\n\n");
+    output.push_str("| Service | Group | Failures | Successes |\n");
+    output.push_str("| :--- | :--- | :--- | :--- |\n");
+
+    for service in services {
+        output.push_str(&format!(
+            "| {} | {} | {} | {} |\n",
+            service.name, service.group, service.failure_count, service.success_count
+        ));
+    }
+    output
+}
+
+pub fn format_performance_comparison(comparison: &PerformanceComparison) -> String {
+    let mut output = format!("### Performance Comparison for {}\n\n", comparison.key);
+    output.push_str(&format!(
+        "- **Avg Latency (1h):** {:.2}ms\n",
+        comparison.avg_1h
+    ));
+    output.push_str(&format!(
+        "- **Avg Latency (7d):** {:.2}ms\n",
+        comparison.avg_7d
+    ));
+
+    let sign = if comparison.delta_percentage > 0.0 {
+        "+"
+    } else {
+        ""
+    };
+    output.push_str(&format!(
+        "- **Delta:** {}{:.2}%\n",
+        sign, comparison.delta_percentage
+    ));
+
+    if comparison.delta_percentage > 20.0 {
+        output.push_str("\n> ⚠️ **Warning:** Significant latency regression detected!");
+    }
+
     output
 }
