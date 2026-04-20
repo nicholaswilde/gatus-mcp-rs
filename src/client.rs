@@ -138,6 +138,14 @@ pub type UptimeResponse = std::collections::HashMap<String, f64>;
 pub type ResponseTimeResponse = Vec<ResponseTimePoint>;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ExpiringCertificate {
+    pub name: String,
+    pub group: String,
+    pub expiration: u64,
+    pub days_remaining: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SystemStats {
     pub total: usize,
     pub up: usize,
@@ -318,6 +326,33 @@ impl GatusClient {
             degraded,
             certificates_expiring_soon,
         })
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_expiring_certificates(
+        &self,
+        threshold_days: u64,
+    ) -> Result<Vec<ExpiringCertificate>> {
+        let services = self.list_services(false).await?;
+        let mut expiring = Vec::new();
+        let threshold_ns = threshold_days * 24 * 60 * 60 * 1_000_000_000u64;
+
+        for service in services {
+            if let Some(result) = service.results.first() {
+                if let Some(exp) = result.certificate_expiration {
+                    if exp < threshold_ns {
+                        expiring.push(ExpiringCertificate {
+                            name: service.name.clone(),
+                            group: service.group.clone(),
+                            expiration: exp,
+                            days_remaining: (exp / (24 * 60 * 60 * 1_000_000_000)) as i64,
+                        });
+                    }
+                }
+            }
+        }
+
+        Ok(expiring)
     }
 
     #[tracing::instrument(skip(self))]
