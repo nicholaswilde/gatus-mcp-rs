@@ -118,6 +118,7 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 - **Automatic Key Mapping:** Implements intelligent key sanitization, automatically mapping human-readable service and group names to Gatus's internal hyphenated key format.
 - **External Result Pushing:** Enables LLMs and external systems to push health check results directly to Gatus via the `push_result` tool, facilitating monitoring of asynchronous or push-based tasks.
 - **Status & Performance Visualization:** Surface Gatus health status and response-time badges, as well as latency charts (SVG) via the `get_metrics` tool, allowing LLMs to embed visual indicators and performance trends in reports and notifications.
+- **Endpoint Lifecycle Management:** Enables programmatic creation, modification, and deletion of Gatus endpoints and status pages via the `manage_endpoints` tool, allowing LLMs to manage monitoring targets dynamically.
 - **Consolidated Toolset:** Replaces granular tools with a streamlined set of dynamic, parameterized tools (`manage_resources`, `get_metrics`) to improve token efficiency and simplify tool discovery.
 - **Dynamic Resource Management:** A single tool (`manage_resources`) for listing services, groups, endpoints, and checking instance health or configuration.
 - **Enhanced Diagnostics & SSL Tracking:** Provides deep-dive troubleshooting data including response body snippets on failure and proactive SSL certificate expiration tracking.
