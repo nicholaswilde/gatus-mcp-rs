@@ -32,6 +32,12 @@ A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automat
 - Rust 1.8x or higher.
 - A running Gatus instance.
 
+### Homebrew
+
+```bash
+brew install nicholaswilde/tap/gatus-mcp-rs
+```
+
 ### From Source
 
 ```bash
@@ -109,14 +115,15 @@ Options:
 ### `manage_resources`
 Discover and manage Gatus resources and instance state.
 - **Arguments:**
-  - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, or `get-health`.
+  - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, `get-health`, or `list-expiring-certificates`.
   - `id`: (Optional) Identifier (e.g., group name for `list-endpoints`).
+  - `status`: (Optional) Status filter for `list-services` (e.g., `DOWN`, `DEGRADED`).
 
 ### `get_metrics`
 Retrieve status, metrics, and history for services and endpoints.
 - **Arguments:**
-  - `action`: `system-stats`, `service-details`, `service-history` (optimized), `get-raw-results` (non-truncated), `group-summary`, `uptime`, `uptime-granular`, `response-time`, `alert-history`, `get-badge`, `get-latency-badge`, or `get-latency-chart`.
-  - `id`: (Optional) Identifier (e.g., service name for `service-details`, group name for `group-summary`, or endpoint key for `service-history`, `uptime-granular`, `response-time`, and badge/chart actions).
+  - `action`: `system-stats`, `service-details`, `service-history` (optimized), `get-raw-results` (non-truncated), `group-summary`, `uptime`, `uptime-granular`, `response-time`, `alert-history`, `get-badge`, `get-latency-badge`, `get-latency-chart`, `failure-summary`, `performance-comparison`, `group-stats`, `alert-correlation`, or `flapping-services`.
+  - `id`: (Optional) Identifier (e.g., service name for `service-details`, group name for `group-summary`, or endpoint key for `service-history`, `uptime-granular`, `response-time`, badge/chart actions, `failure-summary`, `performance-comparison`, `group-stats`, and `alert-correlation`).
   - `limit`: (Optional) Maximum number of results for history actions (default: 10 for `service-history` and `get-raw-results`, 5 for `alert-history`).
   - `timeframe`: (Optional) `1h`, `24h`, `7d`, or `30d` (default: `24h`) for `uptime`, `uptime-granular`, `response-time`, and badge/chart actions.
 
