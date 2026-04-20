@@ -7,13 +7,13 @@
 - [x] Implement `list_status_pages` method. (e987bf8)
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
-- [ ] Implement required formatting for new tool outputs.
+- [x] Implement required formatting for new tool outputs. (8c8371e)
 
 ## Phase 3: MCP Handler Integration (`src/mcp.rs`)
-- [ ] Update `get_tool_definitions` to include new tools and parameters.
-- [ ] Update MCP handlers to route requests to new client methods.
+- [x] Update `get_tool_definitions` to include new tools and parameters. (e85acf0)
+- [x] Update MCP handlers to route requests to new client methods. (e85acf0)
 
 ## Phase 4: Verification
-- [ ] Add integration tests in `tests/` for each new tool.
-- [ ] Verify token efficiency of new payloads.
-- [ ] Update documentation.
+- [x] Add integration tests in `tests/` for each new tool. (e85acf0)
+- [x] Verify token efficiency of new payloads. (e85acf0)
+- [x] Update documentation. (0967fca)
