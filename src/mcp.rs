@@ -1,6 +1,8 @@
 use crate::client::{GatusClient, HealthResult};
 use crate::fmt::{
-    format_config_summary, format_endpoint_status, format_endpoints_summary, format_system_stats,
+    format_alert_correlation, format_config_summary, format_endpoint_status,
+    format_endpoints_summary, format_expiring_certificates, format_failure_summary,
+    format_flapping_services, format_group_stats, format_performance_comparison, format_system_stats,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -175,12 +177,16 @@ impl McpHandler {
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["list-services", "list-groups", "list-endpoints", "get-config", "get-health"],
+                            "enum": ["list-services", "list-groups", "list-endpoints", "get-config", "get-health", "list-expiring-certificates"],
                             "description": "Action to perform."
                         },
                         "id": {
                             "type": "string",
                             "description": "Optional identifier (e.g., group name for list-endpoints)."
+                        },
+                        "status": {
+                            "type": "string",
+                            "description": "Optional status filter for list-services (e.g., DOWN, DEGRADED)."
                         }
                     },
                     "required": ["action"]
@@ -194,7 +200,7 @@ impl McpHandler {
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["system-stats", "service-details", "service-history", "get-raw-results", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history", "get-badge", "get-latency-badge", "get-latency-chart"],
+                            "enum": ["system-stats", "service-details", "service-history", "get-raw-results", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history", "get-badge", "get-latency-badge", "get-latency-chart", "failure-summary", "performance-comparison", "group-stats", "alert-correlation", "flapping-services"],
                             "description": "Action to perform."
                         },
                         "id": {
@@ -472,23 +478,45 @@ impl McpHandler {
         };
 
         match action {
-            "list-services" => match self.gatus_client.list_services(false, None).await {
-                Ok(services) => {
-                    let text = format_endpoints_summary(&services);
-                    self.success_response(
-                        id,
-                        json!({
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": text
-                                }
-                            ]
-                        }),
-                    )
+            "list-services" => {
+                let status_filter = arguments.get("status").and_then(|s| s.as_str());
+                match self.gatus_client.list_services(false, status_filter).await {
+                    Ok(services) => {
+                        let text = format_endpoints_summary(&services);
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
                 }
-                Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
-            },
+            }
+            "list-expiring-certificates" => {
+                match self.gatus_client.get_expiring_certificates(30).await {
+                    Ok(certs) => {
+                        let text = format_expiring_certificates(&certs);
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
             "list-groups" => match self.gatus_client.list_services(false, None).await {
                 Ok(services) => {
                     let mut groups: Vec<_> = services.into_iter().map(|s| s.group).collect();
@@ -763,6 +791,142 @@ impl McpHandler {
                     }),
                 )
             }
+            "failure-summary" => {
+                let id_arg = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for failure-summary",
+                        )
+                    }
+                };
+                let key = self.gatus_client.sanitize_key(id_arg);
+                match self.gatus_client.get_failure_summary(&key).await {
+                    Ok(summary) => {
+                        let text = format_failure_summary(&summary);
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            "performance-comparison" => {
+                let id_arg = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for performance-comparison",
+                        )
+                    }
+                };
+                let key = self.gatus_client.sanitize_key(id_arg);
+                match self.gatus_client.compare_performance(&key).await {
+                    Ok(comparison) => {
+                        let text = format_performance_comparison(&comparison);
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            "group-stats" => {
+                let group_name = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument (group name) for group-stats",
+                        )
+                    }
+                };
+                match self.gatus_client.get_group_stats(group_name).await {
+                    Ok(stats) => {
+                        let text = format_group_stats(&stats);
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            "alert-correlation" => {
+                let id_arg = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for alert-correlation",
+                        )
+                    }
+                };
+                let key = self.gatus_client.sanitize_key(id_arg);
+                match self.gatus_client.get_notification_events(&key).await {
+                    Ok(events) => {
+                        let text = format_alert_correlation(&events);
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            "flapping-services" => match self.gatus_client.get_flapping_services().await {
+                Ok(services) => {
+                    let text = format_flapping_services(&services);
+                    self.success_response(
+                        id,
+                        json!({
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": text
+                                }
+                            ]
+                        }),
+                    )
+                }
+                Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+            },
             _ => self.error_response(
                 id,
                 -32602,
