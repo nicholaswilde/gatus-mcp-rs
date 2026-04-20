@@ -3,7 +3,7 @@
 # Gatus MCP Server (Rust) :robot:
 
 > [!IMPORTANT]
-> This project is currently in active development (v0.1.0) and is **not production-ready**. Features may change, and breaking changes may occur without notice.
+> This project is currently in active development (v0.1.1) and is **not production-ready**. Features may change, and breaking changes may occur without notice.
 
 A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automated health check dashboard. This server enables Large Language Models (LLMs) to interact with Gatus APIs to monitor service health, retrieve check history, and diagnose issues.
 
