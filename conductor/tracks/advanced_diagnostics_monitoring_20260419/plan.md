@@ -4,7 +4,7 @@
 - [x] Implement `get_expiring_certificates` method. (9760f3c)
 - [x] Update `list_services` to accept an optional status filter. (37616d8)
 - [x] Implement `get_failure_summary` logic in `GatusClient` or `EndpointStatus`. (a7808e8)
-- [ ] Implement `compare_performance` method calculating hour-vs-week latency delta.
+- [x] Implement `compare_performance` method calculating hour-vs-week latency delta. (1fdd157)
 - [ ] Implement `get_group_stats` to aggregate endpoint states by group.
 - [ ] Implement `get_notification_events` to correlate alerts with failures.
 - [ ] Implement `set_maintenance` (exploratory: check if writing to config is feasible or if API supports it).
