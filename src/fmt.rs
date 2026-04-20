@@ -1,7 +1,18 @@
 use crate::client::{
     CorrelatedEvent, EndpointStatus, ExpiringCertificate, FailureSummary, FlappingService,
-    GroupStats, PerformanceComparison, SystemStats,
+    GroupStats, PerformanceComparison, StatusPage, SystemStats,
 };
+
+pub fn format_status_pages(pages: &[StatusPage]) -> String {
+    let mut output = String::from("### Gatus Status Pages\n\n");
+    output.push_str("| ID | Name |\n");
+    output.push_str("| :--- | :--- |\n");
+
+    for page in pages {
+        output.push_str(&format!("| {} | {} |\n", page.id, page.name));
+    }
+    output
+}
 
 pub fn format_endpoint_status(endpoint: &EndpointStatus, badge_url: Option<&str>) -> String {
     let mut output = format!("### {}\n", endpoint.name);
