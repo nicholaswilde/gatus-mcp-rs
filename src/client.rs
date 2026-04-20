@@ -154,6 +154,14 @@ pub struct SystemStats {
     pub certificates_expiring_soon: usize,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FailureSummary {
+    pub name: String,
+    pub group: String,
+    pub failed_conditions: Vec<String>,
+    pub passed_conditions: Vec<String>,
+}
+
 #[derive(Clone)]
 pub struct GatusClient {
     api_url: String,
@@ -406,6 +414,38 @@ impl GatusClient {
         all_events.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
 
         Ok(all_events.into_iter().take(limit).collect())
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_failure_summary(&self, key: &str) -> Result<FailureSummary> {
+        let statuses = self.get_endpoint_statuses(key).await?;
+        let service = statuses
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow::anyhow!("Service not found: {}", key))?;
+
+        let result = service
+            .results
+            .first()
+            .ok_or_else(|| anyhow::anyhow!("No results found for service: {}", key))?;
+
+        let mut failed_conditions = Vec::new();
+        let mut passed_conditions = Vec::new();
+
+        for condition in &result.condition_results {
+            if condition.success {
+                passed_conditions.push(condition.condition.clone());
+            } else {
+                failed_conditions.push(condition.condition.clone());
+            }
+        }
+
+        Ok(FailureSummary {
+            name: service.name,
+            group: service.group,
+            failed_conditions,
+            passed_conditions,
+        })
     }
 
     #[tracing::instrument(skip(self))]
