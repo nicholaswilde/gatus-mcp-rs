@@ -3,7 +3,7 @@
 ## Phase 1: Client Expansion (`src/client.rs`)
 - [x] Implement `get_expiring_certificates` method. (9760f3c)
 - [x] Update `list_services` to accept an optional status filter. (37616d8)
-- [ ] Implement `get_failure_summary` logic in `GatusClient` or `EndpointStatus`.
+- [x] Implement `get_failure_summary` logic in `GatusClient` or `EndpointStatus`. (a7808e8)
 - [ ] Implement `compare_performance` method calculating hour-vs-week latency delta.
 - [ ] Implement `get_group_stats` to aggregate endpoint states by group.
 - [ ] Implement `get_notification_events` to correlate alerts with failures.
