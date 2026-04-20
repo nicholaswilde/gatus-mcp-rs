@@ -17,10 +17,10 @@
 - [x] Add `format_alert_correlation` timeline formatter. (76c3679)
 
 ## Phase 3: MCP Handler Integration (`src/mcp.rs`)
-- [ ] Update `get_tool_definitions` to include new tools and parameters.
-- [ ] Update `manage_resources` handler for `list-expiring-certificates` and `set-maintenance`.
-- [ ] Update `get_metrics` handler for `failure-summary`, `performance-comparison`, `group-stats`, `alert-correlation`, and `flapping-services`.
-- [ ] Update `list-services` tool definition to include `status` parameter.
+- [x] Update `get_tool_definitions` to include new tools and parameters. (7875a35)
+- [x] Update `manage_resources` handler for `list-expiring-certificates` and `set-maintenance`. (7875a35)
+- [x] Update `get_metrics` handler for `failure-summary`, `performance-comparison`, `group-stats`, `alert-correlation`, and `flapping-services`. (7875a35)
+- [x] Update `list-services` tool definition to include `status` parameter. (7875a35)
 
 ## Phase 4: Verification
 - [ ] Add integration tests in `tests/` for each new tool.
