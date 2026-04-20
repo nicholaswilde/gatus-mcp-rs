@@ -162,6 +162,14 @@ pub struct FailureSummary {
     pub passed_conditions: Vec<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PerformanceComparison {
+    pub key: String,
+    pub avg_1h: f64,
+    pub avg_7d: f64,
+    pub delta_percentage: f64,
+}
+
 #[derive(Clone)]
 pub struct GatusClient {
     api_url: String,
@@ -445,6 +453,37 @@ impl GatusClient {
             group: service.group,
             failed_conditions,
             passed_conditions,
+        })
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn compare_performance(&self, key: &str) -> Result<PerformanceComparison> {
+        let times_1h = self.get_endpoint_response_times(key, "1h").await?;
+        let times_7d = self.get_endpoint_response_times(key, "7d").await?;
+
+        let avg_1h = if times_1h.is_empty() {
+            0.0
+        } else {
+            times_1h.iter().map(|p| p.value as f64).sum::<f64>() / times_1h.len() as f64
+        };
+
+        let avg_7d = if times_7d.is_empty() {
+            0.0
+        } else {
+            times_7d.iter().map(|p| p.value as f64).sum::<f64>() / times_7d.len() as f64
+        };
+
+        let delta_percentage = if avg_7d == 0.0 {
+            0.0
+        } else {
+            ((avg_1h - avg_7d) / avg_7d) * 100.0
+        };
+
+        Ok(PerformanceComparison {
+            key: key.to_string(),
+            avg_1h,
+            avg_7d,
+            delta_percentage,
         })
     }
 
