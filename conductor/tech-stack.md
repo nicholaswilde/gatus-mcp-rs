@@ -15,6 +15,11 @@
 - **clap (v4):** A full-featured command-line argument parser used for server bootstrapping and initial configuration.
 - **dashmap:** A high-performance, concurrent hash map used for thread-safe session tracking across multiple SSE streams.
 - **tokio::sync::broadcast:** Used for efficient, one-to-many notification dispatching of real-time service state changes.
+- **moka:** A high-performance concurrent caching library used for caching Gatus API responses and reducing upstream load.
+- **governor:** A rate-limiting library used to ensure compliance with Gatus API rate limits and protect the upstream server.
+
+## Data Processing
+- **regex:** Used for parsing raw Prometheus metrics from the Gatus /metrics endpoint to identify flapping services and system-wide patterns.
 
 ## Logging & Observability
 - **tracing:** A framework for instrumenting Rust programs to collect structured, event-based diagnostic information.

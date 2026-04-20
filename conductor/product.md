@@ -1,4 +1,5 @@
 # Initial Concept
+
 1. Architectural Overview
   The server follows a decoupled architecture, separating transport, protocol handling, and domain logic.
 
@@ -6,8 +7,7 @@
      manages session IDs and routes incoming JSON-RPC messages to the correct active stream.
    * Protocol Layer (src/mcp.rs): Implements the core MCP/JSON-RPC logic. It handles tool discovery (tools/list),
      resource management, and tool execution dispatching.
-   * Domain Layer (src/proxmox/): Contains the API client logic for the target service (Proxmox). For Gatus, this is
-     where you would implement your Gatus API client.
+   * Domain Layer (src/client.rs): Contains the API client logic for the target service (Gatus).
    * Configuration (src/settings.rs): Uses the config crate to merge settings from config.toml, environment
      variables, and CLI flags via clap.
 
@@ -29,7 +29,16 @@
    13 uuid = { version = "1.0", features = ["v4"] }
    14 thiserror = "2.0"       # For idiomatic error handling
 
-  3. Implementation Patterns to Mimic
+  3. Advanced Diagnostic Features
+  The server provides advanced diagnostic capabilities for SREs and developers:
+   * Proactive Certificate Monitoring: Detect and list SSL certificates expiring soon.
+   * High-Signal Failure Analysis: Pinpoint exactly which conditions failed for an endpoint.
+   * Latency Regression Detection: Compare recent performance against historical baselines.
+   * Group Health Aggregation: Summarize health status at the group level.
+   * Notification Event Correlation: Correlate health results with alert events in a chronological timeline.
+   * Resource Utilization Insights: Identify flapping services using low-level metrics.
+
+  4. Implementation Patterns to Mimic
 
   Tool Definition Strategy
   Instead of one massive list, proxmox-mcp-rs uses granular methods to group tool definitions. This keeps the schema
@@ -59,7 +68,7 @@
   payloads. When building your Gatus server, only return fields that an LLM actually needs to make decisions (e.g.,
   status, latency, last_error) rather than the full raw JSON response.
 
-  4. Build & CI Best Practices
+  5. Build & CI Best Practices
    * Taskfile.yml: The project uses go-task for common workflows (test, build, lint).
    * Release Profile: The Cargo.toml includes a highly optimized [profile.release] (using opt-level = "z", lto =
      true, and strip = true) to ensure the resulting binary is small and fast—ideal for deployment in containers or
@@ -67,7 +76,7 @@
    * Cross-Platform: Uses rustls-tls in reqwest to avoid openssl system dependencies, making Docker builds much
      simpler.
 
-  5. Project Structure Reference
+  6. Project Structure Reference
 
    1 .
    2 ├── Cargo.toml
@@ -113,6 +122,7 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 - **Dynamic Resource Management:** A single tool (`manage_resources`) for listing services, groups, endpoints, and checking instance health or configuration.
 - **Enhanced Diagnostics & SSL Tracking:** Provides deep-dive troubleshooting data including response body snippets on failure and proactive SSL certificate expiration tracking.
 - **Comprehensive Metrics Retrieval:** A single tool (`get_metrics`) for retrieving system stats, service details, history (optimized with targeted API calls), raw result data (non-truncated), uptime, response times, and alert history.
+- **Advanced Diagnostic Capabilities:** Includes high-signal failure analysis, latency regression detection, group health aggregation, and notification event correlation.
 - **High-Signal Payloads:** Implements "thinning" of tool responses to ensure only high-signal data is returned, minimizing token consumption.
 - **Thread-Safe Session Management:** Uses DashMap for efficient, concurrent handling of multiple MCP clients.
 - **Environment-Driven Configuration:** Flexible setup via `config.toml`, environment variables, and CLI flags.
