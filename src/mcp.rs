@@ -3,7 +3,7 @@ use crate::fmt::{
     format_alert_correlation, format_config_summary, format_endpoint_status,
     format_endpoints_summary, format_expiring_certificates, format_failure_summary,
     format_flapping_services, format_group_stats, format_performance_comparison,
-    format_system_stats,
+    format_status_pages, format_system_stats,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -270,6 +270,43 @@ impl McpHandler {
                     "required": ["id", "success"]
                 }
             }),
+            json!({
+                "name": "manage_endpoints",
+                "description": "Programmatically manage Gatus endpoints and status pages.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "string",
+                            "enum": ["list-status-pages", "create-endpoint", "update-endpoint", "delete-endpoint"],
+                            "description": "Action to perform."
+                        },
+                        "status_page_id": {
+                            "type": "string",
+                            "description": "The ID of the status page (required for create/update/delete)."
+                        },
+                        "endpoint_id": {
+                            "type": "string",
+                            "description": "The ID of the endpoint (required for update/delete)."
+                        },
+                        "config": {
+                            "type": "object",
+                            "description": "Endpoint configuration (required for create/update).",
+                            "properties": {
+                                "name": { "type": "string" },
+                                "group": { "type": "string" },
+                                "url": { "type": "string" },
+                                "interval": { "type": "string" },
+                                "conditions": { "type": "array", "items": { "type": "string" } },
+                                "method": { "type": "string" },
+                                "body": { "type": "string" }
+                            },
+                            "required": ["name", "url", "conditions"]
+                        }
+                    },
+                    "required": ["action"]
+                }
+            }),
         ]
     }
     async fn handle_list_prompts(&self, id: Value) -> Value {
@@ -380,7 +417,121 @@ impl McpHandler {
             "trigger_check" => self.handle_trigger_check_tool(id, arguments).await,
             "reload_config" => self.handle_reload_config_tool(id, arguments).await,
             "push_result" => self.handle_push_result_tool(id, arguments).await,
+            "manage_endpoints" => self.handle_manage_endpoints_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
+        }
+    }
+
+    async fn handle_manage_endpoints_tool(&self, id: Value, arguments: &Value) -> Value {
+        let action = match arguments.get("action").and_then(|a| a.as_str()) {
+            Some(a) => a,
+            None => return self.error_response(id, -32602, "Missing 'action' argument"),
+        };
+
+        match action {
+            "list-status-pages" => match self.gatus_client.list_status_pages().await {
+                Ok(pages) => {
+                    let text = format_status_pages(&pages);
+                    self.success_response(
+                        id,
+                        json!({
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": text
+                                }
+                            ]
+                        }),
+                    )
+                }
+                Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+            },
+            "create-endpoint" => {
+                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => return self.error_response(id, -32602, "Missing 'status_page_id' argument"),
+                };
+                let config: crate::client::EndpointConfig = match arguments.get("config").cloned() {
+                    Some(c) => match serde_json::from_value(c) {
+                        Ok(conf) => conf,
+                        Err(e) => return self.error_response(id, -32602, &format!("Invalid 'config' argument: {}", e)),
+                    },
+                    None => return self.error_response(id, -32602, "Missing 'config' argument"),
+                };
+
+                match self.gatus_client.create_endpoint(status_page_id, config).await {
+                    Ok(_) => self.success_response(
+                        id,
+                        json!({
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": "Successfully created endpoint"
+                                }
+                            ]
+                        }),
+                    ),
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            "update-endpoint" => {
+                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => return self.error_response(id, -32602, "Missing 'status_page_id' argument"),
+                };
+                let endpoint_id = match arguments.get("endpoint_id").and_then(|e| e.as_str()) {
+                    Some(e) => e,
+                    None => return self.error_response(id, -32602, "Missing 'endpoint_id' argument"),
+                };
+                let config: crate::client::EndpointConfig = match arguments.get("config").cloned() {
+                    Some(c) => match serde_json::from_value(c) {
+                        Ok(conf) => conf,
+                        Err(e) => return self.error_response(id, -32602, &format!("Invalid 'config' argument: {}", e)),
+                    },
+                    None => return self.error_response(id, -32602, "Missing 'config' argument"),
+                };
+
+                match self.gatus_client.update_endpoint(status_page_id, endpoint_id, config).await {
+                    Ok(_) => self.success_response(
+                        id,
+                        json!({
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": "Successfully updated endpoint"
+                                }
+                            ]
+                        }),
+                    ),
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            "delete-endpoint" => {
+                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => return self.error_response(id, -32602, "Missing 'status_page_id' argument"),
+                };
+                let endpoint_id = match arguments.get("endpoint_id").and_then(|e| e.as_str()) {
+                    Some(e) => e,
+                    None => return self.error_response(id, -32602, "Missing 'endpoint_id' argument"),
+                };
+
+                match self.gatus_client.delete_endpoint(status_page_id, endpoint_id).await {
+                    Ok(_) => self.success_response(
+                        id,
+                        json!({
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": "Successfully deleted endpoint"
+                                }
+                            ]
+                        }),
+                    ),
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
+            _ => self.error_response(id, -32602, &format!("Unknown action '{}' for manage_endpoints", action)),
         }
     }
 
