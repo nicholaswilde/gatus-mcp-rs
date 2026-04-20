@@ -45,7 +45,10 @@ async fn test_gatus_client_get_notification_events() {
         .mount(&mock_server)
         .await;
 
-    let events = client.get_notification_events("core_service-1").await.unwrap();
+    let events = client
+        .get_notification_events("core_service-1")
+        .await
+        .unwrap();
     assert_eq!(events.len(), 4);
     // Newest first
     assert_eq!(events[0].event_type, "alert");

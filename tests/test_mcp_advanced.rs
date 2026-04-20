@@ -1,6 +1,6 @@
 use gatus_mcp_rs::client::GatusClient;
 use gatus_mcp_rs::mcp::McpHandler;
-use serde_json::{json, Value};
+use serde_json::json;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -184,13 +184,17 @@ async fn test_mcp_performance_comparison() {
 
     Mock::given(method("GET"))
         .and(path("/api/v1/endpoints/core_service-1/response-times/1h"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!([{"timestamp": "...", "value": 100}])))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(json!([{"timestamp": "...", "value": 100}])),
+        )
         .mount(&mock_server)
         .await;
 
     Mock::given(method("GET"))
         .and(path("/api/v1/endpoints/core_service-1/response-times/7d"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!([{"timestamp": "...", "value": 50}])))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(json!([{"timestamp": "...", "value": 50}])),
+        )
         .mount(&mock_server)
         .await;
 

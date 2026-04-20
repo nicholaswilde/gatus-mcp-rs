@@ -2,7 +2,8 @@ use crate::client::{GatusClient, HealthResult};
 use crate::fmt::{
     format_alert_correlation, format_config_summary, format_endpoint_status,
     format_endpoints_summary, format_expiring_certificates, format_failure_summary,
-    format_flapping_services, format_group_stats, format_performance_comparison, format_system_stats,
+    format_flapping_services, format_group_stats, format_performance_comparison,
+    format_system_stats,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};

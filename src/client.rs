@@ -338,7 +338,9 @@ impl GatusClient {
         let services: Vec<EndpointStatus> = serde_json::from_str(&text)
             .with_context(|| format!("Failed to decode Gatus API response: {}", text))?;
 
-        self.cache.insert(cache_key.to_string(), services.clone()).await;
+        self.cache
+            .insert(cache_key.to_string(), services.clone())
+            .await;
 
         Ok(services)
     }
@@ -606,17 +608,19 @@ impl GatusClient {
 
         let mut flapping: Vec<FlappingService> = services
             .into_iter()
-            .map(|((group, name), (failure_count, success_count))| FlappingService {
-                name,
-                group,
-                failure_count,
-                success_count,
-            })
+            .map(
+                |((group, name), (failure_count, success_count))| FlappingService {
+                    name,
+                    group,
+                    failure_count,
+                    success_count,
+                },
+            )
             .filter(|s| s.failure_count > 0)
             .collect();
 
         // Sort by failure count descending
-        flapping.sort_by(|a, b| b.failure_count.cmp(&a.failure_count));
+        flapping.sort_by_key(|s| std::cmp::Reverse(s.failure_count));
 
         Ok(flapping)
     }
