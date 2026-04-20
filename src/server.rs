@@ -55,7 +55,7 @@ async fn background_polling_task(
         interval.tick().await;
         tracing::debug!("Polling Gatus for state changes...");
 
-        match client.list_services(true).await {
+        match client.list_services(true, None).await {
             Ok(services) => {
                 for service in services {
                     let current_status = service.display_status();

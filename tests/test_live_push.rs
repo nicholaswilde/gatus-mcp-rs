@@ -23,7 +23,7 @@ async fn test_live_push_endpoint_result() {
 
     // Use a dummy key for testing, or a real one if found
     let services = client
-        .list_services(false)
+        .list_services(false, None)
         .await
         .expect("Failed to list services");
 

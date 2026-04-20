@@ -66,7 +66,7 @@ async fn test_live_get_metrics() {
 
     // 3. Service specific actions - Need to get a real service name first
     let services = client
-        .list_services(true)
+        .list_services(true, None)
         .await
         .expect("Failed to list services");
     if let Some(service) = services.first() {

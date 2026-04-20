@@ -21,7 +21,7 @@ async fn test_gatus_client_basic_auth() {
         .mount(&mock_server)
         .await;
 
-    let result = client.list_services(false).await;
+    let result = client.list_services(false, None).await;
     assert!(result.is_ok());
 }
 
@@ -43,7 +43,7 @@ async fn test_gatus_client_both_auth_prefers_api_key() {
         .mount(&mock_server)
         .await;
 
-    let result = client.list_services(false).await;
+    let result = client.list_services(false, None).await;
     assert!(result.is_ok());
 }
 

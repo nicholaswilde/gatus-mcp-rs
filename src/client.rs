@@ -247,15 +247,35 @@ impl GatusClient {
     }
 
     #[tracing::instrument(skip(self))]
-    pub async fn list_services(&self, refresh: bool) -> Result<Vec<EndpointStatus>> {
+    pub async fn list_services(
+        &self,
+        refresh: bool,
+        status_filter: Option<&str>,
+    ) -> Result<Vec<EndpointStatus>> {
         let cache_key = "endpoints_statuses".to_string();
 
-        if !refresh {
+        let all_services = if !refresh {
             if let Some(cached) = self.cache.get(&cache_key).await {
-                return Ok(cached);
+                cached
+            } else {
+                self.fetch_all_services(&cache_key).await?
             }
-        }
+        } else {
+            self.fetch_all_services(&cache_key).await?
+        };
 
+        if let Some(filter) = status_filter {
+            let filter_upper = filter.to_uppercase();
+            Ok(all_services
+                .into_iter()
+                .filter(|s| s.display_status().to_uppercase() == filter_upper)
+                .collect())
+        } else {
+            Ok(all_services)
+        }
+    }
+
+    async fn fetch_all_services(&self, cache_key: &str) -> Result<Vec<EndpointStatus>> {
         self.rate_limiter.until_ready().await;
 
         let url = format!("{}/api/v1/endpoints/statuses", self.api_url);
@@ -277,14 +297,14 @@ impl GatusClient {
         let services: Vec<EndpointStatus> = serde_json::from_str(&text)
             .with_context(|| format!("Failed to decode Gatus API response: {}", text))?;
 
-        self.cache.insert(cache_key, services.clone()).await;
+        self.cache.insert(cache_key.to_string(), services.clone()).await;
 
         Ok(services)
     }
 
     #[tracing::instrument(skip(self))]
     pub async fn get_system_stats(&self) -> Result<SystemStats> {
-        let services = self.list_services(false).await?;
+        let services = self.list_services(false, None).await?;
         let mut up = 0;
         let mut down = 0;
         let mut degraded = 0;
@@ -333,7 +353,7 @@ impl GatusClient {
         &self,
         threshold_days: u64,
     ) -> Result<Vec<ExpiringCertificate>> {
-        let services = self.list_services(false).await?;
+        let services = self.list_services(false, None).await?;
         let mut expiring = Vec::new();
         let threshold_ns = threshold_days * 24 * 60 * 60 * 1_000_000_000u64;
 
@@ -357,7 +377,7 @@ impl GatusClient {
 
     #[tracing::instrument(skip(self))]
     pub async fn get_uptime(&self, service_name: &str, timeframe: &str) -> Result<f64> {
-        let services = self.list_services(false).await?;
+        let services = self.list_services(false, None).await?;
         let service = services
             .iter()
             .find(|s| s.name == service_name)
@@ -368,7 +388,7 @@ impl GatusClient {
 
     #[tracing::instrument(skip(self))]
     pub async fn get_alert_history(&self, limit: usize) -> Result<Vec<AlertEvent>> {
-        let services = self.list_services(false).await?;
+        let services = self.list_services(false, None).await?;
         let mut all_events = Vec::new();
 
         for service in services {
