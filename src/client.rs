@@ -179,6 +179,13 @@ pub struct GroupStats {
     pub degraded: usize,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CorrelatedEvent {
+    pub timestamp: String,
+    pub event_type: String, // "result" or "alert"
+    pub description: String,
+}
+
 #[derive(Clone)]
 pub struct GatusClient {
     api_url: String,
@@ -506,6 +513,49 @@ impl GatusClient {
             failed_conditions,
             passed_conditions,
         })
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_notification_events(&self, key: &str) -> Result<Vec<CorrelatedEvent>> {
+        let statuses = self.get_endpoint_statuses(key).await?;
+        let service = statuses
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow::anyhow!("Service not found: {}", key))?;
+
+        let mut correlated = Vec::new();
+
+        for result in service.results {
+            correlated.push(CorrelatedEvent {
+                timestamp: result.timestamp,
+                event_type: "result".to_string(),
+                description: if result.success {
+                    "Success".to_string()
+                } else {
+                    format!(
+                        "Failure: {}",
+                        result
+                            .errors
+                            .first()
+                            .cloned()
+                            .unwrap_or_else(|| "Unknown error".to_string())
+                    )
+                },
+            });
+        }
+
+        for event in service.events {
+            correlated.push(CorrelatedEvent {
+                timestamp: event.timestamp,
+                event_type: "alert".to_string(),
+                description: event.event_type,
+            });
+        }
+
+        // Sort by timestamp descending
+        correlated.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+
+        Ok(correlated)
     }
 
     #[tracing::instrument(skip(self))]
