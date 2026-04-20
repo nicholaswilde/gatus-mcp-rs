@@ -11,10 +11,10 @@
 - [x] Implement `get_flapping_services` by parsing metrics. (fe0acef)
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
-- [ ] Add `format_expiring_certificates` table formatter.
-- [ ] Add `format_failure_summary` markdown formatter.
-- [ ] Add `format_group_stats` summary formatter.
-- [ ] Add `format_alert_correlation` timeline formatter.
+- [x] Add `format_expiring_certificates` table formatter. (76c3679)
+- [x] Add `format_failure_summary` markdown formatter. (76c3679)
+- [x] Add `format_group_stats` summary formatter. (76c3679)
+- [x] Add `format_alert_correlation` timeline formatter. (76c3679)
 
 ## Phase 3: MCP Handler Integration (`src/mcp.rs`)
 - [ ] Update `get_tool_definitions` to include new tools and parameters.
