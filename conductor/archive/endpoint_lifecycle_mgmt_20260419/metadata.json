@@ -1,0 +1,7 @@
+{
+  "id": "endpoint_lifecycle_mgmt_20260419",
+  "name": "Endpoint Lifecycle Management",
+  "description": "Enable programmatic management of Gatus endpoints, including creation, updates, and deletion.",
+  "status": "planned",
+  "created_at": "2026-04-19T00:00:00Z"
+}
