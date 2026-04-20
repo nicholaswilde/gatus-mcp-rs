@@ -23,6 +23,6 @@
 - [x] Update `list-services` tool definition to include `status` parameter. (7875a35)
 
 ## Phase 4: Verification
-- [ ] Add integration tests in `tests/` for each new tool.
+- [x] Add integration tests in `tests/` for each new tool. (8c05c37)
 - [ ] Verify token efficiency of new payloads.
 - [ ] Update documentation.
