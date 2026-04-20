@@ -195,6 +195,27 @@ pub struct CorrelatedEvent {
     pub description: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct StatusPage {
+    pub id: String,
+    pub name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EndpointConfig {
+    pub name: String,
+    pub group: Option<String>,
+    pub url: String,
+    pub interval: Option<String>,
+    pub conditions: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub method: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub headers: Option<std::collections::HashMap<String, String>>,
+}
+
 #[derive(Clone)]
 pub struct GatusClient {
     api_url: String,
@@ -264,6 +285,97 @@ impl GatusClient {
             events: vec![],
         };
         dummy.sanitize_field(input)
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn list_status_pages(&self) -> Result<Vec<StatusPage>> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/api/v1/external/status-pages", self.api_url);
+        let mut request = self.client.get(url);
+        request = self.add_auth_header(request);
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        let pages: Vec<StatusPage> = serde_json::from_str(&text)?;
+        Ok(pages)
+    }
+
+    #[tracing::instrument(skip(self, config))]
+    pub async fn create_endpoint(&self, status_page_id: &str, config: EndpointConfig) -> Result<()> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!(
+            "{}/api/v1/external/status-pages/{}/endpoints",
+            self.api_url, status_page_id
+        );
+        let mut request = self.client.post(url).json(&config);
+        request = self.add_auth_header(request);
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        Ok(())
+    }
+
+    #[tracing::instrument(skip(self, config))]
+    pub async fn update_endpoint(
+        &self,
+        status_page_id: &str,
+        endpoint_id: &str,
+        config: EndpointConfig,
+    ) -> Result<()> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!(
+            "{}/api/v1/external/status-pages/{}/endpoints/{}",
+            self.api_url, status_page_id, endpoint_id
+        );
+        let mut request = self.client.put(url).json(&config);
+        request = self.add_auth_header(request);
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        Ok(())
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn delete_endpoint(&self, status_page_id: &str, endpoint_id: &str) -> Result<()> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!(
+            "{}/api/v1/external/status-pages/{}/endpoints/{}",
+            self.api_url, status_page_id, endpoint_id
+        );
+        let mut request = self.client.delete(url);
+        request = self.add_auth_header(request);
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        Ok(())
     }
 
     #[tracing::instrument(skip(self))]
