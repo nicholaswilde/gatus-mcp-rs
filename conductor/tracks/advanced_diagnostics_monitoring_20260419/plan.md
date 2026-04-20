@@ -7,7 +7,7 @@
 - [x] Implement `compare_performance` method calculating hour-vs-week latency delta. (1fdd157)
 - [x] Implement `get_group_stats` to aggregate endpoint states by group. (a12daf2)
 - [x] Implement `get_notification_events` to correlate alerts with failures. (1668212)
-- [ ] Implement `set_maintenance` (exploratory: check if writing to config is feasible or if API supports it).
+- [x] Implement `set_maintenance` (Dropped: Not supported by self-hosted Gatus API).
 - [ ] Implement `get_flapping_services` by parsing metrics.
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
