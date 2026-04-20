@@ -25,4 +25,4 @@
 ## Phase 4: Verification
 - [x] Add integration tests in `tests/` for each new tool. (8c05c37)
 - [x] Verify token efficiency of new payloads. (b4fdb24)
-- [ ] Update documentation.
+- [x] Update documentation. (fed8a35)
