@@ -131,14 +131,31 @@ tasks:
       - cargo run
 
   docker:build:
-    desc: Build the Docker image
+    desc: Build the Docker image (local architecture)
+    cmds:
+      - docker build -t gatus-mcp-rs .
+
+  docker:build-multiarch:
+    desc: Build the multi-platform Docker image using buildx
     cmds:
       - docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t gatus-mcp-rs .
 
   docker:run:
     desc: Run the Docker image
     cmds:
-      - docker run --rm -i gatus-mcp-rs
+      - docker run --rm -i --name gatus-mcp-rs gatus-mcp-rs
+
+  docker:stop:
+    desc: Stop the running Docker container
+    cmds:
+      - docker stop gatus-mcp-rs || true
+      - docker rm gatus-mcp-rs || true
+
+  docker:clean:
+    desc: Remove the Docker image
+    cmds:
+      - docker rmi gatus-mcp-rs:latest || true
+      - docker rmi gatus-mcp-rs:test || true
 
   clean:
     desc: Clean build artifacts
