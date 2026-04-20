@@ -170,6 +170,15 @@ pub struct PerformanceComparison {
     pub delta_percentage: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct GroupStats {
+    pub group: String,
+    pub total: usize,
+    pub up: usize,
+    pub down: usize,
+    pub degraded: usize,
+}
+
 #[derive(Clone)]
 pub struct GatusClient {
     api_url: String,
@@ -361,6 +370,49 @@ impl GatusClient {
             down,
             degraded,
             certificates_expiring_soon,
+        })
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_group_stats(&self, group_name: &str) -> Result<GroupStats> {
+        let services = self.list_services(false, None).await?;
+        let filtered: Vec<_> = services
+            .into_iter()
+            .filter(|s| s.group.to_lowercase() == group_name.to_lowercase())
+            .collect();
+
+        if filtered.is_empty() {
+            anyhow::bail!("Group not found or empty: {}", group_name);
+        }
+
+        let mut up = 0;
+        let mut down = 0;
+        let mut degraded = 0;
+
+        for service in &filtered {
+            let status = service.display_status().to_uppercase();
+            match status.as_str() {
+                "UP" => up += 1,
+                "DOWN" => down += 1,
+                "DEGRADED" => degraded += 1,
+                _ => {
+                    if let Some(result) = service.results.first() {
+                        if result.success {
+                            up += 1;
+                        } else {
+                            down += 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(GroupStats {
+            group: group_name.to_string(),
+            total: filtered.len(),
+            up,
+            down,
+            degraded,
         })
     }
 
