@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use governor::{Quota, RateLimiter};
 use moka::future::Cache;
+use regex::Regex;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -177,6 +178,14 @@ pub struct GroupStats {
     pub up: usize,
     pub down: usize,
     pub degraded: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FlappingService {
+    pub name: String,
+    pub group: String,
+    pub failure_count: u64,
+    pub success_count: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -556,6 +565,60 @@ impl GatusClient {
         correlated.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
 
         Ok(correlated)
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_flapping_services(&self) -> Result<Vec<FlappingService>> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/metrics", self.api_url);
+        let mut request = self.client.get(url);
+        request = self.add_auth_header(request);
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        let re = Regex::new(
+            r#"gatus_results_total\{group="(?P<group>[^"]+)",name="(?P<name>[^"]+)",success="(?P<success>[^"]+)",type="[^"]+"\} (?P<value>\d+)"#,
+        )?;
+
+        let mut services: std::collections::HashMap<(String, String), (u64, u64)> =
+            std::collections::HashMap::new();
+
+        for cap in re.captures_iter(&text) {
+            let group = cap["group"].to_string();
+            let name = cap["name"].to_string();
+            let success = &cap["success"];
+            let value: u64 = cap["value"].parse().unwrap_or(0);
+
+            let entry = services.entry((group, name)).or_insert((0, 0));
+            if success == "true" {
+                entry.1 += value;
+            } else {
+                entry.0 += value;
+            }
+        }
+
+        let mut flapping: Vec<FlappingService> = services
+            .into_iter()
+            .map(|((group, name), (failure_count, success_count))| FlappingService {
+                name,
+                group,
+                failure_count,
+                success_count,
+            })
+            .filter(|s| s.failure_count > 0)
+            .collect();
+
+        // Sort by failure count descending
+        flapping.sort_by(|a, b| b.failure_count.cmp(&a.failure_count));
+
+        Ok(flapping)
     }
 
     #[tracing::instrument(skip(self))]
