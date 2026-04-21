@@ -10,7 +10,7 @@
 - [x] Update `get_tool_definitions` to include new tools and parameters. d392a43
 - [x] Update MCP handlers to route requests to new client methods. d392a43
 
-## Phase 4: Verification
+## Phase 4: Verification [checkpoint: ffc7162]
 - [x] Add integration tests in `tests/` for each new tool. bc2d7df
 - [x] Verify token efficiency of new payloads. bc2d7df
 - [x] Update documentation. bc2d7df
