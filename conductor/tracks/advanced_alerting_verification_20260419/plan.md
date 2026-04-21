@@ -11,7 +11,7 @@
 - [x] Update `get_tool_definitions` to include new tools and parameters. b635442
 - [x] Update MCP handlers to route requests to new client methods. b635442
 
-## Phase 4: Verification
-- [ ] Add integration tests in `tests/` for each new tool.
-- [ ] Verify token efficiency of new payloads.
-- [ ] Update documentation.
+## Phase 4: Verification [checkpoint: 770c87e]
+- [x] Add integration tests in `tests/` for each new tool. 5649c96
+- [x] Verify token efficiency of new payloads. 5649c96
+- [x] Update documentation. 5649c96
