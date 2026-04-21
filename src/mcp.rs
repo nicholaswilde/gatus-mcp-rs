@@ -3,7 +3,7 @@ use crate::fmt::{
     format_alert_correlation, format_alert_rules, format_certificate_audit, format_config_summary,
     format_diagnostic_bundle, format_endpoint_status, format_endpoints_summary,
     format_expiring_certificates, format_failure_summary, format_flapping_services,
-    format_group_stats, format_page_health, format_performance_comparison, format_status_pages,
+    format_group_stats, format_performance_comparison, format_suite_health, format_suites,
     format_system_stats,
 };
 use serde::{Deserialize, Serialize};
@@ -179,12 +179,12 @@ impl McpHandler {
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["list-services", "list-groups", "list-endpoints", "get-config", "get-health", "list-expiring-certificates", "get-alert-rules", "get-page-health"],
+                            "enum": ["list-services", "list-groups", "list-endpoints", "get-config", "get-health", "list-expiring-certificates", "get-alert-rules", "get-suite-health"],
                             "description": "Action to perform."
                         },
                         "id": {
                             "type": "string",
-                            "description": "Optional identifier (e.g., group name for list-endpoints)."
+                            "description": "Optional identifier (e.g., group name for list-endpoints, or suite ID for get-suite-health)."
                         },
                         "status": {
                             "type": "string",
@@ -287,18 +287,18 @@ impl McpHandler {
             }),
             json!({
                 "name": "manage_endpoints",
-                "description": "Programmatically manage Gatus endpoints and status pages.",
+                "description": "Programmatically manage Gatus endpoints and suites.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["list-status-pages", "create-endpoint", "update-endpoint", "delete-endpoint"],
+                            "enum": ["list-suites", "create-endpoint", "update-endpoint", "delete-endpoint"],
                             "description": "Action to perform."
                         },
-                        "status_page_id": {
+                        "suite_id": {
                             "type": "string",
-                            "description": "The ID of the status page (required for create/update/delete)."
+                            "description": "The ID of the suite (required for create/update/delete)."
                         },
                         "endpoint_id": {
                             "type": "string",
@@ -471,9 +471,9 @@ impl McpHandler {
         };
 
         match action {
-            "list-status-pages" => match self.gatus_client.list_status_pages().await {
+            "list-suites" => match self.gatus_client.list_suites().await {
                 Ok(pages) => {
-                    let text = format_status_pages(&pages);
+                    let text = format_suites(&pages);
                     self.success_response(
                         id,
                         json!({
@@ -489,12 +489,9 @@ impl McpHandler {
                 Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
             },
             "create-endpoint" => {
-                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str())
-                {
+                let suite_id = match arguments.get("suite_id").and_then(|s| s.as_str()) {
                     Some(s) => s,
-                    None => {
-                        return self.error_response(id, -32602, "Missing 'status_page_id' argument")
-                    }
+                    None => return self.error_response(id, -32602, "Missing 'suite_id' argument"),
                 };
                 let config: crate::client::EndpointConfig = match arguments.get("config").cloned() {
                     Some(c) => match serde_json::from_value(c) {
@@ -510,11 +507,7 @@ impl McpHandler {
                     None => return self.error_response(id, -32602, "Missing 'config' argument"),
                 };
 
-                match self
-                    .gatus_client
-                    .create_endpoint(status_page_id, config)
-                    .await
-                {
+                match self.gatus_client.create_endpoint(suite_id, config).await {
                     Ok(_) => self.success_response(
                         id,
                         json!({
@@ -530,12 +523,9 @@ impl McpHandler {
                 }
             }
             "update-endpoint" => {
-                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str())
-                {
+                let suite_id = match arguments.get("suite_id").and_then(|s| s.as_str()) {
                     Some(s) => s,
-                    None => {
-                        return self.error_response(id, -32602, "Missing 'status_page_id' argument")
-                    }
+                    None => return self.error_response(id, -32602, "Missing 'suite_id' argument"),
                 };
                 let endpoint_id = match arguments.get("endpoint_id").and_then(|e| e.as_str()) {
                     Some(e) => e,
@@ -559,7 +549,7 @@ impl McpHandler {
 
                 match self
                     .gatus_client
-                    .update_endpoint(status_page_id, endpoint_id, config)
+                    .update_endpoint(suite_id, endpoint_id, config)
                     .await
                 {
                     Ok(_) => self.success_response(
@@ -577,12 +567,9 @@ impl McpHandler {
                 }
             }
             "delete-endpoint" => {
-                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str())
-                {
+                let suite_id = match arguments.get("suite_id").and_then(|s| s.as_str()) {
                     Some(s) => s,
-                    None => {
-                        return self.error_response(id, -32602, "Missing 'status_page_id' argument")
-                    }
+                    None => return self.error_response(id, -32602, "Missing 'suite_id' argument"),
                 };
                 let endpoint_id = match arguments.get("endpoint_id").and_then(|e| e.as_str()) {
                     Some(e) => e,
@@ -593,7 +580,7 @@ impl McpHandler {
 
                 match self
                     .gatus_client
-                    .delete_endpoint(status_page_id, endpoint_id)
+                    .delete_endpoint(suite_id, endpoint_id)
                     .await
                 {
                     Ok(_) => self.success_response(
@@ -823,20 +810,20 @@ impl McpHandler {
                 }
                 Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
             },
-            "get-page-health" => {
-                let page_id = match arguments.get("id").and_then(|i| i.as_str()) {
+            "get-suite-health" => {
+                let suite_id = match arguments.get("id").and_then(|i| i.as_str()) {
                     Some(i) => i,
                     None => {
                         return self.error_response(
                             id,
                             -32602,
-                            "Missing 'id' argument for get-page-health",
+                            "Missing 'id' argument for get-suite-health",
                         )
                     }
                 };
-                match self.gatus_client.get_page_health(page_id).await {
+                match self.gatus_client.get_suite_health(suite_id).await {
                     Ok(health) => {
-                        let text = format_page_health(&health);
+                        let text = format_suite_health(&health);
                         self.success_response(
                             id,
                             json!({

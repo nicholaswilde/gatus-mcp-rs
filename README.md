@@ -23,7 +23,7 @@ A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automat
 - **External Result Pushing:** Push health check results for external/asynchronous endpoints directly to Gatus.
 - **Uptime Calculation:** Calculate success vs. failure ratios over 24h, 7d, and 30d timeframes.
 - **Configuration Retrieval:** Retrieve the effective Gatus monitoring configuration (conditions, names, groups).
-- **Endpoint Lifecycle Management:** Create, update, and delete endpoints and status pages directly via MCP.
+- **Endpoint Lifecycle Management:** Create, update, and delete endpoints and suites directly via MCP.
 - **Multiple Transports:** Support for both Stdio and HTTP (SSE) transport layers.
 - **Optimized for LLMs:** Returns "thinned" payloads to conserve token usage while providing high-signal information.
 - **Flexible Configuration:** Configure via environment variables, `config.toml`, or CLI flags.
@@ -118,8 +118,8 @@ Options:
 ### `manage_resources`
 Discover and manage Gatus resources and instance state.
 - **Arguments:**
-  - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, `get-health`, `list-expiring-certificates`, `get-alert-rules`, or `get-page-health`.
-  - `id`: (Optional) Identifier (e.g., group name for `list-endpoints`, or status page ID for `get-page-health`).
+  - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, `get-health`, `list-expiring-certificates`, `get-alert-rules`, or `get-suite-health`.
+  - `id`: (Optional) Identifier (e.g., group name for `list-endpoints`, or suite ID for `get-suite-health`).
   - `status`: (Optional) Status filter for `list-services` (e.g., `DOWN`, `DEGRADED`).
 
 ### `get_metrics`
@@ -153,10 +153,10 @@ Push a health check result for an external endpoint.
   - `error`: (Optional) Error message if the check was unsuccessful.
 
 ### `manage_endpoints`
-Programmatically manage Gatus endpoints and status pages.
+Programmatically manage Gatus endpoints and suites.
 - **Arguments:**
-  - `action`: `list-status-pages`, `create-endpoint`, `update-endpoint`, or `delete-endpoint`.
-  - `status_page_id`: (Required for create/update/delete) The ID of the status page.
+  - `action`: `list-suites`, `create-endpoint`, `update-endpoint`, or `delete-endpoint`.
+  - `suite_id`: (Required for create/update/delete) The ID of the suite.
   - `endpoint_id`: (Required for update/delete) The ID of the endpoint.
   - `config`: (Required for create/update) Endpoint configuration object.
     - `name`: (Required) Display name for the endpoint.

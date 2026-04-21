@@ -212,13 +212,13 @@ pub struct CorrelatedEvent {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct StatusPage {
+pub struct Suite {
     pub id: String,
     pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PageHealth {
+pub struct SuiteHealth {
     pub id: String,
     pub name: String,
     pub up: usize,
@@ -350,10 +350,10 @@ impl GatusClient {
     }
 
     #[tracing::instrument(skip(self))]
-    pub async fn list_status_pages(&self) -> Result<Vec<StatusPage>> {
+    pub async fn list_suites(&self) -> Result<Vec<Suite>> {
         self.rate_limiter.until_ready().await;
 
-        let url = format!("{}/api/v1/external/status-pages", self.api_url);
+        let url = format!("{}/api/v1/suites/statuses", self.api_url);
         let mut request = self.client.get(url);
         request = self.add_auth_header(request);
 
@@ -365,15 +365,29 @@ impl GatusClient {
             anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
         }
 
-        let pages: Vec<StatusPage> = serde_json::from_str(&text)?;
-        Ok(pages)
+        #[derive(Deserialize)]
+        struct SuiteStatusResponse {
+            #[serde(rename = "key")]
+            id: String,
+            name: String,
+        }
+
+        let suites_resp: Vec<SuiteStatusResponse> = serde_json::from_str(&text)?;
+        let suites = suites_resp
+            .into_iter()
+            .map(|s| Suite {
+                id: s.id,
+                name: s.name,
+            })
+            .collect();
+        Ok(suites)
     }
 
     #[tracing::instrument(skip(self))]
-    pub async fn get_page_health(&self, id: &str) -> Result<PageHealth> {
+    pub async fn get_suite_health(&self, id: &str) -> Result<SuiteHealth> {
         self.rate_limiter.until_ready().await;
 
-        let url = format!("{}/api/v1/external/status-pages/{}", self.api_url, id);
+        let url = format!("{}/api/v1/suites/{}/statuses", self.api_url, id);
         let mut request = self.client.get(url);
         request = self.add_auth_header(request);
 
@@ -386,35 +400,44 @@ impl GatusClient {
         }
 
         #[derive(Deserialize)]
-        struct StatusPageResponse {
+        struct SuiteResponse {
+            #[serde(rename = "key")]
             id: String,
             name: String,
-            endpoints: Vec<StatusPageEndpoint>,
+            results: Vec<SuiteResult>,
         }
 
         #[derive(Deserialize)]
-        struct StatusPageEndpoint {
-            status: String,
+        struct SuiteResult {
+            #[serde(rename = "endpointResults")]
+            endpoint_results: Vec<EndpointResult>,
         }
 
-        let page_resp: StatusPageResponse = serde_json::from_str(&text)?;
+        #[derive(Deserialize)]
+        struct EndpointResult {
+            success: bool,
+        }
+
+        let suite_resp: SuiteResponse = serde_json::from_str(&text)?;
 
         let mut up = 0;
         let mut down = 0;
-        let mut degraded = 0;
+        let degraded = 0; // Gatus suites don't explicitly have degraded in results, usually just success/failure
 
-        for ep in page_resp.endpoints {
-            match ep.status.to_uppercase().as_str() {
-                "UP" => up += 1,
-                "DOWN" => down += 1,
-                "DEGRADED" => degraded += 1,
-                _ => {}
+        // Use the latest result
+        if let Some(latest) = suite_resp.results.first() {
+            for res in &latest.endpoint_results {
+                if res.success {
+                    up += 1;
+                } else {
+                    down += 1;
+                }
             }
         }
 
-        Ok(PageHealth {
-            id: page_resp.id,
-            name: page_resp.name,
+        Ok(SuiteHealth {
+            id: suite_resp.id,
+            name: suite_resp.name,
             up,
             down,
             degraded,
@@ -422,16 +445,12 @@ impl GatusClient {
     }
 
     #[tracing::instrument(skip(self, config))]
-    pub async fn create_endpoint(
-        &self,
-        status_page_id: &str,
-        config: EndpointConfig,
-    ) -> Result<()> {
+    pub async fn create_endpoint(&self, suite_id: &str, config: EndpointConfig) -> Result<()> {
         self.rate_limiter.until_ready().await;
 
         let url = format!(
             "{}/api/v1/external/status-pages/{}/endpoints",
-            self.api_url, status_page_id
+            self.api_url, suite_id
         );
         let mut request = self.client.post(url).json(&config);
         request = self.add_auth_header(request);
@@ -450,7 +469,7 @@ impl GatusClient {
     #[tracing::instrument(skip(self, config))]
     pub async fn update_endpoint(
         &self,
-        status_page_id: &str,
+        suite_id: &str,
         endpoint_id: &str,
         config: EndpointConfig,
     ) -> Result<()> {
@@ -458,7 +477,7 @@ impl GatusClient {
 
         let url = format!(
             "{}/api/v1/external/status-pages/{}/endpoints/{}",
-            self.api_url, status_page_id, endpoint_id
+            self.api_url, suite_id, endpoint_id
         );
         let mut request = self.client.put(url).json(&config);
         request = self.add_auth_header(request);
@@ -475,12 +494,12 @@ impl GatusClient {
     }
 
     #[tracing::instrument(skip(self))]
-    pub async fn delete_endpoint(&self, status_page_id: &str, endpoint_id: &str) -> Result<()> {
+    pub async fn delete_endpoint(&self, suite_id: &str, endpoint_id: &str) -> Result<()> {
         self.rate_limiter.until_ready().await;
 
         let url = format!(
             "{}/api/v1/external/status-pages/{}/endpoints/{}",
-            self.api_url, status_page_id, endpoint_id
+            self.api_url, suite_id, endpoint_id
         );
         let mut request = self.client.delete(url);
         request = self.add_auth_header(request);

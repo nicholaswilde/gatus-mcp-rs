@@ -1,14 +1,11 @@
 use crate::client::{
     AlertRule, CertificateAudit, CorrelatedEvent, DiagnosticBundle, EndpointStatus,
-    ExpiringCertificate, FailureSummary, FlappingService, GroupStats, PageHealth,
-    PerformanceComparison, StatusPage, SystemStats,
+    ExpiringCertificate, FailureSummary, FlappingService, GroupStats, PerformanceComparison, Suite,
+    SuiteHealth, SystemStats,
 };
 
-pub fn format_page_health(health: &PageHealth) -> String {
-    let mut output = format!(
-        "### Status Page Health: {} ({})\n\n",
-        health.name, health.id
-    );
+pub fn format_suite_health(health: &SuiteHealth) -> String {
+    let mut output = format!("### Suite Health: {} ({})\n\n", health.name, health.id);
 
     let total = health.up + health.down + health.degraded;
     output.push_str(&format!("- **Total Endpoints:** {}\n", total));
@@ -137,8 +134,8 @@ pub fn format_alert_rules(rules: &[AlertRule]) -> String {
     output
 }
 
-pub fn format_status_pages(pages: &[StatusPage]) -> String {
-    let mut output = String::from("### Gatus Status Pages\n\n");
+pub fn format_suites(pages: &[Suite]) -> String {
+    let mut output = String::from("### Gatus Suites\n\n");
     output.push_str("| ID | Name |\n");
     output.push_str("| :--- | :--- |\n");
 

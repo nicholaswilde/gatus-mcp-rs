@@ -10,14 +10,14 @@ async fn test_integration_multi_status_full_flow() {
     let client = GatusClient::new(mock_server.uri(), None, None, None);
     let handler = McpHandler::new(client);
 
-    // 1. Mock list-status-pages
+    // 1. Mock list-suites
     let list_response = json!([
-        { "id": "page-1", "name": "Main Page" },
-        { "id": "page-2", "name": "API Page" }
+        { "key": "page-1", "name": "Main Suite" },
+        { "key": "page-2", "name": "API Suite" }
     ]);
 
     Mock::given(method("GET"))
-        .and(path("/api/v1/external/status-pages"))
+        .and(path("/api/v1/suites/statuses"))
         .respond_with(ResponseTemplate::new(200).set_body_json(list_response))
         .mount(&mock_server)
         .await;
@@ -28,7 +28,7 @@ async fn test_integration_multi_status_full_flow() {
         "params": {
             "name": "manage_endpoints",
             "arguments": {
-                "action": "list-status-pages"
+                "action": "list-suites"
             }
         },
         "id": "list-1"
@@ -39,19 +39,23 @@ async fn test_integration_multi_status_full_flow() {
     assert!(text.contains("page-1"));
     assert!(text.contains("page-2"));
 
-    // 2. Mock get-page-health
+    // 2. Mock get-suite-health
     let health_response = json!({
-        "id": "page-2",
-        "name": "API Page",
-        "endpoints": [
-            { "name": "api-1", "status": "UP" },
-            { "name": "api-2", "status": "UP" },
-            { "name": "api-3", "status": "DEGRADED" }
+        "key": "page-2",
+        "name": "API Suite",
+        "results": [
+            {
+                "endpointResults": [
+                    { "success": true },
+                    { "success": true },
+                    { "success": false }
+                ]
+            }
         ]
     });
 
     Mock::given(method("GET"))
-        .and(path("/api/v1/external/status-pages/page-2"))
+        .and(path("/api/v1/suites/page-2/statuses"))
         .respond_with(ResponseTemplate::new(200).set_body_json(health_response))
         .mount(&mock_server)
         .await;
@@ -62,7 +66,7 @@ async fn test_integration_multi_status_full_flow() {
         "params": {
             "name": "manage_resources",
             "arguments": {
-                "action": "get-page-health",
+                "action": "get-suite-health",
                 "id": "page-2"
             }
         },
@@ -71,8 +75,7 @@ async fn test_integration_multi_status_full_flow() {
 
     let response = handler.handle(health_request).await;
     let text = response["result"]["content"][0]["text"].as_str().unwrap();
-    assert!(text.contains("Status Page Health: API Page (page-2)"));
+    assert!(text.contains("Suite Health: API Suite (page-2)"));
     assert!(text.contains("**UP:** 2"));
-    assert!(text.contains("**DEGRADED:** 1"));
     assert!(text.contains("66.67%"));
 }
