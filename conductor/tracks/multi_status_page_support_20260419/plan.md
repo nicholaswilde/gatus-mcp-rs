@@ -4,7 +4,7 @@
 - [x] Implement `list_status_pages` method. 502c849
 - [x] Implement `get_page_health` method. 502c849
 
-## Phase 2: Formatting Enhancements (`src/fmt.rs`)
+## Phase 2: Formatting Enhancements (`src/fmt.rs`) [checkpoint: 8caf3d1]
 - [x] Implement required formatting for new tool outputs. efa8e78
 
 ## Phase 3: MCP Handler Integration (`src/mcp.rs`)
