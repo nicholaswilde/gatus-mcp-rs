@@ -6,7 +6,7 @@
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`) [checkpoint: 33f8435]
 - [x] Implement required formatting for new tool outputs. c4651e3
 
-## Phase 3: MCP Handler Integration (`src/mcp.rs`)
+## Phase 3: MCP Handler Integration (`src/mcp.rs`) [checkpoint: 49f4416]
 - [x] Update `get_tool_definitions` to include new tools and parameters. 469a42c
 - [x] Update MCP handlers to route requests to new client methods. 469a42c
 
