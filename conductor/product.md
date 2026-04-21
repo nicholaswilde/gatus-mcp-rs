@@ -106,6 +106,7 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 3. **Optimized Information Flow:** Implement "thin" response payloads to ensure LLMs receive only the most relevant data, staying within token limits and maintaining focus.
 4. **Configuration Retrieval:** Empower LLMs to understand the monitoring setup (intervals, conditions, groups) to better interpret health check failures.
 5. **Operational Control:** Provide tools for basic administrative tasks like reloading the Gatus configuration.
+6. **Alerting & Verification:** Expose configured alerting rules and provide mechanisms to test notification delivery to ensure reliable incident response integrations.
 
 ## Key Features
 - **SSE Transport Layer:** Implements the MCP-over-SSE standard using Axum for reliable, long-lived connections.
@@ -113,7 +114,7 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 - **Standardized Workflows (MCP Prompts):** Provides pre-defined prompts (e.g., `analyze-outage`, `daily-health-report`) to guide LLMs through complex diagnostic and reporting tasks.
 - **Proactive Real-time Notifications:** Pushes immediate service state changes (UP/DOWN) to MCP clients over SSE, reducing the need for LLM polling.
 - **Direct Context Attachment (MCP Resources):** Exposes static or slowly-changing Gatus data (e.g., configuration, dashboard status) as resources that LLMs can attach directly to their context.
-- **Operational Control (Mutative Tools):** Allows LLMs to trigger actions in Gatus, such as forcing an immediate health check (`trigger_check`) or reloading the configuration (`reload_config`).
+- **Operational Control (Mutative Tools):** Allows LLMs to trigger actions in Gatus, such as forcing an immediate health check (`trigger_check`), reloading the configuration (`reload_config`), and testing alert notifications (`test_alert`).
 - **Robust Authentication:** Supports both API Key (Bearer token) and Basic Authentication (username/password), ensuring compatibility with various self-hosted Gatus security configurations.
 - **Automatic Key Mapping:** Implements intelligent key sanitization, automatically mapping human-readable service and group names to Gatus's internal hyphenated key format.
 - **External Result Pushing:** Enables LLMs and external systems to push health check results directly to Gatus via the `push_result` tool, facilitating monitoring of asynchronous or push-based tasks.
