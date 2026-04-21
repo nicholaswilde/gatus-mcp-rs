@@ -244,6 +244,15 @@ pub struct EndpointConfig {
     pub alerts: Vec<AlertConfig>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DiagnosticBundle {
+    pub name: String,
+    pub group: String,
+    pub results: Vec<HealthResult>,
+    pub failure_summary: FailureSummary,
+    pub alert_events: Vec<AlertEvent>,
+}
+
 #[derive(Clone)]
 pub struct GatusClient {
     api_url: String,
@@ -1047,6 +1056,61 @@ impl GatusClient {
         }
 
         Ok(())
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_diagnostic_bundle(&self, key: &str) -> Result<DiagnosticBundle> {
+        let statuses = self.get_endpoint_statuses(key).await?;
+        let service = statuses
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow::anyhow!("Service not found: {}", key))?;
+
+        let failure_summary = if let Some(result) = service.results.first() {
+            let mut failed_conditions = Vec::new();
+            let mut passed_conditions = Vec::new();
+
+            for condition in &result.condition_results {
+                if condition.success {
+                    passed_conditions.push(condition.condition.clone());
+                } else {
+                    failed_conditions.push(condition.condition.clone());
+                }
+            }
+
+            FailureSummary {
+                name: service.name.clone(),
+                group: service.group.clone(),
+                failed_conditions,
+                passed_conditions,
+            }
+        } else {
+            FailureSummary {
+                name: service.name.clone(),
+                group: service.group.clone(),
+                failed_conditions: Vec::new(),
+                passed_conditions: Vec::new(),
+            }
+        };
+
+        let alert_events = service
+            .events
+            .iter()
+            .map(|e| AlertEvent {
+                service: service.name.clone(),
+                group: service.group.clone(),
+                event_type: e.event_type.clone(),
+                timestamp: e.timestamp.clone(),
+            })
+            .collect();
+
+        Ok(DiagnosticBundle {
+            name: service.name,
+            group: service.group,
+            results: service.results,
+            failure_summary,
+            alert_events,
+        })
     }
 
     #[tracing::instrument(skip(self))]
