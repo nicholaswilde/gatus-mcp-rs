@@ -1,6 +1,6 @@
 # Implementation Plan: Multi-Status Page Support
 
-## Phase 1: Client Expansion (`src/client.rs`)
+## Phase 1: Client Expansion (`src/client.rs`) [checkpoint: f16f905]
 - [x] Implement `list_status_pages` method. 502c849
 - [x] Implement `get_page_health` method. 502c849
 
