@@ -17,6 +17,7 @@ A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automat
 - **System Health Summary:** High-level overview of total, up, down, and degraded endpoint counts.
 - **Detailed Diagnostics:** Fetch latest results (including detailed condition status ✅/❌), history (optimized with targeted API calls), raw non-truncated results, and granular performance metrics for specific health checks.
 - **Alert & State Transitions:** Retrieve chronological alert history and configured alerting rules to identify incident root causes.
+- **One-Turn Root Cause Analysis:** Aggregates failure summaries, recent results, and alert events into a single "Diagnostic Bundle" via the `get_metrics` tool, enabling rapid problem resolution.
 - **Notification Verification:** Trigger test alert notifications for specific endpoints to verify provider integrations.
 - **Status & Performance Visualization:** Surface health/uptime badges and latency charts (SVG) directly via MCP.
 - **External Result Pushing:** Push health check results for external/asynchronous endpoints directly to Gatus.

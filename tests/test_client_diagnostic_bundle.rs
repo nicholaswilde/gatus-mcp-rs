@@ -35,7 +35,10 @@ async fn test_gatus_client_get_diagnostic_bundle() {
         .mount(&mock_server)
         .await;
 
-    let bundle = client.get_diagnostic_bundle("core_service-1").await.unwrap();
+    let bundle = client
+        .get_diagnostic_bundle("core_service-1")
+        .await
+        .unwrap();
     assert_eq!(bundle.name, "service-1");
     assert!(!bundle.results.is_empty());
     assert!(!bundle.results[0].success);
