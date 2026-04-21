@@ -336,7 +336,11 @@ impl GatusClient {
     }
 
     #[tracing::instrument(skip(self, config))]
-    pub async fn create_endpoint(&self, status_page_id: &str, config: EndpointConfig) -> Result<()> {
+    pub async fn create_endpoint(
+        &self,
+        status_page_id: &str,
+        config: EndpointConfig,
+    ) -> Result<()> {
         self.rate_limiter.until_ready().await;
 
         let url = format!(

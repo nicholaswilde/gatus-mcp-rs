@@ -457,7 +457,9 @@ impl McpHandler {
                     ]
                 }),
             ),
-            Err(e) => self.error_response(id, -32000, &format!("Error triggering test alert: {}", e)),
+            Err(e) => {
+                self.error_response(id, -32000, &format!("Error triggering test alert: {}", e))
+            }
         }
     }
 
@@ -486,19 +488,32 @@ impl McpHandler {
                 Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
             },
             "create-endpoint" => {
-                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str()) {
+                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str())
+                {
                     Some(s) => s,
-                    None => return self.error_response(id, -32602, "Missing 'status_page_id' argument"),
+                    None => {
+                        return self.error_response(id, -32602, "Missing 'status_page_id' argument")
+                    }
                 };
                 let config: crate::client::EndpointConfig = match arguments.get("config").cloned() {
                     Some(c) => match serde_json::from_value(c) {
                         Ok(conf) => conf,
-                        Err(e) => return self.error_response(id, -32602, &format!("Invalid 'config' argument: {}", e)),
+                        Err(e) => {
+                            return self.error_response(
+                                id,
+                                -32602,
+                                &format!("Invalid 'config' argument: {}", e),
+                            )
+                        }
                     },
                     None => return self.error_response(id, -32602, "Missing 'config' argument"),
                 };
 
-                match self.gatus_client.create_endpoint(status_page_id, config).await {
+                match self
+                    .gatus_client
+                    .create_endpoint(status_page_id, config)
+                    .await
+                {
                     Ok(_) => self.success_response(
                         id,
                         json!({
@@ -514,23 +529,38 @@ impl McpHandler {
                 }
             }
             "update-endpoint" => {
-                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str()) {
+                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str())
+                {
                     Some(s) => s,
-                    None => return self.error_response(id, -32602, "Missing 'status_page_id' argument"),
+                    None => {
+                        return self.error_response(id, -32602, "Missing 'status_page_id' argument")
+                    }
                 };
                 let endpoint_id = match arguments.get("endpoint_id").and_then(|e| e.as_str()) {
                     Some(e) => e,
-                    None => return self.error_response(id, -32602, "Missing 'endpoint_id' argument"),
+                    None => {
+                        return self.error_response(id, -32602, "Missing 'endpoint_id' argument")
+                    }
                 };
                 let config: crate::client::EndpointConfig = match arguments.get("config").cloned() {
                     Some(c) => match serde_json::from_value(c) {
                         Ok(conf) => conf,
-                        Err(e) => return self.error_response(id, -32602, &format!("Invalid 'config' argument: {}", e)),
+                        Err(e) => {
+                            return self.error_response(
+                                id,
+                                -32602,
+                                &format!("Invalid 'config' argument: {}", e),
+                            )
+                        }
                     },
                     None => return self.error_response(id, -32602, "Missing 'config' argument"),
                 };
 
-                match self.gatus_client.update_endpoint(status_page_id, endpoint_id, config).await {
+                match self
+                    .gatus_client
+                    .update_endpoint(status_page_id, endpoint_id, config)
+                    .await
+                {
                     Ok(_) => self.success_response(
                         id,
                         json!({
@@ -546,16 +576,25 @@ impl McpHandler {
                 }
             }
             "delete-endpoint" => {
-                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str()) {
+                let status_page_id = match arguments.get("status_page_id").and_then(|s| s.as_str())
+                {
                     Some(s) => s,
-                    None => return self.error_response(id, -32602, "Missing 'status_page_id' argument"),
+                    None => {
+                        return self.error_response(id, -32602, "Missing 'status_page_id' argument")
+                    }
                 };
                 let endpoint_id = match arguments.get("endpoint_id").and_then(|e| e.as_str()) {
                     Some(e) => e,
-                    None => return self.error_response(id, -32602, "Missing 'endpoint_id' argument"),
+                    None => {
+                        return self.error_response(id, -32602, "Missing 'endpoint_id' argument")
+                    }
                 };
 
-                match self.gatus_client.delete_endpoint(status_page_id, endpoint_id).await {
+                match self
+                    .gatus_client
+                    .delete_endpoint(status_page_id, endpoint_id)
+                    .await
+                {
                     Ok(_) => self.success_response(
                         id,
                         json!({
@@ -570,7 +609,11 @@ impl McpHandler {
                     Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
                 }
             }
-            _ => self.error_response(id, -32602, &format!("Unknown action '{}' for manage_endpoints", action)),
+            _ => self.error_response(
+                id,
+                -32602,
+                &format!("Unknown action '{}' for manage_endpoints", action),
+            ),
         }
     }
 

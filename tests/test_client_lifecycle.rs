@@ -40,6 +40,7 @@ async fn test_gatus_client_create_endpoint() {
         method: None,
         body: None,
         headers: None,
+        alerts: vec![],
     };
 
     Mock::given(method("POST"))
@@ -66,17 +67,18 @@ async fn test_gatus_client_update_endpoint() {
         method: None,
         body: None,
         headers: None,
+        alerts: vec![],
     };
 
     Mock::given(method("PUT"))
-        .and(path("/api/v1/external/status-pages/page-1/endpoints/endpoint-1"))
+        .and(path(
+            "/api/v1/external/status-pages/page-1/endpoints/endpoint-1",
+        ))
         .respond_with(ResponseTemplate::new(200))
         .mount(&mock_server)
         .await;
 
-    let result = client
-        .update_endpoint("page-1", "endpoint-1", config)
-        .await;
+    let result = client.update_endpoint("page-1", "endpoint-1", config).await;
     assert!(result.is_ok());
 }
 
@@ -86,7 +88,9 @@ async fn test_gatus_client_delete_endpoint() {
     let client = GatusClient::new(mock_server.uri(), None, None, None);
 
     Mock::given(method("DELETE"))
-        .and(path("/api/v1/external/status-pages/page-1/endpoints/endpoint-1"))
+        .and(path(
+            "/api/v1/external/status-pages/page-1/endpoints/endpoint-1",
+        ))
         .respond_with(ResponseTemplate::new(200))
         .mount(&mock_server)
         .await;

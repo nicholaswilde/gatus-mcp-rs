@@ -3,7 +3,7 @@
 # Gatus MCP Server (Rust) :robot:
 
 > [!IMPORTANT]
-> This project is currently in active development (v0.1.2) and is **not production-ready**. Features may change, and breaking changes may occur without notice.
+> This project is currently in active development (v0.1.3) and is **not production-ready**. Features may change, and breaking changes may occur without notice.
 
 A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automated health check dashboard. This server enables Large Language Models (LLMs) to interact with Gatus APIs to monitor service health, retrieve check history, and diagnose issues.
 
@@ -13,14 +13,16 @@ A Model Context Protocol (MCP) server for [Gatus](https://gatus.io), the automat
 ## :sparkles: Features
 
 - **Model Context Protocol (MCP):** Native support for MCP, allowing easy integration with AI tools like Claude Desktop.
-- **Service Monitoring:** List all monitored services and their current statuses (UP/DOWN/DEGRADED).
+- **Service Monitoring:** List all monitored services, groups, and endpoints with their current statuses (UP/DOWN/DEGRADED).
 - **System Health Summary:** High-level overview of total, up, down, and degraded endpoint counts.
-- **Detailed Diagnostics:** Fetch latest results (now including detailed condition status ✅/❌), history (optimized with targeted API calls), raw non-truncated results, and granular performance metrics for specific health checks.
-- **Alert & State Transitions:** Retrieve chronological alert history to identify incident root causes.
+- **Detailed Diagnostics:** Fetch latest results (including detailed condition status ✅/❌), history (optimized with targeted API calls), raw non-truncated results, and granular performance metrics for specific health checks.
+- **Alert & State Transitions:** Retrieve chronological alert history and configured alerting rules to identify incident root causes.
+- **Notification Verification:** Trigger test alert notifications for specific endpoints to verify provider integrations.
 - **Status & Performance Visualization:** Surface health/uptime badges and latency charts (SVG) directly via MCP.
 - **External Result Pushing:** Push health check results for external/asynchronous endpoints directly to Gatus.
 - **Uptime Calculation:** Calculate success vs. failure ratios over 24h, 7d, and 30d timeframes.
 - **Configuration Retrieval:** Retrieve the effective Gatus monitoring configuration (conditions, names, groups).
+- **Endpoint Lifecycle Management:** Create, update, and delete endpoints and status pages directly via MCP.
 - **Multiple Transports:** Support for both Stdio and HTTP (SSE) transport layers.
 - **Optimized for LLMs:** Returns "thinned" payloads to conserve token usage while providing high-signal information.
 - **Flexible Configuration:** Configure via environment variables, `config.toml`, or CLI flags.
