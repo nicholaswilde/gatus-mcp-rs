@@ -1,9 +1,9 @@
 use crate::client::{GatusClient, HealthResult};
 use crate::fmt::{
-    format_alert_correlation, format_alert_rules, format_config_summary, format_endpoint_status,
-    format_endpoints_summary, format_expiring_certificates, format_failure_summary,
-    format_flapping_services, format_group_stats, format_performance_comparison,
-    format_status_pages, format_system_stats,
+    format_alert_correlation, format_alert_rules, format_config_summary, format_diagnostic_bundle,
+    format_endpoint_status, format_endpoints_summary, format_expiring_certificates,
+    format_failure_summary, format_flapping_services, format_group_stats,
+    format_performance_comparison, format_status_pages, format_system_stats,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -201,7 +201,7 @@ impl McpHandler {
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["system-stats", "service-details", "service-history", "get-raw-results", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history", "get-badge", "get-latency-badge", "get-latency-chart", "failure-summary", "performance-comparison", "group-stats", "alert-correlation", "flapping-services"],
+                            "enum": ["system-stats", "service-details", "service-history", "get-raw-results", "group-summary", "uptime", "uptime-granular", "response-time", "alert-history", "get-badge", "get-latency-badge", "get-latency-chart", "failure-summary", "performance-comparison", "group-stats", "alert-correlation", "flapping-services", "diagnostic-bundle"],
                             "description": "Action to perform."
                         },
                         "id": {
@@ -1178,6 +1178,36 @@ impl McpHandler {
                 }
                 Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
             },
+            "diagnostic-bundle" => {
+                let id_arg = match arguments.get("id").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => {
+                        return self.error_response(
+                            id,
+                            -32602,
+                            "Missing 'id' argument for diagnostic-bundle",
+                        )
+                    }
+                };
+                let key = self.gatus_client.sanitize_key(id_arg);
+                match self.gatus_client.get_diagnostic_bundle(&key).await {
+                    Ok(bundle) => {
+                        let text = format_diagnostic_bundle(&bundle);
+                        self.success_response(
+                            id,
+                            json!({
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": text
+                                    }
+                                ]
+                            }),
+                        )
+                    }
+                    Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+                }
+            }
             _ => self.error_response(
                 id,
                 -32602,
