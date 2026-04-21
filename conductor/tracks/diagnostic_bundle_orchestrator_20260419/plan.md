@@ -4,7 +4,7 @@
 - [x] Implement `get_diagnostic_bundle` method. 6da9295
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
-- [ ] Implement required formatting for new tool outputs.
+- [x] Implement required formatting for new tool outputs. c4651e3
 
 ## Phase 3: MCP Handler Integration (`src/mcp.rs`)
 - [ ] Update `get_tool_definitions` to include new tools and parameters.
