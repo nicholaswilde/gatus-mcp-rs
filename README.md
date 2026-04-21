@@ -118,8 +118,8 @@ Options:
 ### `manage_resources`
 Discover and manage Gatus resources and instance state.
 - **Arguments:**
-  - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, `get-health`, `list-expiring-certificates`, or `get-alert-rules`.
-  - `id`: (Optional) Identifier (e.g., group name for `list-endpoints`).
+  - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, `get-health`, `list-expiring-certificates`, `get-alert-rules`, or `get-page-health`.
+  - `id`: (Optional) Identifier (e.g., group name for `list-endpoints`, or status page ID for `get-page-health`).
   - `status`: (Optional) Status filter for `list-services` (e.g., `DOWN`, `DEGRADED`).
 
 ### `get_metrics`

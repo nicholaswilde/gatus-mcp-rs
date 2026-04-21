@@ -12,6 +12,7 @@ fn test_format_page_health() {
     };
 
     let formatted = format_page_health(&health);
+    println!("{}", formatted);
     assert!(formatted.contains("Status Page Health: Main Page (page-1)"));
     assert!(formatted.contains("**UP:** 10"));
     assert!(formatted.contains("**DOWN:** 2"));
