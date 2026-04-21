@@ -202,6 +202,32 @@ pub struct StatusPage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AlertConfig {
+    #[serde(rename = "type")]
+    pub alert_type: String,
+    pub enabled: bool,
+    #[serde(rename = "failure-threshold")]
+    pub failure_threshold: u32,
+    #[serde(rename = "success-threshold")]
+    pub success_threshold: u32,
+    pub description: Option<String>,
+    #[serde(rename = "send-on-resolved", default)]
+    pub send_on_resolved: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AlertRule {
+    pub endpoint: String,
+    pub group: String,
+    #[serde(rename = "type")]
+    pub alert_type: String,
+    pub enabled: bool,
+    pub failure_threshold: u32,
+    pub success_threshold: u32,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct EndpointConfig {
     pub name: String,
     pub group: Option<String>,
@@ -214,6 +240,8 @@ pub struct EndpointConfig {
     pub body: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub headers: Option<std::collections::HashMap<String, String>>,
+    #[serde(default)]
+    pub alerts: Vec<AlertConfig>,
 }
 
 #[derive(Clone)]
@@ -955,6 +983,66 @@ impl GatusClient {
             Some(s) => Ok(s.results.into_iter().take(limit).collect()),
             None => anyhow::bail!("Endpoint '{}' not found", key),
         }
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_alert_rules(&self) -> Result<Vec<AlertRule>> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/api/v1/config", self.api_url);
+        let mut request = self.client.get(url);
+        request = self.add_auth_header(request);
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        #[derive(Deserialize)]
+        struct Config {
+            endpoints: Vec<EndpointConfig>,
+        }
+
+        let config: Config = serde_json::from_str(&text)?;
+        let mut alert_rules = Vec::new();
+
+        for endpoint in config.endpoints {
+            for alert in endpoint.alerts {
+                alert_rules.push(AlertRule {
+                    endpoint: endpoint.name.clone(),
+                    group: endpoint.group.clone().unwrap_or_else(|| "".to_string()),
+                    alert_type: alert.alert_type,
+                    enabled: alert.enabled,
+                    failure_threshold: alert.failure_threshold,
+                    success_threshold: alert.success_threshold,
+                    description: alert.description,
+                });
+            }
+        }
+
+        Ok(alert_rules)
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn test_alert_notification(&self, key: &str) -> Result<()> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/api/v1/endpoints/{}/test-alert", self.api_url, key);
+        let mut request = self.client.post(url);
+        request = self.add_auth_header(request);
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        Ok(())
     }
 
     #[tracing::instrument(skip(self))]
