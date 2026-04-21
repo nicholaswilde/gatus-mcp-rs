@@ -687,6 +687,9 @@ impl McpHandler {
             body: None,
             headers: None,
             certificate_expiration: None,
+            certificate_issuer: None,
+            certificate_algorithm: None,
+            certificate_sans: None,
         };
 
         match self.gatus_client.push_endpoint_result(key, result).await {

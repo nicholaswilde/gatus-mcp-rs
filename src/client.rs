@@ -121,6 +121,12 @@ pub struct HealthResult {
     pub body: Option<String>,
     pub headers: Option<std::collections::HashMap<String, String>>,
     pub certificate_expiration: Option<u64>,
+    #[serde(rename = "certificateIssuer")]
+    pub certificate_issuer: Option<String>,
+    #[serde(rename = "certificateAlgorithm")]
+    pub certificate_algorithm: Option<String>,
+    #[serde(rename = "certificateSans")]
+    pub certificate_sans: Option<Vec<String>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -144,6 +150,16 @@ pub struct ExpiringCertificate {
     pub group: String,
     pub expiration: u64,
     pub days_remaining: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CertificateAudit {
+    pub name: String,
+    pub group: String,
+    pub issuer: Option<String>,
+    pub algorithm: Option<String>,
+    pub sans: Vec<String>,
+    pub expiration: Option<u64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -1110,6 +1126,29 @@ impl GatusClient {
             results: service.results,
             failure_summary,
             alert_events,
+        })
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_certificate_audit(&self, key: &str) -> Result<CertificateAudit> {
+        let statuses = self.get_endpoint_statuses(key).await?;
+        let service = statuses
+            .into_iter()
+            .next()
+            .ok_or_else(|| anyhow::anyhow!("Service not found: {}", key))?;
+
+        let result = service
+            .results
+            .first()
+            .ok_or_else(|| anyhow::anyhow!("No results found for service: {}", key))?;
+
+        Ok(CertificateAudit {
+            name: service.name,
+            group: service.group,
+            issuer: result.certificate_issuer.clone(),
+            algorithm: result.certificate_algorithm.clone(),
+            sans: result.certificate_sans.clone().unwrap_or_default(),
+            expiration: result.certificate_expiration,
         })
     }
 
