@@ -1,8 +1,8 @@
-# Implementation Plan: Multi-Status Page Support
+# Implementation Plan: Multi-Suite Support
 
 ## Phase 1: Client Expansion (`src/client.rs`) [checkpoint: f16f905]
-- [x] Implement `list_status_pages` method. 502c849
-- [x] Implement `get_page_health` method. 502c849
+- [x] Implement `list_suites` method. 502c849
+- [x] Implement `get_suite_health` method. 502c849
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`) [checkpoint: 8caf3d1]
 - [x] Implement required formatting for new tool outputs. efa8e78
