@@ -125,6 +125,7 @@ The Gatus MCP Server aims to bridge the gap between Large Language Models (LLMs)
 - **Enhanced Diagnostics & SSL Tracking:** Provides deep-dive troubleshooting data including response body snippets on failure and proactive SSL certificate expiration tracking.
 - **Comprehensive Metrics Retrieval:** A single tool (`get_metrics`) for retrieving system stats, service details, history (optimized with targeted API calls), raw result data (non-truncated), uptime, response times, and alert history.
 - **Advanced Diagnostic Capabilities:** Includes high-signal failure analysis, latency regression detection, group health aggregation, and notification event correlation.
+- **One-Turn Root Cause Analysis:** Aggregates failure summaries, recent results, and alert events into a single "Diagnostic Bundle" via the `get_metrics` tool, enabling LLMs to diagnose complex issues in a single interaction.
 - **High-Signal Payloads:** Implements "thinning" of tool responses to ensure only high-signal data is returned, minimizing token consumption.
 - **Thread-Safe Session Management:** Uses DashMap for efficient, concurrent handling of multiple MCP clients.
 - **Environment-Driven Configuration:** Flexible setup via `config.toml`, environment variables, and CLI flags.
