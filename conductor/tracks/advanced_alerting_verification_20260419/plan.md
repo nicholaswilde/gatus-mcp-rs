@@ -4,8 +4,8 @@
 - [x] Implement `get_alert_rules` method. f4c0499
 - [x] Implement `test_alert_notification` method. f4c0499
 
-## Phase 2: Formatting Enhancements (`src/fmt.rs`)
-- [ ] Implement required formatting for new tool outputs.
+## Phase 2: Formatting Enhancements (`src/fmt.rs`) [checkpoint: f7427b6]
+- [x] Implement required formatting for new tool outputs. faaaf6f
 
 ## Phase 3: MCP Handler Integration (`src/mcp.rs`)
 - [ ] Update `get_tool_definitions` to include new tools and parameters.
