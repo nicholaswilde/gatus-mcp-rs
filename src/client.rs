@@ -218,6 +218,15 @@ pub struct StatusPage {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PageHealth {
+    pub id: String,
+    pub name: String,
+    pub up: usize,
+    pub down: usize,
+    pub degraded: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AlertConfig {
     #[serde(rename = "type")]
     pub alert_type: String,
@@ -358,6 +367,58 @@ impl GatusClient {
 
         let pages: Vec<StatusPage> = serde_json::from_str(&text)?;
         Ok(pages)
+    }
+
+    #[tracing::instrument(skip(self))]
+    pub async fn get_page_health(&self, id: &str) -> Result<PageHealth> {
+        self.rate_limiter.until_ready().await;
+
+        let url = format!("{}/api/v1/external/status-pages/{}", self.api_url, id);
+        let mut request = self.client.get(url);
+        request = self.add_auth_header(request);
+
+        let response = request.send().await?;
+        let status = response.status();
+        let text = response.text().await?;
+
+        if !status.is_success() {
+            anyhow::bail!("Gatus API error: status {}, body: {}", status, text);
+        }
+
+        #[derive(Deserialize)]
+        struct StatusPageResponse {
+            id: String,
+            name: String,
+            endpoints: Vec<StatusPageEndpoint>,
+        }
+
+        #[derive(Deserialize)]
+        struct StatusPageEndpoint {
+            status: String,
+        }
+
+        let page_resp: StatusPageResponse = serde_json::from_str(&text)?;
+
+        let mut up = 0;
+        let mut down = 0;
+        let mut degraded = 0;
+
+        for ep in page_resp.endpoints {
+            match ep.status.to_uppercase().as_str() {
+                "UP" => up += 1,
+                "DOWN" => down += 1,
+                "DEGRADED" => degraded += 1,
+                _ => {}
+            }
+        }
+
+        Ok(PageHealth {
+            id: page_resp.id,
+            name: page_resp.name,
+            up,
+            down,
+            degraded,
+        })
     }
 
     #[tracing::instrument(skip(self, config))]
