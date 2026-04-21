@@ -115,7 +115,7 @@ Options:
 ### `manage_resources`
 Discover and manage Gatus resources and instance state.
 - **Arguments:**
-  - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, `get-health`, or `list-expiring-certificates`.
+  - `action`: `list-services`, `list-groups`, `list-endpoints`, `get-config`, `get-health`, `list-expiring-certificates`, or `get-alert-rules`.
   - `id`: (Optional) Identifier (e.g., group name for `list-endpoints`).
   - `status`: (Optional) Status filter for `list-services` (e.g., `DOWN`, `DEGRADED`).
 
@@ -131,6 +131,11 @@ Retrieve status, metrics, and history for services and endpoints.
 Force an immediate health check for a specific endpoint.
 - **Arguments:**
   - `id`: The service name or endpoint key to check.
+
+### `test_alert`
+Trigger a test alert notification for an endpoint.
+- **Arguments:**
+  - `id`: The service name or endpoint key to test.
 
 ### `reload_config`
 Trigger a Gatus configuration reload.

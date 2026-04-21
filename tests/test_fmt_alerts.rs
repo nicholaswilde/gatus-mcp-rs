@@ -25,6 +25,7 @@ fn test_format_alert_rules() {
     ];
 
     let formatted = format_alert_rules(&rules);
+    println!("{}", formatted);
     assert!(formatted.contains("service-1"));
     assert!(formatted.contains("slack"));
     assert!(formatted.contains("✅")); // Enabled icon
