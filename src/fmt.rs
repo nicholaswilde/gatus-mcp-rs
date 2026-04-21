@@ -1,8 +1,33 @@
 use crate::client::{
     AlertRule, CertificateAudit, CorrelatedEvent, DiagnosticBundle, EndpointStatus,
-    ExpiringCertificate, FailureSummary, FlappingService, GroupStats, PerformanceComparison,
-    StatusPage, SystemStats,
+    ExpiringCertificate, FailureSummary, FlappingService, GroupStats, PageHealth,
+    PerformanceComparison, StatusPage, SystemStats,
 };
+
+pub fn format_page_health(health: &PageHealth) -> String {
+    let mut output = format!(
+        "### Status Page Health: {} ({})\n\n",
+        health.name, health.id
+    );
+
+    let total = health.up + health.down + health.degraded;
+    output.push_str(&format!("- **Total Endpoints:** {}\n", total));
+    output.push_str(&format!("- **UP:** {}\n", health.up));
+    output.push_str(&format!("- **DOWN:** {}\n", health.down));
+    output.push_str(&format!("- **DEGRADED:** {}\n", health.degraded));
+
+    if total > 0 {
+        let health_percentage = (health.up as f64 / total as f64) * 100.0;
+        output.push_str(&format!(
+            "- **Health Percentage:** {:.2}%\n",
+            health_percentage
+        ));
+    } else {
+        output.push_str("- **Health Percentage:** 100.00%\n");
+    }
+
+    output
+}
 
 pub fn format_certificate_audit(audit: &CertificateAudit) -> String {
     let mut output = format!(
