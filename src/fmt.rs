@@ -1,7 +1,64 @@
 use crate::client::{
-    AlertRule, CorrelatedEvent, EndpointStatus, ExpiringCertificate, FailureSummary,
-    FlappingService, GroupStats, PerformanceComparison, StatusPage, SystemStats,
+    AlertRule, CorrelatedEvent, DiagnosticBundle, EndpointStatus, ExpiringCertificate,
+    FailureSummary, FlappingService, GroupStats, PerformanceComparison, StatusPage, SystemStats,
 };
+
+pub fn format_diagnostic_bundle(bundle: &DiagnosticBundle) -> String {
+    let mut output = format!(
+        "### Diagnostic Bundle: {} ({})\n\n",
+        bundle.name, bundle.group
+    );
+
+    // 1. Failure Summary
+    if !bundle.failure_summary.failed_conditions.is_empty() {
+        output.push_str("#### ❌ Failed Conditions\n");
+        for condition in &bundle.failure_summary.failed_conditions {
+            output.push_str(&format!("- {}\n", condition));
+        }
+        output.push('\n');
+    }
+
+    if !bundle.failure_summary.passed_conditions.is_empty() {
+        output.push_str("#### ✅ Passed Conditions\n");
+        for condition in &bundle.failure_summary.passed_conditions {
+            output.push_str(&format!("- {}\n", condition));
+        }
+        output.push('\n');
+    }
+
+    // 2. Recent Results (Latest 5)
+    output.push_str("#### 📊 Recent Results\n\n");
+    output.push_str("| Timestamp | Success | Duration | Errors |\n");
+    output.push_str("| :--- | :--- | :--- | :--- |\n");
+    for result in bundle.results.iter().take(5) {
+        let success = if result.success { "✅" } else { "❌" };
+        let errors = if result.errors.is_empty() {
+            "-"
+        } else {
+            &result.errors[0]
+        };
+        output.push_str(&format!(
+            "| {} | {} | {}ms | {} |\n",
+            result.timestamp,
+            success,
+            result.duration / 1_000_000,
+            errors
+        ));
+    }
+    output.push('\n');
+
+    // 3. Alert Events (Latest 5)
+    if !bundle.alert_events.is_empty() {
+        output.push_str("#### 🔔 Recent Alert Events\n\n");
+        output.push_str("| Timestamp | Type |\n");
+        output.push_str("| :--- | :--- |\n");
+        for event in bundle.alert_events.iter().take(5) {
+            output.push_str(&format!("| {} | {} |\n", event.timestamp, event.event_type));
+        }
+    }
+
+    output
+}
 
 pub fn format_alert_rules(rules: &[AlertRule]) -> String {
     let mut output = String::from("### Gatus Alerting Rules\n\n");
