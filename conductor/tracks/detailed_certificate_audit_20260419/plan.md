@@ -1,6 +1,6 @@
 # Implementation Plan: Detailed Certificate Audit
 
-## Phase 1: Client Expansion (`src/client.rs`)
+## Phase 1: Client Expansion (`src/client.rs`) [checkpoint: ba592d6]
 - [x] Implement `get_certificate_audit` method. 5f7d577
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
