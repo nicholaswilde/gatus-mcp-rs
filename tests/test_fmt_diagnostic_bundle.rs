@@ -18,6 +18,9 @@ fn test_format_diagnostic_bundle() {
             body: None,
             headers: None,
             certificate_expiration: None,
+            certificate_issuer: None,
+            certificate_algorithm: None,
+            certificate_sans: None,
         }],
         failure_summary: FailureSummary {
             name: "service-1".to_string(),

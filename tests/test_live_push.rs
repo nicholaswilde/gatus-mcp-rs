@@ -47,6 +47,9 @@ async fn test_live_push_endpoint_result() {
         body: Some("Pushed from MCP live test".to_string()),
         headers: None,
         certificate_expiration: None,
+        certificate_issuer: None,
+        certificate_algorithm: None,
+        certificate_sans: None,
     };
 
     let push_result = client.push_endpoint_result(&key, result).await;

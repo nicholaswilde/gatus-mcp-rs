@@ -33,9 +33,15 @@ async fn test_gatus_client_get_certificate_audit() {
         .mount(&mock_server)
         .await;
 
-    let audit = client.get_certificate_audit("core_service-1").await.unwrap();
+    let audit = client
+        .get_certificate_audit("core_service-1")
+        .await
+        .unwrap();
     assert_eq!(audit.name, "service-1");
     assert_eq!(audit.issuer, Some("Let's Encrypt".to_string()));
     assert_eq!(audit.algorithm, Some("RSA-2048".to_string()));
-    assert_eq!(audit.sans, vec!["example.com".to_string(), "www.example.com".to_string()]);
+    assert_eq!(
+        audit.sans,
+        vec!["example.com".to_string(), "www.example.com".to_string()]
+    );
 }

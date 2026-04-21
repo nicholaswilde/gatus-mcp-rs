@@ -116,6 +116,9 @@ fn test_format_endpoint_status_with_diagnostics() {
                 h
             }),
             certificate_expiration: Some(7776000000000000u64), // 90 days
+            certificate_issuer: None,
+            certificate_algorithm: None,
+            certificate_sans: None,
         }],
         events: vec![],
     };

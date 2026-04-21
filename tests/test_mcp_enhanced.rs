@@ -32,6 +32,9 @@ fn test_format_endpoint_status_with_diagnostics() {
         body: Some("{\"error\": \"internal server error\"}".to_string()),
         headers: Some(headers),
         certificate_expiration: Some(7776000000000000u64),
+        certificate_issuer: None,
+        certificate_algorithm: None,
+        certificate_sans: None,
     };
 
     let endpoint = EndpointStatus {

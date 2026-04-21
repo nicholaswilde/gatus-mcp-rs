@@ -19,6 +19,9 @@ async fn test_gatus_client_push_endpoint_result() {
         body: Some("OK".to_string()),
         headers: None,
         certificate_expiration: None,
+        certificate_issuer: None,
+        certificate_algorithm: None,
+        certificate_sans: None,
     };
 
     Mock::given(method("POST"))
@@ -51,6 +54,9 @@ async fn test_gatus_client_push_endpoint_result_error() {
         body: None,
         headers: None,
         certificate_expiration: None,
+        certificate_issuer: None,
+        certificate_algorithm: None,
+        certificate_sans: None,
     };
 
     Mock::given(method("POST"))
