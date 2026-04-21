@@ -124,7 +124,7 @@ Discover and manage Gatus resources and instance state.
 ### `get_metrics`
 Retrieve status, metrics, and history for services and endpoints.
 - **Arguments:**
-  - `action`: `system-stats`, `service-details`, `service-history` (optimized), `get-raw-results` (non-truncated), `group-summary`, `uptime`, `uptime-granular`, `response-time`, `alert-history`, `get-badge`, `get-latency-badge`, `get-latency-chart`, `failure-summary`, `performance-comparison`, `group-stats`, `alert-correlation`, or `flapping-services`.
+  - `action`: `system-stats`, `service-details`, `service-history` (optimized), `get-raw-results` (non-truncated), `group-summary`, `uptime`, `uptime-granular`, `response-time`, `alert-history`, `get-badge`, `get-latency-badge`, `get-latency-chart`, `failure-summary`, `performance-comparison`, `group-stats`, `alert-correlation`, `flapping-services`, or `diagnostic-bundle`.
   - `id`: (Optional) Identifier (e.g., service name for `service-details`, group name for `group-summary`, or endpoint key for `service-history`, `uptime-granular`, `response-time`, badge/chart actions, `failure-summary`, `performance-comparison`, `group-stats`, and `alert-correlation`).
   - `limit`: (Optional) Maximum number of results for history actions (default: 10 for `service-history` and `get-raw-results`, 5 for `alert-history`).
   - `timeframe`: (Optional) `1h`, `24h`, `7d`, or `30d` (default: `24h`) for `uptime`, `uptime-granular`, `response-time`, and badge/chart actions.

@@ -34,6 +34,7 @@ fn test_format_diagnostic_bundle() {
     };
 
     let formatted = format_diagnostic_bundle(&bundle);
+    println!("{}", formatted);
     assert!(formatted.contains("Diagnostic Bundle: service-1 (core)"));
     assert!(formatted.contains("connection refused"));
     assert!(formatted.contains("[STATUS] == 200"));
