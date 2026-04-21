@@ -1,7 +1,7 @@
 # Implementation Plan: Detailed Certificate Audit
 
 ## Phase 1: Client Expansion (`src/client.rs`)
-- [ ] Implement `get_certificate_audit` method.
+- [x] Implement `get_certificate_audit` method. 5f7d577
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
 - [ ] Implement required formatting for new tool outputs.
