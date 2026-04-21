@@ -12,6 +12,6 @@
 - [x] Update MCP handlers to route requests to new client methods. 8fcaba6
 
 ## Phase 4: Verification
-- [ ] Add integration tests in `tests/` for each new tool.
-- [ ] Verify token efficiency of new payloads.
-- [ ] Update documentation.
+- [x] Add integration tests in `tests/` for each new tool. 4cbd1aa
+- [x] Verify token efficiency of new payloads. 4cbd1aa
+- [x] Update documentation. 4cbd1aa
