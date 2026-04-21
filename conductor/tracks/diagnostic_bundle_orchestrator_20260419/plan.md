@@ -3,7 +3,7 @@
 ## Phase 1: Client Expansion (`src/client.rs`) [checkpoint: 18c11c6]
 - [x] Implement `get_diagnostic_bundle` method. 6da9295
 
-## Phase 2: Formatting Enhancements (`src/fmt.rs`)
+## Phase 2: Formatting Enhancements (`src/fmt.rs`) [checkpoint: 33f8435]
 - [x] Implement required formatting for new tool outputs. c4651e3
 
 ## Phase 3: MCP Handler Integration (`src/mcp.rs`)
