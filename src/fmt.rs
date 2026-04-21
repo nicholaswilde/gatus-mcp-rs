@@ -1,7 +1,24 @@
 use crate::client::{
-    CorrelatedEvent, EndpointStatus, ExpiringCertificate, FailureSummary, FlappingService,
-    GroupStats, PerformanceComparison, StatusPage, SystemStats,
+    AlertRule, CorrelatedEvent, EndpointStatus, ExpiringCertificate, FailureSummary,
+    FlappingService, GroupStats, PerformanceComparison, StatusPage, SystemStats,
 };
+
+pub fn format_alert_rules(rules: &[AlertRule]) -> String {
+    let mut output = String::from("### Gatus Alerting Rules\n\n");
+    output.push_str("| Endpoint | Group | Type | Status | Thresholds (F/S) | Description |\n");
+    output.push_str("| :--- | :--- | :--- | :--- | :--- | :--- |\n");
+
+    for rule in rules {
+        let status = if rule.enabled { "✅" } else { "❌" };
+        let thresholds = format!("{} / {}", rule.failure_threshold, rule.success_threshold);
+        let description = rule.description.as_deref().unwrap_or("-");
+        output.push_str(&format!(
+            "| {} | {} | {} | {} | {} | {} |\n",
+            rule.endpoint, rule.group, rule.alert_type, status, thresholds, description
+        ));
+    }
+    output
+}
 
 pub fn format_status_pages(pages: &[StatusPage]) -> String {
     let mut output = String::from("### Gatus Status Pages\n\n");
