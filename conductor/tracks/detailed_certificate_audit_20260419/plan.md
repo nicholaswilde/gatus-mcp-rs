@@ -4,7 +4,7 @@
 - [x] Implement `get_certificate_audit` method. 5f7d577
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
-- [ ] Implement required formatting for new tool outputs.
+- [x] Implement required formatting for new tool outputs. 1b1cb06
 
 ## Phase 3: MCP Handler Integration (`src/mcp.rs`)
 - [ ] Update `get_tool_definitions` to include new tools and parameters.
