@@ -1,7 +1,7 @@
 # Implementation Plan: Diagnostic Bundle Orchestrator
 
 ## Phase 1: Client Expansion (`src/client.rs`)
-- [ ] Implement `get_diagnostic_bundle` method.
+- [x] Implement `get_diagnostic_bundle` method. 6da9295
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
 - [ ] Implement required formatting for new tool outputs.
