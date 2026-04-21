@@ -1,8 +1,8 @@
 # Implementation Plan: Multi-Status Page Support
 
 ## Phase 1: Client Expansion (`src/client.rs`)
-- [ ] Implement `list_status_pages` method.
-- [ ] Implement `get_page_health` method.
+- [x] Implement `list_status_pages` method. 502c849
+- [x] Implement `get_page_health` method. 502c849
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
 - [ ] Implement required formatting for new tool outputs.
