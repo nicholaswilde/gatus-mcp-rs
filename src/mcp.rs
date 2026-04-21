@@ -1,6 +1,6 @@
 use crate::client::{GatusClient, HealthResult};
 use crate::fmt::{
-    format_alert_correlation, format_config_summary, format_endpoint_status,
+    format_alert_correlation, format_alert_rules, format_config_summary, format_endpoint_status,
     format_endpoints_summary, format_expiring_certificates, format_failure_summary,
     format_flapping_services, format_group_stats, format_performance_comparison,
     format_status_pages, format_system_stats,
@@ -178,7 +178,7 @@ impl McpHandler {
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["list-services", "list-groups", "list-endpoints", "get-config", "get-health", "list-expiring-certificates"],
+                            "enum": ["list-services", "list-groups", "list-endpoints", "get-config", "get-health", "list-expiring-certificates", "get-alert-rules"],
                             "description": "Action to perform."
                         },
                         "id": {
@@ -242,6 +242,20 @@ impl McpHandler {
                     "type": "object",
                     "properties": {},
                     "required": []
+                }
+            }),
+            json!({
+                "name": "test_alert",
+                "description": "Trigger a test alert notification for an endpoint.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "The service name or endpoint key to test."
+                        }
+                    },
+                    "required": ["id"]
                 }
             }),
             json!({
@@ -416,9 +430,34 @@ impl McpHandler {
             "get_metrics" => self.handle_get_metrics_tool(id, arguments).await,
             "trigger_check" => self.handle_trigger_check_tool(id, arguments).await,
             "reload_config" => self.handle_reload_config_tool(id, arguments).await,
+            "test_alert" => self.handle_test_alert_tool(id, arguments).await,
             "push_result" => self.handle_push_result_tool(id, arguments).await,
             "manage_endpoints" => self.handle_manage_endpoints_tool(id, arguments).await,
             _ => self.error_response(id, -32601, "Tool not found"),
+        }
+    }
+
+    async fn handle_test_alert_tool(&self, id: Value, arguments: &Value) -> Value {
+        let id_arg = match arguments.get("id").and_then(|i| i.as_str()) {
+            Some(i) => i,
+            None => return self.error_response(id, -32602, "Missing 'id' argument"),
+        };
+
+        let key = self.gatus_client.sanitize_key(id_arg);
+
+        match self.gatus_client.test_alert_notification(&key).await {
+            Ok(_) => self.success_response(
+                id,
+                json!({
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": format!("Successfully triggered test alert for '{}'", key)
+                        }
+                    ]
+                }),
+            ),
+            Err(e) => self.error_response(id, -32000, &format!("Error triggering test alert: {}", e)),
         }
     }
 
@@ -720,6 +759,23 @@ impl McpHandler {
             }
             "get-config" => self.handle_get_config_tool(id, arguments).await,
             "get-health" => self.handle_get_instance_health_tool(id, arguments).await,
+            "get-alert-rules" => match self.gatus_client.get_alert_rules().await {
+                Ok(rules) => {
+                    let text = format_alert_rules(&rules);
+                    self.success_response(
+                        id,
+                        json!({
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": text
+                                }
+                            ]
+                        }),
+                    )
+                }
+                Err(e) => self.error_response(id, -32000, &format!("Gatus API error: {}", e)),
+            },
             _ => self.error_response(
                 id,
                 -32602,
