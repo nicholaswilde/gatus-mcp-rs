@@ -5,7 +5,7 @@
 - [x] Implement `get_page_health` method. 502c849
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
-- [ ] Implement required formatting for new tool outputs.
+- [x] Implement required formatting for new tool outputs. efa8e78
 
 ## Phase 3: MCP Handler Integration (`src/mcp.rs`)
 - [ ] Update `get_tool_definitions` to include new tools and parameters.
