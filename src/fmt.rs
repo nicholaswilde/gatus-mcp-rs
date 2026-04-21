@@ -1,7 +1,42 @@
 use crate::client::{
-    AlertRule, CorrelatedEvent, DiagnosticBundle, EndpointStatus, ExpiringCertificate,
-    FailureSummary, FlappingService, GroupStats, PerformanceComparison, StatusPage, SystemStats,
+    AlertRule, CertificateAudit, CorrelatedEvent, DiagnosticBundle, EndpointStatus,
+    ExpiringCertificate, FailureSummary, FlappingService, GroupStats, PerformanceComparison,
+    StatusPage, SystemStats,
 };
+
+pub fn format_certificate_audit(audit: &CertificateAudit) -> String {
+    let mut output = format!(
+        "### Certificate Audit: {} ({})\n\n",
+        audit.name, audit.group
+    );
+
+    output.push_str(&format!(
+        "- **Issuer:** {}\n",
+        audit.issuer.as_deref().unwrap_or("-")
+    ));
+    output.push_str(&format!(
+        "- **Algorithm:** {}\n",
+        audit.algorithm.as_deref().unwrap_or("-")
+    ));
+
+    if let Some(exp) = audit.expiration {
+        let days = exp / (24 * 60 * 60 * 1_000_000_000);
+        output.push_str(&format!("- **Expiration:** {} days remaining\n", days));
+    } else {
+        output.push_str("- **Expiration:** -\n");
+    }
+
+    if !audit.sans.is_empty() {
+        output.push_str("- **Subject Alternative Names (SANs):**\n");
+        for san in &audit.sans {
+            output.push_str(&format!("  - {}\n", san));
+        }
+    } else {
+        output.push_str("- **Subject Alternative Names (SANs):** -\n");
+    }
+
+    output
+}
 
 pub fn format_diagnostic_bundle(bundle: &DiagnosticBundle) -> String {
     let mut output = format!(
