@@ -13,6 +13,7 @@ fn test_format_certificate_audit() {
     };
 
     let formatted = format_certificate_audit(&audit);
+    println!("{}", formatted);
     assert!(formatted.contains("Certificate Audit: service-1 (core)"));
     assert!(formatted.contains("Let's Encrypt"));
     assert!(formatted.contains("RSA-2048"));
