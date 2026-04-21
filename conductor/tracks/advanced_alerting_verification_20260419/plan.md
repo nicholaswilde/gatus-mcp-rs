@@ -1,8 +1,8 @@
 # Implementation Plan: Advanced Alerting & Verification
 
-## Phase 1: Client Expansion (`src/client.rs`)
-- [ ] Implement `get_alert_rules` method.
-- [ ] Implement `test_alert_notification` method.
+## Phase 1: Client Expansion (`src/client.rs`) [checkpoint: 065c1de]
+- [x] Implement `get_alert_rules` method. f4c0499
+- [x] Implement `test_alert_notification` method. f4c0499
 
 ## Phase 2: Formatting Enhancements (`src/fmt.rs`)
 - [ ] Implement required formatting for new tool outputs.
