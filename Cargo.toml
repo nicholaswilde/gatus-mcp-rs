@@ -33,7 +33,7 @@ futures = "0.3"
 tokio-stream = { version = "0.1", features = ["sync"] }
 tower = "0.5"
 moka = { version = "0.12", features = ["future"] }
-governor = "0.6"
+governor = "0.10"
 chrono = { version = "0.4", features = ["serde"] }
 regex = "1.10"
 
